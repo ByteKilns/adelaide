@@ -16,10 +16,9 @@ export async function getCurrentMember(): Promise<CurrentMember> {
     throw new Error("Not authenticated");
   }
 
-  const [member] = await db.query.householdMembers.findMany({
+  const member = await db.query.householdMembers.findFirst({
     where: eq(householdMembers.userId, session.user.id),
     with: { household: true, user: true },
-    limit: 1,
   });
 
   if (!member) {
