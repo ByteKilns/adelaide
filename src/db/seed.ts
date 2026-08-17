@@ -53,33 +53,41 @@ async function seed() {
     );
   }
 
-  const [household] = await db
-    .insert(households)
-    .values({ name: householdName })
-    .returning();
+  // Wrapped in a transaction so a failure partway through (e.g. the unique
+  // constraint on users.email during an accidental re-run) rolls back the
+  // whole batch instead of leaving an orphaned household + categories
+  // behind — households/categories have no uniqueness guard of their own.
+  const household = await db.transaction(async (tx) => {
+    const [household] = await tx
+      .insert(households)
+      .values({ name: householdName })
+      .returning();
 
-  const [user1] = await db
-    .insert(users)
-    .values({ email: email1, passwordHash: await bcrypt.hash(password1, 12), name: name1 })
-    .returning();
-  const [user2] = await db
-    .insert(users)
-    .values({ email: email2, passwordHash: await bcrypt.hash(password2, 12), name: name2 })
-    .returning();
+    const [user1] = await tx
+      .insert(users)
+      .values({ email: email1, passwordHash: await bcrypt.hash(password1, 12), name: name1 })
+      .returning();
+    const [user2] = await tx
+      .insert(users)
+      .values({ email: email2, passwordHash: await bcrypt.hash(password2, 12), name: name2 })
+      .returning();
 
-  await db.insert(householdMembers).values([
-    { householdId: household.id, userId: user1.id },
-    { householdId: household.id, userId: user2.id },
-  ]);
+    await tx.insert(householdMembers).values([
+      { householdId: household.id, userId: user1.id },
+      { householdId: household.id, userId: user2.id },
+    ]);
 
-  await db.insert(categories).values(
-    DEFAULT_CATEGORIES.map((c) => ({
-      householdId: household.id,
-      name: c.name,
-      groupName: c.group,
-      budgetType: c.fixed ? ("fixed" as const) : ("flexible" as const),
-    })),
-  );
+    await tx.insert(categories).values(
+      DEFAULT_CATEGORIES.map((c) => ({
+        householdId: household.id,
+        name: c.name,
+        groupName: c.group,
+        budgetType: c.fixed ? ("fixed" as const) : ("flexible" as const),
+      })),
+    );
+
+    return household;
+  });
 
   console.log(`Seeded household "${household.name}" with users ${email1} and ${email2}`);
   process.exit(0);

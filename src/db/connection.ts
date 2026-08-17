@@ -1,3 +1,4 @@
+// Raw connection setup. App code should import from ./client, not this file directly — this module has no server-only guard.
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
