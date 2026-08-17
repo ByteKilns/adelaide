@@ -15,7 +15,7 @@ type Props = {
 };
 
 export function IncomeForm({ memberId, memberName, year, month, initialAmount }: Props) {
-  const [amount, setAmount] = useState(String(initialAmount || ""));
+  const [amount, setAmount] = useState(initialAmount != null ? String(initialAmount) : "");
   const [pending, startTransition] = useTransition();
 
   return (

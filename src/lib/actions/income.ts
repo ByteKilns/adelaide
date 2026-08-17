@@ -32,32 +32,20 @@ export async function setIncomeAction(input: z.infer<typeof setIncomeSchema>) {
     throw new Error("Member does not belong to this household");
   }
 
-  const existing = await db
-    .select()
-    .from(incomes)
-    .where(
-      and(
-        eq(incomes.memberId, parsed.memberId),
-        eq(incomes.year, parsed.year),
-        eq(incomes.month, parsed.month),
-      ),
-    );
-
-  if (existing.length > 0) {
-    await db
-      .update(incomes)
-      .set({ amount: String(parsed.amount), note: parsed.note })
-      .where(eq(incomes.id, existing[0].id));
-  } else {
-    await db.insert(incomes).values({
+  await db
+    .insert(incomes)
+    .values({
       householdId,
       memberId: parsed.memberId,
       year: parsed.year,
       month: parsed.month,
       amount: String(parsed.amount),
       note: parsed.note,
+    })
+    .onConflictDoUpdate({
+      target: [incomes.memberId, incomes.year, incomes.month],
+      set: { amount: String(parsed.amount), note: parsed.note },
     });
-  }
 
   revalidatePath("/budget");
   revalidatePath("/dashboard");
