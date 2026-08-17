@@ -1,0 +1,15 @@
+import { pgTable, uuid, text, boolean, pgEnum } from "drizzle-orm/pg-core";
+import { households } from "./households";
+
+export const budgetTypeEnum = pgEnum("budget_type", ["fixed", "flexible"]);
+
+export const categories = pgTable("categories", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  householdId: uuid("household_id")
+    .notNull()
+    .references(() => households.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  groupName: text("group_name").notNull(),
+  budgetType: budgetTypeEnum("budget_type").notNull().default("flexible"),
+  archived: boolean("archived").notNull().default(false),
+});
