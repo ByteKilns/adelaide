@@ -1,0 +1,91 @@
+import { config } from "dotenv";
+
+config({ path: ".env.local" });
+
+import bcrypt from "bcryptjs";
+import { users, households, householdMembers, categories } from "./schema";
+
+const DEFAULT_CATEGORIES: { name: string; group: string; fixed: boolean }[] = [
+  { name: "Parents", group: "Family", fixed: true },
+  { name: "Family Support", group: "Family", fixed: true },
+  { name: "Personal Loan", group: "Obligations", fixed: true },
+  { name: "EMI", group: "Obligations", fixed: true },
+  { name: "Insurance", group: "Obligations", fixed: true },
+  { name: "Bills", group: "Obligations", fixed: true },
+  { name: "Groceries", group: "Household", fixed: false },
+  { name: "Utilities", group: "Household", fixed: true },
+  { name: "Internet", group: "Household", fixed: true },
+  { name: "Household", group: "Household", fixed: false },
+  { name: "Petrol", group: "Transportation", fixed: false },
+  { name: "Public Transport", group: "Transportation", fixed: false },
+  { name: "Vehicle Maintenance", group: "Transportation", fixed: false },
+  { name: "Dates", group: "Lifestyle", fixed: false },
+  { name: "Dining Out", group: "Lifestyle", fixed: false },
+  { name: "Entertainment", group: "Lifestyle", fixed: false },
+  { name: "Gifts", group: "Lifestyle", fixed: false },
+  { name: "Social", group: "Lifestyle", fixed: false },
+  { name: "Shopping", group: "Lifestyle", fixed: false },
+  { name: "Personal", group: "Personal", fixed: false },
+  { name: "Health/Wellness", group: "Personal", fixed: false },
+  { name: "Other Personal", group: "Personal", fixed: false },
+  { name: "Savings", group: "Financial", fixed: false },
+  { name: "Miscellaneous", group: "Other", fixed: false },
+];
+
+async function seed() {
+  // Imported dynamically (after dotenv config runs above) so that
+  // ./connection reads DATABASE_URL only once it has actually been
+  // populated from .env.local — a static top-level import would be
+  // hoisted above the config() call by the module transpiler.
+  const { db } = await import("./connection");
+
+  const email1 = process.env.SEED_USER1_EMAIL;
+  const password1 = process.env.SEED_USER1_PASSWORD;
+  const name1 = process.env.SEED_USER1_NAME ?? "Me";
+  const email2 = process.env.SEED_USER2_EMAIL;
+  const password2 = process.env.SEED_USER2_PASSWORD;
+  const name2 = process.env.SEED_USER2_NAME ?? "Partner";
+  const householdName = process.env.SEED_HOUSEHOLD_NAME ?? "Our Household";
+
+  if (!email1 || !password1 || !email2 || !password2) {
+    throw new Error(
+      "Set SEED_USER1_EMAIL, SEED_USER1_PASSWORD, SEED_USER2_EMAIL, SEED_USER2_PASSWORD in .env.local before seeding",
+    );
+  }
+
+  const [household] = await db
+    .insert(households)
+    .values({ name: householdName })
+    .returning();
+
+  const [user1] = await db
+    .insert(users)
+    .values({ email: email1, passwordHash: await bcrypt.hash(password1, 12), name: name1 })
+    .returning();
+  const [user2] = await db
+    .insert(users)
+    .values({ email: email2, passwordHash: await bcrypt.hash(password2, 12), name: name2 })
+    .returning();
+
+  await db.insert(householdMembers).values([
+    { householdId: household.id, userId: user1.id },
+    { householdId: household.id, userId: user2.id },
+  ]);
+
+  await db.insert(categories).values(
+    DEFAULT_CATEGORIES.map((c) => ({
+      householdId: household.id,
+      name: c.name,
+      groupName: c.group,
+      budgetType: c.fixed ? ("fixed" as const) : ("flexible" as const),
+    })),
+  );
+
+  console.log(`Seeded household "${household.name}" with users ${email1} and ${email2}`);
+  process.exit(0);
+}
+
+seed().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
