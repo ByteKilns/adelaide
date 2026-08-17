@@ -4,7 +4,8 @@ import { z } from "zod";
 import { db } from "@/db/client";
 import { monthlyBudgets, budgetItems } from "@/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
-import { getCurrentMember } from "@/lib/session";
+import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
+import { listCategories } from "@/lib/data/categories";
 import { revalidatePath } from "next/cache";
 
 async function getOrCreateMonthlyBudget(householdId: string, year: number, month: number) {
@@ -44,6 +45,19 @@ const setBudgetItemSchema = z.object({
 export async function setBudgetItemAction(input: z.infer<typeof setBudgetItemSchema>) {
   const { householdId } = await getCurrentMember();
   const parsed = setBudgetItemSchema.parse(input);
+
+  const categories = await listCategories(householdId);
+  if (!categories.some((c) => c.id === parsed.categoryId)) {
+    throw new Error("Category does not belong to this household");
+  }
+
+  if (parsed.ownerMemberId !== null) {
+    const members = await getHouseholdMembers(householdId);
+    if (!members.some((m) => m.id === parsed.ownerMemberId)) {
+      throw new Error("Member does not belong to this household");
+    }
+  }
+
   const budget = await getOrCreateMonthlyBudget(householdId, parsed.year, parsed.month);
 
   if (parsed.ownerMemberId === null) {
