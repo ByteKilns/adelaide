@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home, Receipt, Wallet, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
-  { href: "/dashboard", label: "Home" },
-  { href: "/expenses", label: "Expenses" },
-  { href: "/budget", label: "Budget" },
+  { href: "/dashboard", label: "Home", icon: Home },
+  { href: "/expenses", label: "Expenses", icon: Receipt },
+  { href: "/budget", label: "Budget", icon: Wallet },
 ];
 
 export function BottomNav() {
@@ -15,23 +16,29 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t bg-background md:hidden">
-      {ITEMS.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={cn(
-            "flex-1 py-3 text-center text-sm",
-            pathname.startsWith(item.href) ? "font-semibold text-primary" : "text-muted-foreground",
-          )}
-        >
-          {item.label}
-        </Link>
-      ))}
+      {ITEMS.map((item) => {
+        const Icon = item.icon;
+        const active = pathname.startsWith(item.href);
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs",
+              active ? "font-semibold text-primary" : "text-muted-foreground",
+            )}
+          >
+            <Icon className="h-5 w-5" />
+            {item.label}
+          </Link>
+        );
+      })}
       <Link
         href="/expenses/new"
-        className="flex-1 py-3 text-center text-sm font-semibold text-primary"
+        className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-primary"
       >
-        + Add
+        <Plus className="h-5 w-5" />
+        Add
       </Link>
     </nav>
   );
