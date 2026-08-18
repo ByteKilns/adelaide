@@ -61,7 +61,7 @@ export function budgetVsActual(
   budgetItems: BudgetItemInput[],
   expenses: ExpenseInput[],
 ): BudgetVsActualRow[] {
-  return budgetItems.map((item) => {
+  const rows: BudgetVsActualRow[] = budgetItems.map((item) => {
     const actual = categorySpent(expenses, item.categoryId, item.ownerMemberId);
     return {
       categoryId: item.categoryId,
@@ -71,4 +71,33 @@ export function budgetVsActual(
       difference: item.plannedAmount - actual,
     };
   });
+
+  // Expenses can be logged against a category+owner combination that has no
+  // budget item for the month at all. Without surfacing those here, the
+  // top-level totalExpenses (dashboardSummary) would include that spend
+  // while every per-category card/table row silently omits it, so the
+  // top-line total would never reconcile with the sum of card actuals.
+  // Represent each such combination as a planned: 0 row so it shows up as
+  // untracked/over-budget spend instead of vanishing. Use "::" (not "-") as
+  // the composite-key separator since UUIDs themselves contain hyphens.
+  const covered = new Set(
+    budgetItems.map((b) => `${b.categoryId}::${b.ownerMemberId ?? "shared"}`),
+  );
+
+  const seenUncovered = new Set<string>();
+  for (const e of expenses) {
+    const key = `${e.categoryId}::${e.ownerMemberId ?? "shared"}`;
+    if (covered.has(key) || seenUncovered.has(key)) continue;
+    seenUncovered.add(key);
+    const actual = categorySpent(expenses, e.categoryId, e.ownerMemberId);
+    rows.push({
+      categoryId: e.categoryId,
+      ownerMemberId: e.ownerMemberId,
+      planned: 0,
+      actual,
+      difference: -actual,
+    });
+  }
+
+  return rows;
 }
