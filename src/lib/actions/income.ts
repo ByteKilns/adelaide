@@ -44,7 +44,7 @@ export async function setIncomeAction(input: z.infer<typeof setIncomeSchema>) {
     })
     .onConflictDoUpdate({
       target: [incomes.memberId, incomes.year, incomes.month],
-      set: { amount: String(parsed.amount), note: parsed.note },
+      set: { amount: String(parsed.amount), note: parsed.note ?? null },
     });
 
   revalidatePath("/budget");
