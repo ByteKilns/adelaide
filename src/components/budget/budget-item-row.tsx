@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { setBudgetItemAction } from "@/lib/actions/budget";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,13 +40,17 @@ export function BudgetItemRow({
 
   const save = () =>
     startTransition(async () => {
-      await setBudgetItemAction({
-        year,
-        month,
-        categoryId,
-        ownerMemberId: owner === "shared" ? null : owner,
-        plannedAmount: Number(amount) || 0,
-      });
+      try {
+        await setBudgetItemAction({
+          year,
+          month,
+          categoryId,
+          ownerMemberId: owner === "shared" ? null : owner,
+          plannedAmount: Number(amount) || 0,
+        });
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to save");
+      }
     });
 
   return (

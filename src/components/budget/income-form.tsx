@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { setIncomeAction } from "@/lib/actions/income";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,12 +36,16 @@ export function IncomeForm({ memberId, memberName, year, month, initialAmount }:
           disabled={pending}
           onClick={() =>
             startTransition(async () => {
-              await setIncomeAction({
-                memberId,
-                year,
-                month,
-                amount: Number(amount) || 0,
-              });
+              try {
+                await setIncomeAction({
+                  memberId,
+                  year,
+                  month,
+                  amount: Number(amount) || 0,
+                });
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Failed to save");
+              }
             })
           }
         >

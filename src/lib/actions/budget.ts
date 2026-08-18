@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { db } from "@/db/client";
 import { monthlyBudgets, budgetItems } from "@/db/schema";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, ne, not, or } from "drizzle-orm";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/lib/data/categories";
 import { revalidatePath } from "next/cache";
@@ -60,17 +60,38 @@ export async function setBudgetItemAction(input: z.infer<typeof setBudgetItemSch
 
   const budget = await getOrCreateMonthlyBudget(householdId, parsed.year, parsed.month);
 
-  if (parsed.ownerMemberId === null) {
-    // The unique constraint on budget_items is a plain multi-column UNIQUE
-    // (monthly_budget_id, category_id, owner_member_id), not a partial unique
-    // index. Postgres never treats two NULLs as equal for uniqueness purposes,
-    // so `ON CONFLICT (monthly_budget_id, category_id, owner_member_id)` never
-    // fires when owner_member_id is NULL — two "shared" inserts for the same
-    // category/month would each succeed and create a duplicate row instead of
-    // updating in place. Verified empirically against the live DB. So for the
-    // shared (null-owner) case we must select-then-branch inside a transaction
-    // instead of relying on onConflictDoUpdate.
-    await db.transaction(async (tx) => {
+  // The UI shows exactly one row per category (with an owner dropdown), which
+  // implies "each category has at most one current owner/allocation per
+  // month." Enforce that invariant here: before writing the row for the
+  // owner being saved, remove any other row for this category/month whose
+  // owner differs — otherwise switching a category's owner (e.g. Shared ->
+  // a specific member) would leave the old row behind as an orphaned,
+  // hidden duplicate that `budgetItems.find()` on the page may or may not
+  // surface. Wrapped in the same transaction as the upsert so the
+  // delete+write is atomic.
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(budgetItems)
+      .where(
+        and(
+          eq(budgetItems.monthlyBudgetId, budget.id),
+          eq(budgetItems.categoryId, parsed.categoryId),
+          parsed.ownerMemberId === null
+            ? not(isNull(budgetItems.ownerMemberId))
+            : or(isNull(budgetItems.ownerMemberId), ne(budgetItems.ownerMemberId, parsed.ownerMemberId)),
+        ),
+      );
+
+    if (parsed.ownerMemberId === null) {
+      // The unique constraint on budget_items is a plain multi-column UNIQUE
+      // (monthly_budget_id, category_id, owner_member_id), not a partial unique
+      // index. Postgres never treats two NULLs as equal for uniqueness purposes,
+      // so `ON CONFLICT (monthly_budget_id, category_id, owner_member_id)` never
+      // fires when owner_member_id is NULL — two "shared" inserts for the same
+      // category/month would each succeed and create a duplicate row instead of
+      // updating in place. Verified empirically against the live DB. So for the
+      // shared (null-owner) case we must select-then-branch inside the
+      // transaction instead of relying on onConflictDoUpdate.
       const [existing] = await tx
         .select()
         .from(budgetItems)
@@ -96,23 +117,23 @@ export async function setBudgetItemAction(input: z.infer<typeof setBudgetItemSch
           plannedAmount: String(parsed.plannedAmount),
         });
       }
-    });
-  } else {
-    // For a non-null owner, the composite unique constraint does detect
-    // conflicts correctly, so the atomic upsert is safe here.
-    await db
-      .insert(budgetItems)
-      .values({
-        monthlyBudgetId: budget.id,
-        categoryId: parsed.categoryId,
-        ownerMemberId: parsed.ownerMemberId,
-        plannedAmount: String(parsed.plannedAmount),
-      })
-      .onConflictDoUpdate({
-        target: [budgetItems.monthlyBudgetId, budgetItems.categoryId, budgetItems.ownerMemberId],
-        set: { plannedAmount: String(parsed.plannedAmount) },
-      });
-  }
+    } else {
+      // For a non-null owner, the composite unique constraint does detect
+      // conflicts correctly, so the atomic upsert is safe here.
+      await tx
+        .insert(budgetItems)
+        .values({
+          monthlyBudgetId: budget.id,
+          categoryId: parsed.categoryId,
+          ownerMemberId: parsed.ownerMemberId,
+          plannedAmount: String(parsed.plannedAmount),
+        })
+        .onConflictDoUpdate({
+          target: [budgetItems.monthlyBudgetId, budgetItems.categoryId, budgetItems.ownerMemberId],
+          set: { plannedAmount: String(parsed.plannedAmount) },
+        });
+    }
+  });
 
   revalidatePath("/budget");
   revalidatePath("/dashboard");
