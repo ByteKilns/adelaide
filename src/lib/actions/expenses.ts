@@ -104,3 +104,13 @@ export async function listExpensesForMonth(year: number, month: number) {
     )
     .orderBy(desc(expenses.date), desc(expenses.createdAt));
 }
+
+export async function listRecentExpenses(limit: number) {
+  const { householdId } = await getCurrentMember();
+  return db
+    .select()
+    .from(expenses)
+    .where(eq(expenses.householdId, householdId))
+    .orderBy(desc(expenses.date), desc(expenses.createdAt))
+    .limit(limit);
+}
