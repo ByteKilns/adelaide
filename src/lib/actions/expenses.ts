@@ -71,7 +71,7 @@ export async function updateExpenseAction(id: string, input: z.infer<typeof expe
       ownerMemberId: parsed.ownerMemberId,
       paidByMemberId: parsed.paidByMemberId,
       date: parsed.date,
-      note: parsed.note,
+      note: parsed.note ?? null,
       updatedAt: new Date(),
     })
     .where(and(eq(expenses.id, id), eq(expenses.householdId, householdId)));
