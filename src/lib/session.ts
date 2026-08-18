@@ -49,26 +49,26 @@ export async function getHouseholdMembers(householdId: string) {
 // be used in place of getCurrentMember() when deriving householdId for a
 // write (server actions continue to call getCurrentMember() directly for
 // that, so a forged/stale cookie can't affect data isolation).
-export async function getEffectiveMember(): Promise<CurrentMember> {
-  const current = await getCurrentMember();
+export async function getEffectiveMember(current?: CurrentMember): Promise<CurrentMember> {
+  const resolvedCurrent = current ?? (await getCurrentMember());
   const cookieStore = await cookies();
   const viewingAsId = cookieStore.get(VIEWING_AS_COOKIE_NAME)?.value;
 
-  if (!viewingAsId || viewingAsId === current.memberId) {
-    return current;
+  if (!viewingAsId || viewingAsId === resolvedCurrent.memberId) {
+    return resolvedCurrent;
   }
 
-  const members = await getHouseholdMembers(current.householdId);
+  const members = await getHouseholdMembers(resolvedCurrent.householdId);
   const target = members.find((m) => m.id === viewingAsId);
   if (!target) {
     // Stale/forged cookie value (e.g. a removed member) — fall back to the
     // real session rather than throwing.
-    return current;
+    return resolvedCurrent;
   }
 
   return {
     memberId: target.id,
-    householdId: current.householdId,
+    householdId: resolvedCurrent.householdId,
     userId: target.userId,
     name: target.user.name,
   };
