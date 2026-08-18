@@ -1,28 +1,27 @@
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { computeBudgetStatus } from "@/lib/budget-status";
+import type { LucideIcon } from "lucide-react";
 
-type Props = { categoryName: string; planned: number; actual: number };
+type Props = { categoryName: string; planned: number; actual: number; icon: LucideIcon };
 
-export function BudgetCard({ categoryName, planned, actual }: Props) {
-  // planned can be 0 for a category with untracked/uncovered spend (no
-  // budget item set for it this month). Any actual spend against a 0-planned
-  // category is unambiguously over budget, so treat it as >=100% rather than
-  // letting the plain division guard collapse it to 0% ("Healthy").
-  const pct = planned > 0 ? Math.round((actual / planned) * 100) : actual > 0 ? 100 : 0;
+export function BudgetCard({ categoryName, planned, actual, icon: Icon }: Props) {
+  const status = computeBudgetStatus(planned, actual);
   const remaining = planned - actual;
-  const status = pct >= 100 ? "Over budget" : pct >= 80 ? "Approaching limit" : "Healthy";
-  const variant = pct >= 100 ? "destructive" : pct >= 80 ? "secondary" : "default";
 
   return (
-    <div className="space-y-1 rounded border p-3">
+    <div className="space-y-2 rounded-lg border p-3">
       <div className="flex items-center justify-between">
-        <span className="font-medium">{categoryName}</span>
-        <Badge variant={variant as "default" | "secondary" | "destructive"}>{status}</Badge>
+        <span className="flex items-center gap-2 font-medium">
+          <Icon className="h-4 w-4 text-muted-foreground" />
+          {categoryName}
+        </span>
+        <Badge variant={status.variant}>{status.label}</Badge>
       </div>
       <p className="text-sm text-muted-foreground">
         NPR {actual.toLocaleString()} / NPR {planned.toLocaleString()}
       </p>
-      <Progress value={Math.min(pct, 100)} />
+      <Progress value={Math.min(status.pct, 100)} />
       <p className="text-sm text-muted-foreground">
         {remaining >= 0
           ? `NPR ${remaining.toLocaleString()} remaining`
