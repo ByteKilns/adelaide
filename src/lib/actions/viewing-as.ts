@@ -23,6 +23,7 @@ export async function setViewingAsAction(memberId: string) {
   cookieStore.set(VIEWING_AS_COOKIE_NAME, memberId, {
     httpOnly: true,
     sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 60 * 60 * 24 * 30,
   });
