@@ -62,7 +62,7 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100%-4rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         data-slot="dialog-content"
@@ -97,7 +97,7 @@ function DialogHeader({
   if (!Icon) {
     return (
       <div
-        className={cn("sticky top-0 z-10 flex flex-col gap-2 bg-popover pb-2", className)}
+        className={cn("flex shrink-0 flex-col gap-2 bg-popover px-4 pt-4 pb-3", className)}
         data-slot="dialog-header"
         {...props}
       >
@@ -108,7 +108,7 @@ function DialogHeader({
 
   return (
     <div
-      className={cn("sticky top-0 z-10 flex items-center gap-3 bg-popover pb-2", className)}
+      className={cn("flex shrink-0 items-center gap-3 bg-popover px-4 pt-4 pb-3", className)}
       data-slot="dialog-header"
       {...props}
     >
@@ -129,7 +129,7 @@ function DialogFooter({
   return (
     <div
       className={cn(
-        "sticky bottom-0 z-10 -mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "flex shrink-0 flex-col-reverse gap-2 rounded-b-xl border-t bg-muted p-4 sm:flex-row sm:justify-end",
         className
       )}
       data-slot="dialog-footer"

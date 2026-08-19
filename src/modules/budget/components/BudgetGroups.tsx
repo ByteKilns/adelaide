@@ -102,12 +102,12 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
       </div>
 
       <Dialog onOpenChange={setEditing} open={editing}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader icon={Wallet} tone="purple">
             <DialogTitle>Edit budget</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-4">
             <section>
               <h3 className="mb-2 text-base font-semibold text-foreground">Income</h3>
               <div className="space-y-3">
