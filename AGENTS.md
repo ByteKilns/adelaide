@@ -17,3 +17,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Folders: kebab-case (e.g. `dashboard-widgets/`).
 - React component files: PascalCase (e.g. `SummaryCards.tsx`).
+- Validation schema files: `name.schema.ts` (e.g. `expense.schema.ts`).
