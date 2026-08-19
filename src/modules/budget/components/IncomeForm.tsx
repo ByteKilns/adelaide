@@ -23,7 +23,9 @@ export function IncomeForm({ memberId, memberName, year, month, initialAmount }:
 
   return (
     <div className="space-y-1">
-      <Label htmlFor={`income-${memberId}`}>{memberName} income</Label>
+      <Label className="text-muted-foreground" htmlFor={`income-${memberId}`}>
+        {memberName} income
+      </Label>
       <div className="flex gap-2">
         <Input
           id={`income-${memberId}`}

@@ -57,7 +57,7 @@ export function BudgetItemRow({
 
   return (
     <div className="grid grid-cols-3 items-center gap-2 py-2">
-      <span className="text-sm">{categoryName}</span>
+      <span className="text-sm text-muted-foreground">{categoryName}</span>
       <Select onValueChange={(v) => setOwner(v)} value={owner}>
         <SelectTrigger>
           <SelectValue />

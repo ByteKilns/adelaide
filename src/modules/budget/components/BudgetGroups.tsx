@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 
-import { List, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
 
-import { ToneIcon } from "@/components/ToneIcon";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -62,10 +61,7 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
 
           <div className="space-y-6">
             <section>
-              <div className="mb-2 flex items-center gap-2">
-                <ToneIcon className="h-6 w-6" icon={Wallet} tone="green" />
-                <h3 className="text-base font-semibold">Income</h3>
-              </div>
+              <h3 className="mb-2 text-base font-semibold text-foreground">Income</h3>
               <div className="space-y-3">
                 {members.map((m) => (
                   <IncomeForm
@@ -81,10 +77,7 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
             </section>
 
             <section>
-              <div className="mb-2 flex items-center gap-2">
-                <ToneIcon className="h-6 w-6" icon={List} tone="blue" />
-                <h3 className="text-base font-semibold">Category allocations</h3>
-              </div>
+              <h3 className="mb-2 text-base font-semibold text-foreground">Category allocations</h3>
               <div className="divide-y">
                 {categories.map((c) => {
                   const existing = itemsByCategory[c.id];
