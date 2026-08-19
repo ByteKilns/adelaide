@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { MoreVertical, Plus } from "lucide-react";
 import { toast } from "sonner";
 
+import { TabSwitcher } from "@/components/TabSwitcher";
 import { ToneIcon } from "@/components/ToneIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { archiveCategoryAction, restoreCategoryAction } from "@/modules/categories/api/categories.actions";
 import { CategoryFormModal } from "@/modules/categories/components/CategoryFormModal";
 import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
@@ -29,9 +29,6 @@ export type Category = {
 };
 
 type Tab = "active" | "archived";
-
-const TAB_TRIGGER_CLASS =
-  "rounded-none border-t-0 border-r-0 border-b-2 border-l-0 border-transparent px-1 pb-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none";
 
 export function CategoriesManager({ categories }: { categories: Category[] }) {
   const [tab, setTab] = useState<Tab>("active");
@@ -83,16 +80,14 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Tabs onValueChange={(v) => setTab(v as Tab)} value={tab}>
-          <TabsList className="justify-start gap-4 rounded-none border-b bg-transparent p-0">
-            <TabsTrigger className={TAB_TRIGGER_CLASS} value="active">
-              Active
-            </TabsTrigger>
-            <TabsTrigger className={TAB_TRIGGER_CLASS} value="archived">
-              Archived
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <TabSwitcher
+          onValueChange={(v) => setTab(v as Tab)}
+          tabs={[
+            { label: "Active", value: "active" },
+            { label: "Archived", value: "archived" },
+          ]}
+          value={tab}
+        />
         <Button onClick={openAdd} type="button">
           <Plus className="h-4 w-4" />
           Add Category

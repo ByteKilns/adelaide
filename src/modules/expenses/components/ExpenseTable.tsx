@@ -6,6 +6,7 @@ import { MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
+import { TabSwitcher } from "@/components/TabSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +14,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { deleteExpenseAction } from "@/modules/expenses/api/expenses.actions";
 import { OwnerAvatar } from "@/modules/expenses/components/OwnerAvatar";
@@ -46,9 +46,6 @@ function displayLabel(role: MemberRole, name: string | null): string {
   return name ?? "Partner";
 }
 
-const TAB_TRIGGER_CLASS =
-  "rounded-none border-t-0 border-r-0 border-b-2 border-l-0 border-transparent px-1 pb-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none";
-
 export function ExpenseTable({ partnerName, realMemberId, rows }: Props) {
   const [tab, setTab] = useState<Tab>("all");
   const [pendingId, setPendingId] = useState<null | string>(null);
@@ -77,24 +74,17 @@ export function ExpenseTable({ partnerName, realMemberId, rows }: Props) {
 
   return (
     <div className="space-y-3">
-      <Tabs onValueChange={(v) => setTab(v as Tab)} value={tab}>
-        <TabsList className="w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
-          <TabsTrigger className={TAB_TRIGGER_CLASS} value="all">
-            All
-          </TabsTrigger>
-          <TabsTrigger className={TAB_TRIGGER_CLASS} value="me">
-            Me
-          </TabsTrigger>
-          {partnerName && (
-            <TabsTrigger className={TAB_TRIGGER_CLASS} value="partner">
-              {partnerName}
-            </TabsTrigger>
-          )}
-          <TabsTrigger className={TAB_TRIGGER_CLASS} value="shared">
-            Shared
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <TabSwitcher
+        className="w-full"
+        onValueChange={(v) => setTab(v as Tab)}
+        tabs={[
+          { label: "All", value: "all" },
+          { label: "Me", value: "me" },
+          ...(partnerName ? [{ label: partnerName, value: "partner" }] : []),
+          { label: "Shared", value: "shared" },
+        ]}
+        value={tab}
+      />
 
       <div className="overflow-hidden rounded-2xl border">
         <Table>

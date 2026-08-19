@@ -6,8 +6,8 @@ import { Wallet } from "lucide-react";
 import { toast } from "sonner";
 
 import { Modal } from "@/components/Modal";
+import { TabSwitcher } from "@/components/TabSwitcher";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { setBudgetItemAction, setIncomeAction } from "@/modules/budget/api/budget.actions";
 import { BudgetGroupTable } from "@/modules/budget/components/BudgetGroupTable";
 import { BudgetItemRow } from "@/modules/budget/components/BudgetItemRow";
@@ -26,9 +26,6 @@ type Props = {
   realMemberId: string;
   year: number;
 };
-
-const TAB_TRIGGER_CLASS =
-  "rounded-none border-t-0 border-r-0 border-b-2 border-l-0 border-transparent px-1 pb-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none";
 
 function initialIncomeValues(members: { id: string }[], incomesByMember: Record<string, number>) {
   return Object.fromEntries(members.map((m) => [m.id, String(incomesByMember[m.id] ?? "")]));
@@ -96,26 +93,17 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Tabs onValueChange={(v) => setViewTab(v as ViewTab)} value={viewTab}>
-          <TabsList className="justify-start gap-4 rounded-none border-b bg-transparent p-0">
-            <TabsTrigger className={TAB_TRIGGER_CLASS} value="all">
-              Overview
-            </TabsTrigger>
-            {groups.map((g) => (
-              <TabsTrigger
-                className={TAB_TRIGGER_CLASS}
-                key={g.key}
-                value={g.key}
-              >
-                {g.key === "me"
-                  ? "Me"
-                  : g.key === "shared"
-                    ? "Shared"
-                    : g.label.replace(" Budget", "")}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <TabSwitcher
+          onValueChange={(v) => setViewTab(v as ViewTab)}
+          tabs={[
+            { label: "Overview", value: "all" },
+            ...groups.map((g) => ({
+              label: g.key === "me" ? "Me" : g.key === "shared" ? "Shared" : g.label.replace(" Budget", ""),
+              value: g.key,
+            })),
+          ]}
+          value={viewTab}
+        />
         <Button onClick={() => setEditing(true)} type="button">
           + Add Budget
         </Button>
@@ -152,15 +140,12 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
         <section>
           <h3 className="mb-2 text-base font-semibold text-foreground">Category allocations</h3>
 
-          <Tabs onValueChange={setOwnerTab} value={ownerTab}>
-            <TabsList className="mb-2 w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
-              {ownerTabs.map((t) => (
-                <TabsTrigger className={TAB_TRIGGER_CLASS} key={t.key} value={t.key}>
-                  {t.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <TabSwitcher
+            className="mb-2 w-full"
+            onValueChange={setOwnerTab}
+            tabs={ownerTabs.map((t) => ({ label: t.label, value: t.key }))}
+            value={ownerTab}
+          />
           <div className="divide-y">
             {categories.map((c) => {
               const key = itemKey(c.id, ownerTab);
