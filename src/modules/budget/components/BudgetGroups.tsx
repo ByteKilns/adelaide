@@ -148,7 +148,7 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
 
           <DialogFooter>
             <Button disabled={pending} onClick={handleSaveAll} type="button">
-              {pending ? "Saving..." : "Save"}
+              {pending ? "Saving..." : "Save Budget"}
             </Button>
           </DialogFooter>
         </DialogContent>

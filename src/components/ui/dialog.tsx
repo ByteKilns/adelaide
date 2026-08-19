@@ -97,7 +97,7 @@ function DialogHeader({
   if (!Icon) {
     return (
       <div
-        className={cn("flex flex-col gap-2", className)}
+        className={cn("sticky top-0 z-10 flex flex-col gap-2 bg-popover pb-2", className)}
         data-slot="dialog-header"
         {...props}
       >
@@ -108,7 +108,7 @@ function DialogHeader({
 
   return (
     <div
-      className={cn("flex items-center gap-3", className)}
+      className={cn("sticky top-0 z-10 flex items-center gap-3 bg-popover pb-2", className)}
       data-slot="dialog-header"
       {...props}
     >
@@ -129,7 +129,7 @@ function DialogFooter({
   return (
     <div
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "sticky bottom-0 z-10 -mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
         className
       )}
       data-slot="dialog-footer"
