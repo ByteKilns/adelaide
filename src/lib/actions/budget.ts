@@ -5,7 +5,7 @@ import { db } from "@/db/client";
 import { monthlyBudgets, budgetItems } from "@/db/schema";
 import { and, eq, isNull, ne, not, or } from "drizzle-orm";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
-import { listCategories } from "@/lib/data/categories";
+import { listCategories } from "@/modules/categories/api/categories";
 import { revalidatePath } from "next/cache";
 
 async function getOrCreateMonthlyBudget(householdId: string, year: number, month: number) {

@@ -3,8 +3,8 @@ import { eq, and } from "drizzle-orm";
 import { db } from "@/db/client";
 import { expenses } from "@/db/schema";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
-import { listCategories } from "@/lib/data/categories";
-import { ExpenseForm } from "@/components/expenses/expense-form";
+import { listCategories } from "@/modules/categories/api/categories";
+import { ExpenseForm } from "@/components/expenses/expense_form";
 
 export default async function EditExpensePage({
   params,

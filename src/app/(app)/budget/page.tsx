@@ -1,9 +1,9 @@
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
-import { listCategories } from "@/lib/data/categories";
+import { listCategories } from "@/modules/categories/api/categories";
 import { getIncomesForMonth } from "@/lib/actions/income";
 import { getBudgetItemsForMonth } from "@/lib/actions/budget";
-import { IncomeForm } from "@/components/budget/income-form";
-import { BudgetItemRow } from "@/components/budget/budget-item-row";
+import { IncomeForm } from "@/components/budget/income_form";
+import { BudgetItemRow } from "@/components/budget/budget_item_row";
 
 export default async function BudgetPage() {
   const { householdId } = await getCurrentMember();

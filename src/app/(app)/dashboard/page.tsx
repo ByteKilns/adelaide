@@ -1,20 +1,20 @@
 import { Gauge, PiggyBank } from "lucide-react";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
-import { listCategories } from "@/lib/data/categories";
+import { listCategories } from "@/modules/categories/api/categories";
 import { getIncomesForMonth } from "@/lib/actions/income";
 import { getBudgetItemsForMonth } from "@/lib/actions/budget";
 import { listExpensesForMonth, listRecentExpenses } from "@/lib/actions/expenses";
 import { dashboardSummary, budgetVsActual } from "@/lib/calculations/budget";
 import { toIncomeInputs, toExpenseInputs, toBudgetItemInputs } from "@/lib/dashboard/map-rows";
 import { classifyOwnerLabel } from "@/lib/dashboard/owner-label";
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { SummaryCards } from "@/components/dashboard/summary-cards";
-import { OwnerTabs } from "@/components/dashboard/owner-tabs";
-import { ComingSoonCard } from "@/components/dashboard/coming-soon-card";
-import { DashboardPanel } from "@/components/dashboard/dashboard-panel";
-import { BudgetCard } from "@/components/budget/budget-card";
-import { BudgetVsActualTable } from "@/components/budget/budget-vs-actual-table";
-import { RecentExpenses } from "@/components/expenses/recent-expenses";
+import { DashboardHeader } from "@/components/dashboard/dashboard_header";
+import { SummaryCards } from "@/components/dashboard/summary_cards";
+import { OwnerTabs } from "@/components/dashboard/owner_tabs";
+import { ComingSoonCard } from "@/components/dashboard/coming_soon_card";
+import { DashboardPanel } from "@/components/dashboard/dashboard_panel";
+import { BudgetCard } from "@/components/budget/budget_card";
+import { BudgetVsActualTable } from "@/components/budget/budget_vs_actual_table";
+import { RecentExpenses } from "@/components/expenses/recent_expenses";
 
 function previousMonth(year: number, month: number) {
   return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
@@ -123,10 +123,9 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <section>
-            <h2 className="mb-2 text-lg font-semibold">Overview</h2>
+          <DashboardPanel title="Overview">
             <OwnerTabs views={ownerViews} />
-          </section>
+          </DashboardPanel>
 
           <ComingSoonCard
             icon={Gauge}

@@ -5,7 +5,7 @@ import { db } from "@/db/client";
 import { expenses } from "@/db/schema";
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
-import { listCategories } from "@/lib/data/categories";
+import { listCategories } from "@/modules/categories/api/categories";
 import { revalidatePath } from "next/cache";
 
 const expenseSchema = z.object({

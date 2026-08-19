@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
-import { listCategories } from "@/lib/data/categories";
+import { listCategories } from "@/modules/categories/api/categories";
 import { listExpensesForMonth } from "@/lib/actions/expenses";
-import { ExpenseListItem } from "@/components/expenses/expense-list-item";
+import { ExpenseListItem } from "@/components/expenses/expense_list_item";
 import { Button } from "@/components/ui/button";
 
 export default async function ExpensesPage() {

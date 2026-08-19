@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { computeBudgetStatus } from "@/lib/budget-status";
-import { getCategoryIcon, getCategoryTone } from "@/lib/category-icons";
-import { ToneIcon, TONE_BAR_CLASSES } from "@/components/dashboard/tone-icon";
+import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
+import { ToneIcon, TONE_BAR_CLASSES } from "@/components/dashboard/tone_icon";
 
 type Props = {
   categoryName: string;

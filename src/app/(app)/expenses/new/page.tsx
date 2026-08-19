@@ -1,6 +1,6 @@
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
-import { listCategories } from "@/lib/data/categories";
-import { ExpenseForm } from "@/components/expenses/expense-form";
+import { listCategories } from "@/modules/categories/api/categories";
+import { ExpenseForm } from "@/components/expenses/expense_form";
 
 export default async function NewExpensePage() {
   const { memberId, householdId } = await getEffectiveMember();
