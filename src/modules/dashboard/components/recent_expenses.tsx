@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
 import { formatRelativeDate } from "@/lib/format-date";
-import { ToneIcon } from "@/components/dashboard/tone_icon";
+import { ToneIcon } from "@/modules/dashboard/components/tone_icon";
 
 type Row = {
   id: string;
