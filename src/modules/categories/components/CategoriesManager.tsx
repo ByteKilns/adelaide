@@ -55,7 +55,7 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
         rows={visible}
       />
 
-      <CategoryFormModal category={editing} onOpenChange={setFormOpen} open={formOpen} />
+      <CategoryFormModal category={editing} key={editing?.id ?? "new"} onOpenChange={setFormOpen} open={formOpen} />
     </div>
   );
 }

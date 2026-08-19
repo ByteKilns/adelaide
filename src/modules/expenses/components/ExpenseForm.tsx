@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
-
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
 import { createExpenseAction, updateExpenseAction } from "@/modules/expenses/api/expenses.actions";
+import { type ExpenseInput, expenseSchema } from "@/modules/expenses/schemas/expense.schema";
 
 type Member = { id: string; name: string };
 type Category = { id: string; name: string };
@@ -32,42 +33,40 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function ExpenseForm({
-  currentMemberId,
-  members,
-  categories,
-  expenseId,
-  initial,
-}: Props) {
+export function ExpenseForm({ categories, currentMemberId, expenseId, initial, members }: Props) {
   const router = useRouter();
-  const [amount, setAmount] = useState(String(initial?.amount ?? ""));
-  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? categories[0]?.id ?? "");
-  const [owner, setOwner] = useState<string>(initial?.ownerMemberId ?? currentMemberId);
-  const [paidBy, setPaidBy] = useState<string>(initial?.paidByMemberId ?? currentMemberId);
-  const [date, setDate] = useState(initial?.date ?? todayISO());
-  const [note, setNote] = useState(initial?.note ?? "");
-  const [submitting, setSubmitting] = useState(false);
+  const {
+    control,
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    register,
+    setValue,
+    watch,
+  } = useForm<ExpenseInput>({
+    defaultValues: {
+      amount: initial?.amount ?? 0,
+      categoryId: initial?.categoryId ?? categories[0]?.id ?? "",
+      date: initial?.date ?? todayISO(),
+      note: initial?.note ?? "",
+      ownerMemberId: initial?.ownerMemberId ?? currentMemberId,
+      paidByMemberId: initial?.paidByMemberId ?? currentMemberId,
+    },
+    resolver: zodResolver(expenseSchema),
+  });
+
+  const owner = watch("ownerMemberId");
 
   function handleOwnerChange(value: string) {
-    setOwner(value);
+    setValue("ownerMemberId", value === "shared" ? null : value);
     // Owner = Me or Partner auto-defaults Paid by to the same member.
     // Owner = Shared leaves the payer for the user to choose explicitly.
     if (value !== "shared") {
-      setPaidBy(value);
+      setValue("paidByMemberId", value);
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
-    const payload = {
-      amount: Number(amount),
-      categoryId,
-      ownerMemberId: owner === "shared" ? null : owner,
-      paidByMemberId: paidBy,
-      date,
-      note: note.trim() || undefined,
-    };
+  const onSubmit = handleSubmit(async (values) => {
+    const payload = { ...values, note: values.note?.trim() || undefined };
     try {
       if (expenseId) {
         await updateExpenseAction(expenseId, payload);
@@ -77,29 +76,33 @@ export function ExpenseForm({
       router.push("/expenses");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
-    } finally {
-      setSubmitting(false);
     }
-  }
+  });
 
   return (
-    <form className="mx-auto max-w-sm space-y-4 p-4" onSubmit={handleSubmit}>
+    <form className="mx-auto max-w-sm space-y-4 p-4" onSubmit={onSubmit}>
       <TextField
+        error={errors.amount?.message}
         id="amount"
         label="Amount"
         min={0}
-        onChange={(e) => setAmount(e.target.value)}
-        required
         step="0.01"
         type="number"
-        value={amount}
+        {...register("amount", { valueAsNumber: true })}
       />
 
-      <SelectField
-        label="Category"
-        onValueChange={setCategoryId}
-        options={categories.map((c) => ({ label: c.name, value: c.id }))}
-        value={categoryId}
+      <Controller
+        control={control}
+        name="categoryId"
+        render={({ field }) => (
+          <SelectField
+            error={errors.categoryId?.message}
+            label="Category"
+            onValueChange={field.onChange}
+            options={categories.map((c) => ({ label: c.name, value: c.id }))}
+            value={field.value}
+          />
+        )}
       />
 
       <SelectField
@@ -109,23 +112,30 @@ export function ExpenseForm({
           { label: "Shared", value: "shared" },
           ...members.map((m) => ({ label: m.id === currentMemberId ? "Me" : m.name, value: m.id })),
         ]}
-        value={owner}
+        value={owner ?? "shared"}
       />
 
-      <SelectField
-        disabled={owner !== "shared"}
-        label="Paid by"
-        onValueChange={setPaidBy}
-        options={members.map((m) => ({ label: m.id === currentMemberId ? "Me" : m.name, value: m.id }))}
-        value={paidBy}
+      <Controller
+        control={control}
+        name="paidByMemberId"
+        render={({ field }) => (
+          <SelectField
+            disabled={owner !== null}
+            error={errors.paidByMemberId?.message}
+            label="Paid by"
+            onValueChange={field.onChange}
+            options={members.map((m) => ({ label: m.id === currentMemberId ? "Me" : m.name, value: m.id }))}
+            value={field.value}
+          />
+        )}
       />
 
-      <TextField id="date" label="Date" onChange={(e) => setDate(e.target.value)} required type="date" value={date} />
+      <TextField error={errors.date?.message} id="date" label="Date" type="date" {...register("date")} />
 
-      <TextField id="note" label="Note (optional)" onChange={(e) => setNote(e.target.value)} value={note} />
+      <TextField id="note" label="Note (optional)" {...register("note")} />
 
-      <Button className="w-full" disabled={submitting} type="submit">
-        {submitting ? "Saving..." : expenseId ? "Save changes" : "Add Expense"}
+      <Button className="w-full" disabled={isSubmitting} type="submit">
+        {isSubmitting ? "Saving..." : expenseId ? "Save changes" : "Add Expense"}
       </Button>
     </form>
   );

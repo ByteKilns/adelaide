@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
-
+import { zodResolver } from "@hookform/resolvers/zod";
 import { List } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Modal } from "@/components/Modal";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { createCategoryAction, updateCategoryAction } from "@/modules/categories/api/categories.actions";
 import type { Category } from "@/modules/categories/hooks/useCategoryTableColumns";
 import { CATEGORY_GROUPS } from "@/modules/categories/lib/category-icons";
-import type { CategoryInput } from "@/modules/categories/schemas/category.schema";
+import { type CategoryInput, categorySchema } from "@/modules/categories/schemas/category.schema";
 
 type Props = {
   category: Category | null;
@@ -23,70 +23,74 @@ type Props = {
 const EMPTY: CategoryInput = { budgetType: "flexible", groupName: CATEGORY_GROUPS[0], name: "" };
 
 export function CategoryFormModal({ category, onOpenChange, open }: Props) {
-  const [form, setForm] = useState<CategoryInput>(category ?? EMPTY);
-  const [pending, startTransition] = useTransition();
+  const {
+    control,
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    register,
+  } = useForm<CategoryInput>({ defaultValues: category ?? EMPTY, resolver: zodResolver(categorySchema) });
 
-  function handleOpenChange(next: boolean) {
-    if (next) setForm(category ?? EMPTY);
-    onOpenChange(next);
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    startTransition(async () => {
-      try {
-        if (category) {
-          await updateCategoryAction(category.id, form);
-        } else {
-          await createCategoryAction(form);
-        }
-        toast.success(category ? "Category updated" : "Category added");
-        onOpenChange(false);
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Failed to save category");
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      if (category) {
+        await updateCategoryAction(category.id, values);
+      } else {
+        await createCategoryAction(values);
       }
-    });
-  }
+      toast.success(category ? "Category updated" : "Category added");
+      onOpenChange(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save category");
+    }
+  });
 
   return (
     <Modal
       footer={
-        <Button disabled={pending} form="category-form" type="submit">
-          {pending ? "Saving..." : "Save Category"}
+        <Button disabled={isSubmitting} form="category-form" type="submit">
+          {isSubmitting ? "Saving..." : "Save Category"}
         </Button>
       }
       icon={List}
-      onOpenChange={handleOpenChange}
+      onOpenChange={onOpenChange}
       open={open}
       title={category ? "Edit category" : "Add category"}
       tone="blue"
     >
-      <form className="space-y-4" id="category-form" onSubmit={handleSubmit}>
-        <TextField
-          id="category-name"
-          label="Name"
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-          required
-          value={form.name}
+      <form className="space-y-4" id="category-form" onSubmit={onSubmit}>
+        <TextField error={errors.name?.message} id="category-name" label="Name" {...register("name")} />
+
+        <Controller
+          control={control}
+          name="groupName"
+          render={({ field }) => (
+            <SelectField
+              error={errors.groupName?.message}
+              id="category-group"
+              label="Group"
+              onValueChange={field.onChange}
+              options={CATEGORY_GROUPS.map((g) => ({ label: g, value: g }))}
+              value={field.value}
+            />
+          )}
         />
 
-        <SelectField
-          id="category-group"
-          label="Group"
-          onValueChange={(v) => setForm((f) => ({ ...f, groupName: v }))}
-          options={CATEGORY_GROUPS.map((g) => ({ label: g, value: g }))}
-          value={form.groupName}
-        />
-
-        <SelectField
-          id="category-type"
-          label="Type"
-          onValueChange={(v) => setForm((f) => ({ ...f, budgetType: v as CategoryInput["budgetType"] }))}
-          options={[
-            { label: "Flexible", value: "flexible" },
-            { label: "Fixed", value: "fixed" },
-          ]}
-          value={form.budgetType}
+        <Controller
+          control={control}
+          name="budgetType"
+          render={({ field }) => (
+            <SelectField
+              error={errors.budgetType?.message}
+              id="category-type"
+              label="Type"
+              onValueChange={field.onChange}
+              options={[
+                { label: "Flexible", value: "flexible" },
+                { label: "Fixed", value: "fixed" },
+              ]}
+              value={field.value}
+            />
+          )}
         />
       </form>
     </Modal>

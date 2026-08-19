@@ -9,6 +9,7 @@ export type SelectFieldOption = { label: string; value: string };
 type Props = {
   containerClassName?: string;
   disabled?: boolean;
+  error?: string;
   id?: string;
   label: string;
   onValueChange: (value: string) => void;
@@ -23,6 +24,7 @@ type Props = {
 export function SelectField({
   containerClassName,
   disabled,
+  error,
   id,
   label,
   onValueChange,
@@ -38,7 +40,7 @@ export function SelectField({
     <div className={cn("space-y-1", containerClassName)}>
       <Label htmlFor={fieldId}>{label}</Label>
       <Select disabled={disabled} onValueChange={onValueChange} value={value}>
-        <SelectTrigger className={cn("w-full", triggerClassName)} id={fieldId}>
+        <SelectTrigger aria-invalid={Boolean(error)} className={cn("w-full", triggerClassName)} id={fieldId}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
@@ -49,6 +51,7 @@ export function SelectField({
           ))}
         </SelectContent>
       </Select>
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
 }
