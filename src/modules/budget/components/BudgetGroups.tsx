@@ -61,7 +61,7 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
 
           <div className="space-y-6">
             <section>
-              <h3 className="mb-2 text-sm font-semibold">Income</h3>
+              <h3 className="mb-2 text-base font-semibold">Income</h3>
               <div className="space-y-3">
                 {members.map((m) => (
                   <IncomeForm
@@ -77,7 +77,7 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
             </section>
 
             <section>
-              <h3 className="mb-2 text-sm font-semibold">Category allocations</h3>
+              <h3 className="mb-2 text-base font-semibold">Category allocations</h3>
               <div className="divide-y">
                 {categories.map((c) => {
                   const existing = itemsByCategory[c.id];
