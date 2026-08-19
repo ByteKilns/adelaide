@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/db/client";
 import { expenses } from "@/db/schema";
-import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
+import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/lib/data/categories";
 import { ExpenseForm } from "@/components/expenses/expense-form";
 
@@ -12,7 +12,7 @@ export default async function EditExpensePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { memberId, householdId } = await getCurrentMember();
+  const { memberId, householdId } = await getEffectiveMember();
   const [members, categories] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),

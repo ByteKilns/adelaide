@@ -1,9 +1,9 @@
-import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
+import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/lib/data/categories";
 import { ExpenseForm } from "@/components/expenses/expense-form";
 
 export default async function NewExpensePage() {
-  const { memberId, householdId } = await getCurrentMember();
+  const { memberId, householdId } = await getEffectiveMember();
   const [members, categories] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
