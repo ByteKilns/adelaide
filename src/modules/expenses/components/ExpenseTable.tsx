@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useTransition } from "react";
+
 import { MoreVertical } from "lucide-react";
 import Link from "next/link";
-import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import {
@@ -12,10 +13,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatNPR } from "@/modules/dashboard/lib/format";
 import { deleteExpenseAction } from "@/modules/expenses/api/expenses.actions";
 import { OwnerAvatar } from "@/modules/expenses/components/OwnerAvatar";
-import { formatNPR } from "@/modules/dashboard/lib/format";
-import { roleForOwner, type MemberRole } from "@/modules/expenses/lib/member-tone";
+import { type MemberRole, roleForOwner } from "@/modules/expenses/lib/member-tone";
 
 export type ExpenseRow = {
   amount: number;
