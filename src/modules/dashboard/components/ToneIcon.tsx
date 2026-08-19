@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 
 export type Tone = "green" | "orange" | "pink" | "purple" | "amber" | "blue";
 
-const TONE_BADGE_CLASSES: Record<Tone, string> = {
+export const TONE_BADGE_CLASSES: Record<Tone, string> = {
   green: "bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400",
   orange: "bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400",
   pink: "bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-400",
