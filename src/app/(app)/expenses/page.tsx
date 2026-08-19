@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
+import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/lib/data/categories";
 import { listExpensesForMonth } from "@/lib/actions/expenses";
 import { ExpenseListItem } from "@/components/expenses/expense-list-item";
 import { Button } from "@/components/ui/button";
 
 export default async function ExpensesPage() {
-  const { householdId, memberId } = await getCurrentMember();
+  const { householdId, memberId } = await getEffectiveMember();
   const now = new Date();
   const [members, categories, expenseRows] = await Promise.all([
     getHouseholdMembers(householdId),
