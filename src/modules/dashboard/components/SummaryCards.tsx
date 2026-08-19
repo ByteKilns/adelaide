@@ -124,7 +124,7 @@ export function SummaryCards({
             </CardTitle>
             <ToneIcon icon={card.icon} tone={card.tone} />
           </CardHeader>
-          <CardContent>{card.content}</CardContent>
+          <CardContent className="-mt-2">{card.content}</CardContent>
         </Card>
       ))}
     </div>
