@@ -1,14 +1,15 @@
+import { and, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { eq, and } from "drizzle-orm";
+
+import { Button } from "@/components/ui/button";
 import { db } from "@/db/client";
 import { expenses } from "@/db/schema";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
-import { listExpensesForMonth } from "@/modules/expenses/api/actions";
-import { ExpenseListItem } from "@/modules/expenses/components/ExpenseListItem";
+import { listExpensesForMonth } from "@/modules/expenses/api/expenses.actions";
 import { ExpenseForm } from "@/modules/expenses/components/ExpenseForm";
-import { Button } from "@/components/ui/button";
+import { ExpenseListItem } from "@/modules/expenses/components/ExpenseListItem";
 
 export async function ExpensesPage() {
   const { householdId, memberId } = await getEffectiveMember();
@@ -40,13 +41,13 @@ export async function ExpensesPage() {
         )}
         {expenseRows.map((e) => (
           <ExpenseListItem
-            key={e.id}
-            id={e.id}
-            categoryName={categoryName(e.categoryId)}
             amount={Number(e.amount)}
-            ownerLabel={ownerLabel(e.ownerMemberId)}
+            categoryName={categoryName(e.categoryId)}
             date={e.date}
+            id={e.id}
+            key={e.id}
             note={e.note}
+            ownerLabel={ownerLabel(e.ownerMemberId)}
           />
         ))}
       </div>
@@ -63,9 +64,9 @@ export async function NewExpensePage() {
 
   return (
     <ExpenseForm
+      categories={categories.map((c) => ({ id: c.id, name: c.name }))}
       currentMemberId={memberId}
       members={members.map((m) => ({ id: m.id, name: m.user.name }))}
-      categories={categories.map((c) => ({ id: c.id, name: c.name }))}
     />
   );
 }
@@ -91,9 +92,8 @@ export async function EditExpensePage({
 
   return (
     <ExpenseForm
-      currentMemberId={memberId}
-      members={members.map((m) => ({ id: m.id, name: m.user.name }))}
       categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+      currentMemberId={memberId}
       expenseId={expense.id}
       initial={{
         amount: Number(expense.amount),
@@ -103,6 +103,7 @@ export async function EditExpensePage({
         date: expense.date,
         note: expense.note,
       }}
+      members={members.map((m) => ({ id: m.id, name: m.user.name }))}
     />
   );
 }

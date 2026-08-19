@@ -7,12 +7,12 @@ import { computeBudgetStatus } from "@/modules/budget/lib/budget-status";
 // member plus a separate shared "Groceries" line), all sharing the same
 // categoryName — so categoryName alone is not a unique key here.
 type Row = {
-  categoryId: string;
-  ownerMemberId: string | null;
-  categoryName: string;
-  planned: number;
   actual: number;
+  categoryId: string;
+  categoryName: string;
   difference: number;
+  ownerMemberId: string | null;
+  planned: number;
 };
 
 export function BudgetVsActualTable({ rows }: { rows: Row[] }) {
@@ -32,7 +32,7 @@ export function BudgetVsActualTable({ rows }: { rows: Row[] }) {
           {rows.map((r) => {
             const status = computeBudgetStatus(r.planned, r.actual);
             return (
-              <tr key={`${r.categoryId}-${r.ownerMemberId ?? "shared"}`} className="border-b">
+              <tr className="border-b" key={`${r.categoryId}-${r.ownerMemberId ?? "shared"}`}>
                 <td className="py-2">{r.categoryName}</td>
                 <td className="py-2 text-right">{r.planned.toLocaleString()}</td>
                 <td className="py-2 text-right">{r.actual.toLocaleString()}</td>

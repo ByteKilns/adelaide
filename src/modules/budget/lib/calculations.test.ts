@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  type BudgetItemInput,
   budgetVsActual,
   categorySpent,
   dashboardSummary,
-  type BudgetItemInput,
   type ExpenseInput,
   type IncomeInput,
 } from "./calculations";

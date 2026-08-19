@@ -1,25 +1,27 @@
 "use client";
 
+import {
+  BarChart3,
+  Bell,
+  ChevronDown,
+  Home,
+  List,
+  type LucideIcon,
+  PiggyBank,
+  Receipt,
+  Repeat,
+  Settings,
+  Wallet,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  Receipt,
-  Wallet,
-  Repeat,
-  PiggyBank,
-  BarChart3,
-  List,
-  Bell,
-  Settings,
-  ChevronDown,
-  type LucideIcon,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 import { ViewingAsSwitcher } from "./ViewingAsSwitcher";
 
-type NavItem = { href: string; label: string; icon: LucideIcon; enabled: boolean };
+type NavItem = { enabled: boolean; href: string; icon: LucideIcon; label: string; };
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Home", icon: Home, enabled: true },
@@ -65,9 +67,9 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
           if (!item.enabled) {
             return (
               <div
-                key={item.href}
                 aria-disabled="true"
                 className="flex cursor-default items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground"
+                key={item.href}
               >
                 <Icon className="h-4 w-4" />
                 {item.label}
@@ -77,14 +79,14 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
           const active = pathname.startsWith(item.href);
           return (
             <Link
-              key={item.href}
-              href={item.href}
               className={cn(
                 "flex items-center gap-3 rounded-lg border-l-2 px-3 py-2 text-sm transition-colors",
                 active
                   ? "border-primary bg-primary/10 font-medium text-primary"
                   : "border-transparent text-muted-foreground hover:bg-accent",
               )}
+              href={item.href}
+              key={item.href}
             >
               <Icon className="h-4 w-4" />
               {item.label}

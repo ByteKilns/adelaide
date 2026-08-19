@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
+
 import { toast } from "sonner";
-import { setBudgetItemAction } from "@/modules/budget/api/actions";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,16 +13,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { setBudgetItemAction } from "@/modules/budget/api/budget.actions";
 
 type Props = {
   categoryId: string;
   categoryName: string;
-  year: number;
-  month: number;
-  members: { id: string; name: string }[];
   initialOwnerMemberId: string | null;
   initialPlannedAmount: number;
+  members: { id: string; name: string }[];
+  month: number;
+  year: number;
 };
 
 export function BudgetItemRow({
@@ -56,7 +58,7 @@ export function BudgetItemRow({
   return (
     <div className="grid grid-cols-3 items-center gap-2 py-2">
       <span className="text-sm">{categoryName}</span>
-      <Select value={owner} onValueChange={(v) => setOwner(v)}>
+      <Select onValueChange={(v) => setOwner(v)} value={owner}>
         <SelectTrigger>
           <SelectValue />
         </SelectTrigger>
@@ -71,13 +73,13 @@ export function BudgetItemRow({
       </Select>
       <div className="flex gap-2">
         <Input
-          type="number"
           min={0}
-          step="0.01"
-          value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          step="0.01"
+          type="number"
+          value={amount}
         />
-        <Button type="button" size="sm" disabled={pending} onClick={save}>
+        <Button disabled={pending} onClick={save} size="sm" type="button">
           Save
         </Button>
       </div>

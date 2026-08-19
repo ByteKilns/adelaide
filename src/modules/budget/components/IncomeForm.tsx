@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, useTransition } from "react";
+
 import { toast } from "sonner";
-import { setIncomeAction } from "@/modules/budget/api/actions";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { setIncomeAction } from "@/modules/budget/api/budget.actions";
 
 type Props = {
+  initialAmount: number;
   memberId: string;
   memberName: string;
-  year: number;
   month: number;
-  initialAmount: number;
+  year: number;
 };
 
 export function IncomeForm({ memberId, memberName, year, month, initialAmount }: Props) {
@@ -25,14 +27,13 @@ export function IncomeForm({ memberId, memberName, year, month, initialAmount }:
       <div className="flex gap-2">
         <Input
           id={`income-${memberId}`}
-          type="number"
           min={0}
-          step="0.01"
-          value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          step="0.01"
+          type="number"
+          value={amount}
         />
         <Button
-          type="button"
           disabled={pending}
           onClick={() =>
             startTransition(async () => {
@@ -48,6 +49,7 @@ export function IncomeForm({ memberId, memberName, year, month, initialAmount }:
               }
             })
           }
+          type="button"
         >
           Save
         </Button>

@@ -4,12 +4,12 @@
 // previous-month mapping in the dashboard page so the three shapes are only
 // defined once.
 
-export function toIncomeInputs(rows: { memberId: string; amount: string }[]) {
+export function toIncomeInputs(rows: { amount: string; memberId: string; }[]) {
   return rows.map((i) => ({ memberId: i.memberId, amount: Number(i.amount) }));
 }
 
 export function toExpenseInputs(
-  rows: { categoryId: string; ownerMemberId: string | null; amount: string }[],
+  rows: { amount: string; categoryId: string; ownerMemberId: string | null; }[],
 ) {
   return rows.map((e) => ({
     categoryId: e.categoryId,

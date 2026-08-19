@@ -1,8 +1,10 @@
 "use client";
 
 import { useTransition } from "react";
-import { toast } from "sonner";
+
 import { User } from "lucide-react";
+import { toast } from "sonner";
+
 import {
   Select,
   SelectContent,
@@ -29,7 +31,6 @@ export function ViewingAsSwitcher({ members, realMemberId, viewingAsMemberId }: 
       <div className="min-w-0 flex-1">
         <p className="text-xs text-muted-foreground">Viewing as</p>
         <Select
-          value={viewingAsMemberId}
           disabled={pending}
           onValueChange={(value) =>
             startTransition(async () => {
@@ -40,6 +41,7 @@ export function ViewingAsSwitcher({ members, realMemberId, viewingAsMemberId }: 
               }
             })
           }
+          value={viewingAsMemberId}
         >
           <SelectTrigger className="h-auto w-full border-none bg-transparent p-0 text-sm font-medium shadow-none hover:bg-transparent focus-visible:ring-0">
             <SelectValue />

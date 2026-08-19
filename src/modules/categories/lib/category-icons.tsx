@@ -1,14 +1,15 @@
 import {
-  Users,
-  Landmark,
-  ShoppingCart,
   Car,
   Heart,
-  User,
-  PiggyBank,
-  MoreHorizontal,
+  Landmark,
   type LucideIcon,
+  MoreHorizontal,
+  PiggyBank,
+  ShoppingCart,
+  User,
+  Users,
 } from "lucide-react";
+
 import type { Tone } from "@/modules/dashboard/components/ToneIcon";
 
 const GROUP_ICONS: Record<string, LucideIcon> = {

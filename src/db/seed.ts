@@ -3,9 +3,10 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import bcrypt from "bcryptjs";
-import { users, households, householdMembers, categories } from "./schema";
 
-const DEFAULT_CATEGORIES: { name: string; group: string; fixed: boolean }[] = [
+import { categories, householdMembers, households, users } from "./schema";
+
+const DEFAULT_CATEGORIES: { fixed: boolean; group: string; name: string; }[] = [
   { name: "Parents", group: "Family", fixed: true },
   { name: "Family Support", group: "Family", fixed: true },
   { name: "Personal Loan", group: "Obligations", fixed: true },

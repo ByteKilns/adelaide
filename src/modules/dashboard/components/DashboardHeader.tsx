@@ -1,6 +1,6 @@
-import { Bell, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { Bell, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
-type Props = { name: string; monthLabel: string };
+type Props = { monthLabel: string; name: string; };
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -42,11 +42,11 @@ export function DashboardHeader({ name, monthLabel }: Props) {
       </div>
       <div className="flex items-center gap-3">
         <button
-          type="button"
-          disabled
           aria-disabled="true"
-          title="Notifications (coming soon)"
           className="rounded-full border bg-background p-2 text-muted-foreground/50"
+          disabled
+          title="Notifications (coming soon)"
+          type="button"
         >
           <Bell className="h-5 w-5" />
         </button>

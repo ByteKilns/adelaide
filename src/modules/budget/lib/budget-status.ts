@@ -2,8 +2,8 @@ export type BudgetStatusVariant = "default" | "secondary" | "destructive";
 
 export type BudgetStatus = {
   label: string;
-  variant: BudgetStatusVariant;
   pct: number;
+  variant: BudgetStatusVariant;
 };
 
 // Shared by BudgetCard and BudgetVsActualTable so the two views can never

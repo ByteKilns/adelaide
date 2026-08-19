@@ -1,4 +1,5 @@
 import * as React from "react"
+
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
@@ -38,9 +39,9 @@ function Badge({
 
   return (
     <Comp
+      className={cn(badgeVariants({ variant }), className)}
       data-slot="badge"
       data-variant={variant}
-      className={cn(badgeVariants({ variant }), className)}
       {...props}
     />
   )

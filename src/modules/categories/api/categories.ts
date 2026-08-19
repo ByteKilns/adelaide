@@ -1,6 +1,7 @@
+import { and, eq } from "drizzle-orm";
+
 import { db } from "@/db/client";
 import { categories } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
 
 export async function listCategories(householdId: string) {
   return db

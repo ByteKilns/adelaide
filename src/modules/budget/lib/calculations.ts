@@ -7,8 +7,8 @@
 // module so the dashboard page has a real, testable calculation layer
 // rather than inlining this logic into the page component.
 
-export type IncomeInput = { memberId: string; amount: number };
-export type ExpenseInput = { categoryId: string; ownerMemberId: string | null; amount: number };
+export type IncomeInput = { amount: number; memberId: string; };
+export type ExpenseInput = { amount: number; categoryId: string; ownerMemberId: string | null; };
 export type BudgetItemInput = {
   categoryId: string;
   ownerMemberId: string | null;
@@ -35,11 +35,11 @@ export function dashboardSummary(
 }
 
 export type BudgetVsActualRow = {
+  actual: number;
   categoryId: string;
+  difference: number;
   ownerMemberId: string | null;
   planned: number;
-  actual: number;
-  difference: number;
 };
 
 // Sum of expense amounts for a given category + owner combination. Owner

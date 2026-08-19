@@ -1,5 +1,6 @@
-import { pgTable, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { pgTable, uuid } from "drizzle-orm/pg-core";
+
 import { households } from "./households";
 import { users } from "./users";
 

@@ -1,8 +1,11 @@
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
-import { listCategories } from "@/modules/categories/api/categories";
-import { getIncomesForMonth, getBudgetItemsForMonth } from "@/modules/budget/api/actions";
-import { IncomeForm } from "@/modules/budget/components/IncomeForm";
+import {
+  getBudgetItemsForMonth,
+  getIncomesForMonth,
+} from "@/modules/budget/api/budget.actions";
 import { BudgetItemRow } from "@/modules/budget/components/BudgetItemRow";
+import { IncomeForm } from "@/modules/budget/components/IncomeForm";
+import { listCategories } from "@/modules/categories/api/categories";
 
 export async function BudgetPage() {
   const { householdId } = await getCurrentMember();
@@ -24,14 +27,14 @@ export async function BudgetPage() {
         <div className="space-y-3">
           {members.map((m) => (
             <IncomeForm
-              key={m.id}
-              memberId={m.id}
-              memberName={m.user.name}
-              year={year}
-              month={month}
               initialAmount={Number(
                 incomes.find((i) => i.memberId === m.id)?.amount ?? 0,
               )}
+              key={m.id}
+              memberId={m.id}
+              memberName={m.user.name}
+              month={month}
+              year={year}
             />
           ))}
         </div>
@@ -44,14 +47,14 @@ export async function BudgetPage() {
             const existing = budgetItems.find((b) => b.categoryId === c.id);
             return (
               <BudgetItemRow
-                key={c.id}
                 categoryId={c.id}
                 categoryName={c.name}
-                year={year}
-                month={month}
-                members={members.map((m) => ({ id: m.id, name: m.user.name }))}
                 initialOwnerMemberId={existing?.ownerMemberId ?? null}
                 initialPlannedAmount={Number(existing?.plannedAmount ?? 0)}
+                key={c.id}
+                members={members.map((m) => ({ id: m.id, name: m.user.name }))}
+                month={month}
+                year={year}
               />
             );
           })}

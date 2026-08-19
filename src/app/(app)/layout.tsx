@@ -1,6 +1,6 @@
-import { BottomNav } from "@/components/nav/bottom-nav";
-import { SidebarNav } from "@/components/nav/sidebar-nav";
-import { getCurrentMember, getHouseholdMembers, getEffectiveMember } from "@/lib/session";
+import { BottomNav } from "@/components/nav/BottomNav";
+import { SidebarNav } from "@/components/nav/SidebarNav";
+import { getCurrentMember, getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const current = await getCurrentMember();

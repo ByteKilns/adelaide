@@ -1,16 +1,17 @@
 import Link from "next/link";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
 import { formatRelativeDate } from "@/lib/format-date";
+import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
 import { ToneIcon } from "@/modules/dashboard/components/ToneIcon";
 
 type Row = {
-  id: string;
-  categoryName: string;
-  categoryGroupName: string;
-  ownerLabel: string;
   amount: number;
+  categoryGroupName: string;
+  categoryName: string;
   date: string;
+  id: string;
+  ownerLabel: string;
 };
 
 export function RecentExpenses({ rows }: { rows: Row[] }) {
@@ -18,7 +19,7 @@ export function RecentExpenses({ rows }: { rows: Row[] }) {
     <Card>
       <CardHeader className="flex items-center justify-between pb-2">
         <CardTitle className="text-base font-medium">Recent Expenses</CardTitle>
-        <Link href="/expenses" className="text-sm text-primary underline">
+        <Link className="text-sm text-primary underline" href="/expenses">
           View all
         </Link>
       </CardHeader>
@@ -28,12 +29,12 @@ export function RecentExpenses({ rows }: { rows: Row[] }) {
         )}
         {rows.map((r) => {
           return (
-            <div key={r.id} className="flex items-center justify-between">
+            <div className="flex items-center justify-between" key={r.id}>
               <div className="flex items-center gap-3">
                 <ToneIcon
+                  className="h-8 w-8"
                   icon={getCategoryIcon(r.categoryGroupName)}
                   tone={getCategoryTone(r.categoryGroupName)}
-                  className="h-8 w-8"
                 />
                 <div>
                   <p className="text-sm font-medium">{r.categoryName}</p>

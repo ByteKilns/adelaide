@@ -1,8 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import type { LucideIcon } from "lucide-react";
 
-type Props = { title: string; description: string; icon: LucideIcon };
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+type Props = { description: string; icon: LucideIcon; title: string; };
 
 export function ComingSoonCard({ title, description, icon: Icon }: Props) {
   return (

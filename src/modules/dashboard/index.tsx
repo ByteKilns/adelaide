@@ -1,19 +1,23 @@
 import { Gauge, PiggyBank } from "lucide-react";
+
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
-import { listCategories } from "@/modules/categories/api/categories";
-import { getIncomesForMonth, getBudgetItemsForMonth } from "@/modules/budget/api/actions";
-import { listExpensesForMonth, listRecentExpenses } from "@/modules/expenses/api/actions";
-import { dashboardSummary, budgetVsActual } from "@/modules/budget/lib/calculations";
-import { toIncomeInputs, toExpenseInputs, toBudgetItemInputs } from "@/modules/dashboard/lib/map-rows";
-import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
-import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
-import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
-import { OwnerTabs } from "@/modules/dashboard/components/OwnerTabs";
-import { ComingSoonCard } from "@/modules/dashboard/components/ComingSoonCard";
-import { DashboardPanel } from "@/modules/dashboard/components/DashboardPanel";
+import {
+  getBudgetItemsForMonth,
+  getIncomesForMonth,
+} from "@/modules/budget/api/budget.actions";
 import { BudgetCard } from "@/modules/budget/components/BudgetCard";
 import { BudgetVsActualTable } from "@/modules/budget/components/BudgetVsActualTable";
+import { budgetVsActual, dashboardSummary } from "@/modules/budget/lib/calculations";
+import { listCategories } from "@/modules/categories/api/categories";
+import { ComingSoonCard } from "@/modules/dashboard/components/ComingSoonCard";
+import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
+import { DashboardPanel } from "@/modules/dashboard/components/DashboardPanel";
+import { OwnerTabs } from "@/modules/dashboard/components/OwnerTabs";
 import { RecentExpenses } from "@/modules/dashboard/components/RecentExpenses";
+import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
+import { toBudgetItemInputs, toExpenseInputs, toIncomeInputs } from "@/modules/dashboard/lib/map-rows";
+import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
+import { listExpensesForMonth, listRecentExpenses } from "@/modules/expenses/api/expenses.actions";
 
 function previousMonth(year: number, month: number) {
   return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
@@ -110,14 +114,14 @@ export async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
-      <DashboardHeader name={currentMemberName} monthLabel={monthLabel} />
+      <DashboardHeader monthLabel={monthLabel} name={currentMemberName} />
 
       <SummaryCards
         combinedIncome={summary.combinedIncome}
+        expenseTrendPct={trendPct(summary.totalExpenses, prevSummary.totalExpenses)}
+        incomeTrendPct={trendPct(summary.combinedIncome, prevSummary.combinedIncome)}
         totalExpenses={summary.totalExpenses}
         unallocated={summary.unallocated}
-        incomeTrendPct={trendPct(summary.combinedIncome, prevSummary.combinedIncome)}
-        expenseTrendPct={trendPct(summary.totalExpenses, prevSummary.totalExpenses)}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -127,21 +131,21 @@ export async function DashboardPage() {
           </DashboardPanel>
 
           <ComingSoonCard
+            description="A safe-to-spend forecast based on your budget and spending pace is coming soon."
             icon={Gauge}
             title="Financial Health"
-            description="A safe-to-spend forecast based on your budget and spending pace is coming soon."
           />
 
-          <DashboardPanel title="Budget Overview" actionLabel="View all budgets" actionHref="/budget">
+          <DashboardPanel actionHref="/budget" actionLabel="View all budgets" title="Budget Overview">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {vsActual.map((row) => (
                 <BudgetCard
-                  key={`${row.categoryId}-${row.ownerMemberId ?? "shared"}`}
-                  categoryName={categoryName(row.categoryId)}
+                  actual={row.actual}
                   categoryGroupName={category(row.categoryId)?.groupName ?? ""}
+                  categoryName={categoryName(row.categoryId)}
+                  key={`${row.categoryId}-${row.ownerMemberId ?? "shared"}`}
                   ownerLabel={ownerLabel(row.ownerMemberId)}
                   planned={row.planned}
-                  actual={row.actual}
                 />
               ))}
               {vsActual.length === 0 && (
@@ -179,9 +183,9 @@ export async function DashboardPage() {
           />
 
           <ComingSoonCard
+            description="Set shared or personal savings targets and track progress here soon."
             icon={PiggyBank}
             title="Savings Goals"
-            description="Set shared or personal savings targets and track progress here soon."
           />
         </div>
       </div>

@@ -1,18 +1,20 @@
 "use client";
 
 import { useTransition } from "react";
+
 import Link from "next/link";
 import { toast } from "sonner";
-import { deleteExpenseAction } from "@/modules/expenses/api/actions";
+
 import { Button } from "@/components/ui/button";
+import { deleteExpenseAction } from "@/modules/expenses/api/expenses.actions";
 
 type Props = {
-  id: string;
-  categoryName: string;
   amount: number;
-  ownerLabel: string;
+  categoryName: string;
   date: string;
+  id: string;
   note: string | null;
+  ownerLabel: string;
 };
 
 export function ExpenseListItem({ id, categoryName, amount, ownerLabel, date, note }: Props) {
@@ -29,13 +31,10 @@ export function ExpenseListItem({ id, categoryName, amount, ownerLabel, date, no
       </div>
       <div className="flex items-center gap-3">
         <span className="font-semibold">-NPR {amount.toLocaleString()}</span>
-        <Link href={`/expenses/${id}/edit`} className="text-sm underline">
+        <Link className="text-sm underline" href={`/expenses/${id}/edit`}>
           Edit
         </Link>
         <Button
-          type="button"
-          variant="ghost"
-          size="sm"
           disabled={pending}
           onClick={() => {
             if (!window.confirm("Delete this expense?")) return;
@@ -47,6 +46,9 @@ export function ExpenseListItem({ id, categoryName, amount, ownerLabel, date, no
               }
             });
           }}
+          size="sm"
+          type="button"
+          variant="ghost"
         >
           Delete
         </Button>

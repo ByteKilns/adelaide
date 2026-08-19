@@ -1,6 +1,7 @@
-import { pgTable, uuid, integer, numeric, text, unique } from "drizzle-orm/pg-core";
-import { households } from "./households";
+import { integer, numeric, pgTable, text, unique, uuid } from "drizzle-orm/pg-core";
+
 import { householdMembers } from "./householdMembers";
+import { households } from "./households";
 
 export const incomes = pgTable(
   "incomes",

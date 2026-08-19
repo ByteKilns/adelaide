@@ -1,9 +1,10 @@
+import bcrypt from "bcryptjs";
+import { eq } from "drizzle-orm";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
+
 import { db } from "@/db/client";
 import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },

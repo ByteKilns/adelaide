@@ -1,15 +1,16 @@
+import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
+
 import { auth } from "@/auth";
 import { db } from "@/db/client";
 import { householdMembers } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { VIEWING_AS_COOKIE_NAME } from "@/lib/viewing-as-cookie";
 
 export type CurrentMember = {
-  memberId: string;
   householdId: string;
-  userId: string;
+  memberId: string;
   name: string;
+  userId: string;
 };
 
 export async function getCurrentMember(): Promise<CurrentMember> {

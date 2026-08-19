@@ -1,25 +1,27 @@
 import type { ReactNode } from "react";
+
+import {
+  ArrowDown,
+  ArrowUp,
+  type LucideIcon,
+  PiggyBank,
+  WalletCards,
+} from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  WalletCards,
-  PiggyBank,
-  ArrowUp,
-  ArrowDown,
-  type LucideIcon,
-} from "lucide-react";
-import {
-  ToneIcon,
-  TONE_BAR_CLASSES,
   type Tone,
+  TONE_BAR_CLASSES,
+  ToneIcon,
 } from "@/modules/dashboard/components/ToneIcon";
 import { formatNPR, pctOfIncome } from "@/modules/dashboard/lib/format";
 
 type Props = {
   combinedIncome: number;
+  expenseTrendPct: number | null;
+  incomeTrendPct: number | null;
   totalExpenses: number;
   unallocated: number;
-  incomeTrendPct: number | null;
-  expenseTrendPct: number | null;
 };
 
 function TrendLine({ pct }: { pct: number | null }) {
@@ -54,10 +56,10 @@ export function SummaryCards({
   const unallocatedPct = pctOfIncome(unallocated, combinedIncome);
 
   const cards: {
-    title: string;
-    icon: LucideIcon;
-    tone: Tone;
     content: ReactNode;
+    icon: LucideIcon;
+    title: string;
+    tone: Tone;
   }[] = [
     {
       title: "Combined Income",

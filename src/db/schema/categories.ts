@@ -1,4 +1,5 @@
-import { pgTable, uuid, text, boolean, pgEnum } from "drizzle-orm/pg-core";
+import { boolean, pgEnum, pgTable, text, uuid } from "drizzle-orm/pg-core";
+
 import { households } from "./households";
 
 export const budgetTypeEnum = pgEnum("budget_type", ["fixed", "flexible"]);

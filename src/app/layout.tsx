@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { Host_Grotesk, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Host_Grotesk } from "next/font/google";
+
 import { Toaster } from "@/components/ui/sonner";
+
 import "./globals.css";
 
 const hostGrotesk = Host_Grotesk({
@@ -21,8 +23,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
       className={`${hostGrotesk.variable} ${geistMono.variable} h-full antialiased`}
+      lang="en"
     >
       <body className="min-h-full flex flex-col">
         {children}

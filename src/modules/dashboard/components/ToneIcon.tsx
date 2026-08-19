@@ -22,7 +22,7 @@ export const TONE_BAR_CLASSES: Record<Tone, string> = {
   blue: "bg-blue-500",
 };
 
-type Props = { icon: LucideIcon; tone: Tone; className?: string };
+type Props = { className?: string; icon: LucideIcon; tone: Tone; };
 
 export function ToneIcon({ icon: Icon, tone, className = "" }: Props) {
   return (

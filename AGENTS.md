@@ -18,3 +18,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Folders: kebab-case (e.g. `dashboard-widgets/`).
 - React component files: PascalCase (e.g. `SummaryCards.tsx`).
 - Validation schema files: `name.schema.ts` (e.g. `expense.schema.ts`).
+- Server Action files: `name.actions.ts` (e.g. `budget.actions.ts`).
+
+## Ordering
+
+Enforced by ESLint (`eslint-plugin-perfectionist`), not just convention — run `npm run lint -- --fix` to apply automatically:
+
+- Imports: grouped `react` → third-party → project (`@/...`), alphabetical (ascending) within each group, with a blank line between groups.
+- Named import specifiers, object type / interface properties, and JSX props: alphabetical (ascending).

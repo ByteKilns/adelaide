@@ -1,14 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import { computeBudgetStatus } from "@/modules/budget/lib/budget-status";
 import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
-import { ToneIcon, TONE_BAR_CLASSES } from "@/modules/dashboard/components/ToneIcon";
+import { TONE_BAR_CLASSES, ToneIcon } from "@/modules/dashboard/components/ToneIcon";
 
 type Props = {
-  categoryName: string;
+  actual: number;
   categoryGroupName: string;
+  categoryName: string;
   ownerLabel: string;
   planned: number;
-  actual: number;
 };
 
 export function BudgetCard({

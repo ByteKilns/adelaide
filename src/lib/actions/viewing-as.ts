@@ -1,7 +1,8 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { VIEWING_AS_COOKIE_NAME } from "@/lib/viewing-as-cookie";
 

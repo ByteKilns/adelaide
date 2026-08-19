@@ -1,8 +1,9 @@
 "use client";
 
+import { Home, Plus, Receipt, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Receipt, Wallet, Plus } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
@@ -21,12 +22,12 @@ export function BottomNav() {
         const active = pathname.startsWith(item.href);
         return (
           <Link
-            key={item.href}
-            href={item.href}
             className={cn(
               "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs",
               active ? "font-semibold text-primary" : "text-muted-foreground",
             )}
+            href={item.href}
+            key={item.href}
           >
             <Icon className="h-5 w-5" />
             {item.label}
@@ -34,8 +35,8 @@ export function BottomNav() {
         );
       })}
       <Link
-        href="/expenses/new"
         className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-semibold text-primary"
+        href="/expenses/new"
       >
         <Plus className="h-5 w-5" />
         Add

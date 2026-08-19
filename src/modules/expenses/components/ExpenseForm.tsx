@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { createExpenseAction, updateExpenseAction } from "@/modules/expenses/api/actions";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -14,23 +15,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createExpenseAction, updateExpenseAction } from "@/modules/expenses/api/expenses.actions";
 
 type Member = { id: string; name: string };
 type Category = { id: string; name: string };
 
 type Props = {
-  currentMemberId: string;
-  members: Member[];
   categories: Category[];
+  currentMemberId: string;
   expenseId?: string;
   initial?: {
     amount: number;
     categoryId: string;
-    ownerMemberId: string | null;
-    paidByMemberId: string;
     date: string;
     note: string | null;
+    ownerMemberId: string | null;
+    paidByMemberId: string;
   };
+  members: Member[];
 };
 
 function todayISO() {
@@ -88,23 +90,23 @@ export function ExpenseForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto max-w-sm space-y-4 p-4">
+    <form className="mx-auto max-w-sm space-y-4 p-4" onSubmit={handleSubmit}>
       <div className="space-y-1">
         <Label htmlFor="amount">Amount</Label>
         <Input
           id="amount"
-          type="number"
           min={0}
-          step="0.01"
-          required
-          value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          required
+          step="0.01"
+          type="number"
+          value={amount}
         />
       </div>
 
       <div className="space-y-1">
         <Label>Category</Label>
-        <Select value={categoryId} onValueChange={setCategoryId}>
+        <Select onValueChange={setCategoryId} value={categoryId}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -120,7 +122,7 @@ export function ExpenseForm({
 
       <div className="space-y-1">
         <Label>For</Label>
-        <Select value={owner} onValueChange={handleOwnerChange}>
+        <Select onValueChange={handleOwnerChange} value={owner}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -137,7 +139,7 @@ export function ExpenseForm({
 
       <div className="space-y-1">
         <Label>Paid by</Label>
-        <Select value={paidBy} onValueChange={setPaidBy} disabled={owner !== "shared"}>
+        <Select disabled={owner !== "shared"} onValueChange={setPaidBy} value={paidBy}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -153,15 +155,15 @@ export function ExpenseForm({
 
       <div className="space-y-1">
         <Label htmlFor="date">Date</Label>
-        <Input id="date" type="date" required value={date} onChange={(e) => setDate(e.target.value)} />
+        <Input id="date" onChange={(e) => setDate(e.target.value)} required type="date" value={date} />
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="note">Note (optional)</Label>
-        <Input id="note" value={note} onChange={(e) => setNote(e.target.value)} />
+        <Input id="note" onChange={(e) => setNote(e.target.value)} value={note} />
       </div>
 
-      <Button type="submit" className="w-full" disabled={submitting}>
+      <Button className="w-full" disabled={submitting} type="submit">
         {submitting ? "Saving..." : expenseId ? "Save changes" : "Add Expense"}
       </Button>
     </form>
