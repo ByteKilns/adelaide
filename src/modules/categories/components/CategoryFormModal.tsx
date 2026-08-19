@@ -6,8 +6,8 @@ import { List } from "lucide-react";
 import { toast } from "sonner";
 
 import { Modal } from "@/components/Modal";
+import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createCategoryAction, updateCategoryAction } from "@/modules/categories/api/categories.actions";
@@ -64,15 +64,13 @@ export function CategoryFormModal({ category, onOpenChange, open }: Props) {
       tone="blue"
     >
       <form className="space-y-4" id="category-form" onSubmit={handleSubmit}>
-        <div className="space-y-1">
-          <Label htmlFor="category-name">Name</Label>
-          <Input
-            id="category-name"
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            required
-            value={form.name}
-          />
-        </div>
+        <TextField
+          id="category-name"
+          label="Name"
+          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+          required
+          value={form.name}
+        />
 
         <div className="space-y-1">
           <Label htmlFor="category-group">Group</Label>

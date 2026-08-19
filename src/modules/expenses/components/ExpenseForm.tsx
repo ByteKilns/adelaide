@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -91,18 +91,16 @@ export function ExpenseForm({
 
   return (
     <form className="mx-auto max-w-sm space-y-4 p-4" onSubmit={handleSubmit}>
-      <div className="space-y-1">
-        <Label htmlFor="amount">Amount</Label>
-        <Input
-          id="amount"
-          min={0}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-          step="0.01"
-          type="number"
-          value={amount}
-        />
-      </div>
+      <TextField
+        id="amount"
+        label="Amount"
+        min={0}
+        onChange={(e) => setAmount(e.target.value)}
+        required
+        step="0.01"
+        type="number"
+        value={amount}
+      />
 
       <div className="space-y-1">
         <Label>Category</Label>
@@ -153,15 +151,9 @@ export function ExpenseForm({
         </Select>
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="date">Date</Label>
-        <Input id="date" onChange={(e) => setDate(e.target.value)} required type="date" value={date} />
-      </div>
+      <TextField id="date" label="Date" onChange={(e) => setDate(e.target.value)} required type="date" value={date} />
 
-      <div className="space-y-1">
-        <Label htmlFor="note">Note (optional)</Label>
-        <Input id="note" onChange={(e) => setNote(e.target.value)} value={note} />
-      </div>
+      <TextField id="note" label="Note (optional)" onChange={(e) => setNote(e.target.value)} value={note} />
 
       <Button className="w-full" disabled={submitting} type="submit">
         {submitting ? "Saving..." : expenseId ? "Save changes" : "Add Expense"}

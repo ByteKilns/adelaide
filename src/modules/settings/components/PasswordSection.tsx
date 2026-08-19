@@ -4,10 +4,9 @@ import { useState, useTransition } from "react";
 
 import { toast } from "sonner";
 
+import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { changePasswordAction } from "@/modules/settings/api/settings.actions";
 
 export function PasswordSection() {
@@ -48,41 +47,35 @@ export function PasswordSection() {
       </CardHeader>
       <CardContent>
         <form className="max-w-sm space-y-3" onSubmit={handleSubmit}>
-          <div className="space-y-1">
-            <Label htmlFor="current-password">Current password</Label>
-            <Input
-              autoComplete="current-password"
-              id="current-password"
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              required
-              type="password"
-              value={currentPassword}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="new-password">New password</Label>
-            <Input
-              autoComplete="new-password"
-              id="new-password"
-              minLength={8}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              type="password"
-              value={newPassword}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="confirm-password">Confirm new password</Label>
-            <Input
-              autoComplete="new-password"
-              id="confirm-password"
-              minLength={8}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              type="password"
-              value={confirmPassword}
-            />
-          </div>
+          <TextField
+            autoComplete="current-password"
+            id="current-password"
+            label="Current password"
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            required
+            type="password"
+            value={currentPassword}
+          />
+          <TextField
+            autoComplete="new-password"
+            id="new-password"
+            label="New password"
+            minLength={8}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+            type="password"
+            value={newPassword}
+          />
+          <TextField
+            autoComplete="new-password"
+            id="confirm-password"
+            label="Confirm new password"
+            minLength={8}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            type="password"
+            value={confirmPassword}
+          />
           <Button disabled={pending} type="submit">
             {pending ? "Saving..." : "Change Password"}
           </Button>

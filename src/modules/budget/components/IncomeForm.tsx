@@ -1,7 +1,6 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { TextField } from "@/components/TextField";
 
 type Props = {
   memberId: string;
@@ -12,18 +11,15 @@ type Props = {
 
 export function IncomeForm({ memberId, memberName, onChange, value }: Props) {
   return (
-    <div className="space-y-1">
-      <Label className="text-muted-foreground" htmlFor={`income-${memberId}`}>
-        {memberName} income
-      </Label>
-      <Input
-        id={`income-${memberId}`}
-        min={0}
-        onChange={(e) => onChange(e.target.value)}
-        step="0.01"
-        type="number"
-        value={value}
-      />
-    </div>
+    <TextField
+      id={`income-${memberId}`}
+      label={`${memberName} income`}
+      labelClassName="text-muted-foreground"
+      min={0}
+      onChange={(e) => onChange(e.target.value)}
+      step="0.01"
+      type="number"
+      value={value}
+    />
   );
 }
