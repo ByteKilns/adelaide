@@ -10,7 +10,7 @@ export function OwnerTabs({ views }: { views: OwnerView[] }) {
       <TabsList className="w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
         {views.map((v) => (
           <TabsTrigger
-            className="rounded-none border-b-2 border-transparent px-1 pb-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            className="rounded-none border-t-0 border-r-0 border-b-2 border-l-0 border-transparent px-1 pb-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             key={v.key}
             value={v.key}
           >

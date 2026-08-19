@@ -22,7 +22,7 @@ type Props = {
 };
 
 const TAB_TRIGGER_CLASS =
-  "rounded-none border-b-2 border-transparent px-1 pb-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none";
+  "rounded-none border-t-0 border-r-0 border-b-2 border-l-0 border-transparent px-1 pb-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none";
 
 export function BudgetGroups({ categories, groups, incomesByMember, itemsByCategory, members, month, year }: Props) {
   const [tab, setTab] = useState<Tab>("all");
