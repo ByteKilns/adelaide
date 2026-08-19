@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +36,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/settings", label: "Settings", icon: Settings, enabled: true },
 ];
 
-type Member = { id: string; name: string };
+type Member = { id: string; image: null | string; name: string };
 
 type Props = {
   members: Member[];
@@ -45,14 +46,15 @@ type Props = {
 
 export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) {
   const pathname = usePathname();
-  const realMemberName = members.find((m) => m.id === realMemberId)?.name ?? "Me";
+  const realMember = members.find((m) => m.id === realMemberId);
+  const realMemberName = realMember?.name ?? "Me";
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto p-4 md:flex">
       <div className="mb-6 flex items-center gap-2">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/60" />
         <div>
-          <p className="text-base leading-tight font-semibold">Couple Budget</p>
+          <p className="text-base leading-tight font-semibold">Adelaide</p>
           <p className="text-xs text-muted-foreground">
             Plan together, grow together
           </p>
@@ -99,9 +101,14 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
 
       <div className="mt-4 space-y-1 border-t pt-4">
         <div className="flex items-center gap-2 rounded-lg px-1 py-1.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-            {realMemberName.charAt(0).toUpperCase() || "?"}
-          </div>
+          <Avatar className="size-8" size="sm">
+            {realMember?.image && (
+              <AvatarImage alt={realMemberName} src={realMember.image} />
+            )}
+            <AvatarFallback className="bg-primary text-sm font-semibold text-primary-foreground">
+              {realMemberName.charAt(0).toUpperCase() || "?"}
+            </AvatarFallback>
+          </Avatar>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">{realMemberName}</p>
             <p className="text-xs text-muted-foreground">View profile</p>

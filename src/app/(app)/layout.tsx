@@ -12,7 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen">
       <SidebarNav
-        members={members.map((m) => ({ id: m.id, name: m.user.name }))}
+        members={members.map((m) => ({ id: m.id, image: m.user.image, name: m.user.name }))}
         realMemberId={current.memberId}
         viewingAsMemberId={effective.memberId}
       />
