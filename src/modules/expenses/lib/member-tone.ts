@@ -1,4 +1,4 @@
-import type { Tone } from "@/modules/dashboard/components/ToneIcon";
+import type { Tone } from "@/components/ToneIcon";
 
 export type MemberRole = "me" | "partner" | "shared";
 

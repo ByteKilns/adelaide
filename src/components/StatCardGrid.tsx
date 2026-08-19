@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 
 import type { LucideIcon } from "lucide-react";
 
+import { type Tone, ToneIcon } from "@/components/ToneIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { type Tone, ToneIcon } from "@/modules/dashboard/components/ToneIcon";
 
 export type StatCard = { content: ReactNode; icon: LucideIcon; title: string; tone: Tone };
 

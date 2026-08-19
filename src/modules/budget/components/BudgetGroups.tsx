@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { Wallet } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,7 +55,7 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
 
       <Dialog onOpenChange={setEditing} open={editing}>
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
-          <DialogHeader>
+          <DialogHeader icon={Wallet} tone="purple">
             <DialogTitle>Edit budget</DialogTitle>
           </DialogHeader>
 

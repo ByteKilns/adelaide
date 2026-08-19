@@ -1,6 +1,6 @@
+import { TONE_BAR_CLASSES, ToneIcon } from "@/components/ToneIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
-import { TONE_BAR_CLASSES, ToneIcon } from "@/modules/dashboard/components/ToneIcon";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import type { TopCategory } from "@/modules/expenses/lib/expense-breakdown";
 

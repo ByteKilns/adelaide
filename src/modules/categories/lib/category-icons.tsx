@@ -10,7 +10,7 @@ import {
   Users,
 } from "lucide-react";
 
-import type { Tone } from "@/modules/dashboard/components/ToneIcon";
+import type { Tone } from "@/components/ToneIcon";
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
   Family: Users,

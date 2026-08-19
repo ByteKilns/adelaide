@@ -1,7 +1,7 @@
 import { Users } from "lucide-react";
 
+import { TONE_BADGE_CLASSES } from "@/components/ToneIcon";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { TONE_BADGE_CLASSES } from "@/modules/dashboard/components/ToneIcon";
 import { type MemberRole, memberTone } from "@/modules/expenses/lib/member-tone";
 
 type Props = { name: string; role: MemberRole };

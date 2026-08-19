@@ -1,9 +1,9 @@
 import Link from "next/link";
 
+import { ToneIcon } from "@/components/ToneIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatRelativeDate } from "@/lib/format-date";
 import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
-import { ToneIcon } from "@/modules/dashboard/components/ToneIcon";
 
 type Row = {
   amount: number;

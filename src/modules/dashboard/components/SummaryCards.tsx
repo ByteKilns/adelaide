@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 import { type StatCard, StatCardGrid } from "@/components/StatCardGrid";
-import { TONE_BAR_CLASSES } from "@/modules/dashboard/components/ToneIcon";
+import { TONE_BAR_CLASSES } from "@/components/ToneIcon";
 import { formatNPR, pctOfIncome } from "@/modules/dashboard/lib/format";
 
 type Props = {

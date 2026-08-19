@@ -4,11 +4,11 @@ import { useState } from "react";
 
 import { ChevronDown, Users } from "lucide-react";
 
+import { ToneIcon } from "@/components/ToneIcon";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { BudgetGroup } from "@/modules/budget/lib/budget-groups";
 import { computeBudgetStatus } from "@/modules/budget/lib/budget-status";
-import { ToneIcon } from "@/modules/dashboard/components/ToneIcon";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 
 const VISIBLE_ROWS = 4;

@@ -1,7 +1,7 @@
+import { TONE_BAR_CLASSES, ToneIcon } from "@/components/ToneIcon";
 import { Badge } from "@/components/ui/badge";
 import { computeBudgetStatus } from "@/modules/budget/lib/budget-status";
 import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
-import { TONE_BAR_CLASSES, ToneIcon } from "@/modules/dashboard/components/ToneIcon";
 
 type Props = {
   actual: number;

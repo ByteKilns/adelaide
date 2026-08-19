@@ -2,9 +2,10 @@
 
 import * as React from "react"
 
-import { XIcon } from "lucide-react"
+import { type LucideIcon, XIcon } from "lucide-react"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
+import { type Tone, ToneIcon } from "@/components/ToneIcon"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -86,13 +87,34 @@ function DialogContent({
   )
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+function DialogHeader({
+  className,
+  icon: Icon,
+  tone = "blue",
+  children,
+  ...props
+}: React.ComponentProps<"div"> & { icon?: LucideIcon; tone?: Tone }) {
+  if (!Icon) {
+    return (
+      <div
+        className={cn("flex flex-col gap-2", className)}
+        data-slot="dialog-header"
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  }
+
   return (
     <div
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("flex items-center gap-3", className)}
       data-slot="dialog-header"
       {...props}
-    />
+    >
+      <ToneIcon icon={Icon} tone={tone} />
+      <div className="flex flex-1 flex-col gap-1">{children}</div>
+    </div>
   )
 }
 

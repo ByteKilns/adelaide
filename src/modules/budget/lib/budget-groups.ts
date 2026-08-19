@@ -1,4 +1,4 @@
-import type { Tone } from "@/modules/dashboard/components/ToneIcon";
+import type { Tone } from "@/components/ToneIcon";
 import { type MemberRole, memberTone, roleForOwner } from "@/modules/expenses/lib/member-tone";
 
 export type BudgetRow = {
