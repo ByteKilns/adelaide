@@ -7,7 +7,7 @@ import {
   type BudgetItemInput,
   type ExpenseInput,
   type IncomeInput,
-} from "./budget";
+} from "./calculations";
 
 describe("categorySpent", () => {
   it("sums only expenses matching both categoryId and ownerMemberId", () => {

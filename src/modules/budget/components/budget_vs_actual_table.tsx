@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { computeBudgetStatus } from "@/lib/budget-status";
+import { computeBudgetStatus } from "@/modules/budget/lib/budget-status";
 
 // `categoryId` is combined with `ownerMemberId` (defaulting to "shared" when
 // null) to form the React key below. A category can have more than one

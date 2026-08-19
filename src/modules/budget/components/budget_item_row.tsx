@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { setBudgetItemAction } from "@/lib/actions/budget";
+import { setBudgetItemAction } from "@/modules/budget/api/actions";
 import { Input } from "@/components/ui/input";
 import {
   Select,
