@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ChevronDown, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { BudgetGroup } from "@/modules/budget/lib/budget-groups";
 import { computeBudgetStatus } from "@/modules/budget/lib/budget-status";
 import { ToneIcon } from "@/modules/dashboard/components/ToneIcon";
@@ -32,34 +33,34 @@ export function BudgetGroupTable({ group }: { group: BudgetGroup }) {
       {group.rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">No budget set for this group yet.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="py-2 font-normal">Category</th>
-                <th className="py-2 font-normal">Type</th>
-                <th className="py-2 text-right font-normal">Budget</th>
-                <th className="py-2 text-right font-normal">Spent</th>
-                <th className="py-2 text-right font-normal">Remaining</th>
-                <th className="py-2 font-normal">Progress</th>
-                <th className="py-2 font-normal">Status</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div className="overflow-hidden rounded-xl border">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>Category</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="text-right">Budget</TableHead>
+                <TableHead className="text-right">Spent</TableHead>
+                <TableHead className="text-right">Remaining</TableHead>
+                <TableHead>Progress</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {rows.map((r) => {
                 const status = computeBudgetStatus(r.planned, r.actual);
                 return (
-                  <tr className="border-b last:border-0" key={r.categoryId}>
-                    <td className="py-2 pr-2">{r.categoryName}</td>
-                    <td className="py-2 pr-2">
+                  <TableRow key={r.categoryId}>
+                    <TableCell>{r.categoryName}</TableCell>
+                    <TableCell>
                       <Badge variant={r.budgetType === "fixed" ? "secondary" : "outline"}>
                         {r.budgetType === "fixed" ? "Fixed" : "Flexible"}
                       </Badge>
-                    </td>
-                    <td className="py-2 text-right">{formatNPR(r.planned)}</td>
-                    <td className="py-2 text-right">{formatNPR(r.actual)}</td>
-                    <td className="py-2 text-right">{formatNPR(r.planned - r.actual)}</td>
-                    <td className="py-2 pl-2">
+                    </TableCell>
+                    <TableCell className="text-right">{formatNPR(r.planned)}</TableCell>
+                    <TableCell className="text-right">{formatNPR(r.actual)}</TableCell>
+                    <TableCell className="text-right">{formatNPR(r.planned - r.actual)}</TableCell>
+                    <TableCell>
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
                           <div
@@ -75,15 +76,15 @@ export function BudgetGroupTable({ group }: { group: BudgetGroup }) {
                         </div>
                         <span className="text-xs text-muted-foreground">{status.pct}%</span>
                       </div>
-                    </td>
-                    <td className="py-2">
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={status.variant}>{status.label}</Badge>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
 

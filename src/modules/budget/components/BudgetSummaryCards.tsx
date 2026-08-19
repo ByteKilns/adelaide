@@ -1,9 +1,6 @@
-import type { ReactNode } from "react";
-
 import { PiggyBank, Target, Wallet, WalletCards } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { type Tone, ToneIcon } from "@/modules/dashboard/components/ToneIcon";
+import { type StatCard, StatCardGrid } from "@/components/StatCardGrid";
 import { formatNPR, pctOfIncome } from "@/modules/dashboard/lib/format";
 
 type Props = {
@@ -26,7 +23,7 @@ function ProgressLine({ pct }: { pct: null | number }) {
 }
 
 export function BudgetSummaryCards({ allocated, combinedIncome, totalBudget, unallocated }: Props) {
-  const cards: { content: ReactNode; icon: typeof WalletCards; title: string; tone: Tone }[] = [
+  const cards: StatCard[] = [
     {
       content: (
         <>
@@ -75,17 +72,5 @@ export function BudgetSummaryCards({ allocated, combinedIncome, totalBudget, una
     },
   ];
 
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map((card) => (
-        <Card className="py-2" key={card.title}>
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle className="text-sm font-normal text-muted-foreground">{card.title}</CardTitle>
-            <ToneIcon icon={card.icon} tone={card.tone} />
-          </CardHeader>
-          <CardContent className="-mt-3">{card.content}</CardContent>
-        </Card>
-      ))}
-    </div>
-  );
+  return <StatCardGrid cards={cards} />;
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BudgetGroupTable } from "@/modules/budget/components/BudgetGroupTable";
 import { BudgetItemRow } from "@/modules/budget/components/BudgetItemRow";
@@ -45,51 +46,57 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
             ))}
           </TabsList>
         </Tabs>
-        <Button onClick={() => setEditing((v) => !v)} type="button">
+        <Button onClick={() => setEditing(true)} type="button">
           + Add Budget
         </Button>
       </div>
 
-      {editing && (
-        <div className="space-y-6 rounded-2xl border bg-card p-4">
-          <section>
-            <h3 className="mb-2 text-sm font-semibold">Income</h3>
-            <div className="space-y-3">
-              {members.map((m) => (
-                <IncomeForm
-                  initialAmount={incomesByMember[m.id] ?? 0}
-                  key={m.id}
-                  memberId={m.id}
-                  memberName={m.name}
-                  month={month}
-                  year={year}
-                />
-              ))}
-            </div>
-          </section>
+      <Dialog onOpenChange={setEditing} open={editing}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Edit budget</DialogTitle>
+          </DialogHeader>
 
-          <section>
-            <h3 className="mb-2 text-sm font-semibold">Category allocations</h3>
-            <div className="divide-y">
-              {categories.map((c) => {
-                const existing = itemsByCategory[c.id];
-                return (
-                  <BudgetItemRow
-                    categoryId={c.id}
-                    categoryName={c.name}
-                    initialOwnerMemberId={existing?.ownerMemberId ?? null}
-                    initialPlannedAmount={existing?.plannedAmount ?? 0}
-                    key={c.id}
-                    members={members}
+          <div className="space-y-6">
+            <section>
+              <h3 className="mb-2 text-sm font-semibold">Income</h3>
+              <div className="space-y-3">
+                {members.map((m) => (
+                  <IncomeForm
+                    initialAmount={incomesByMember[m.id] ?? 0}
+                    key={m.id}
+                    memberId={m.id}
+                    memberName={m.name}
                     month={month}
                     year={year}
                   />
-                );
-              })}
-            </div>
-          </section>
-        </div>
-      )}
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h3 className="mb-2 text-sm font-semibold">Category allocations</h3>
+              <div className="divide-y">
+                {categories.map((c) => {
+                  const existing = itemsByCategory[c.id];
+                  return (
+                    <BudgetItemRow
+                      categoryId={c.id}
+                      categoryName={c.name}
+                      initialOwnerMemberId={existing?.ownerMemberId ?? null}
+                      initialPlannedAmount={existing?.plannedAmount ?? 0}
+                      key={c.id}
+                      members={members}
+                      month={month}
+                      year={year}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <div className="space-y-4">
         {visibleGroups.map((g) => (

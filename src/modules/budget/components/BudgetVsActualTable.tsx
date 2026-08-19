@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { computeBudgetStatus } from "@/modules/budget/lib/budget-status";
 
 // `categoryId` is combined with `ownerMemberId` (defaulting to "shared" when
@@ -17,39 +18,39 @@ type Row = {
 
 export function BudgetVsActualTable({ rows }: { rows: Row[] }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b text-left text-muted-foreground">
-            <th className="py-2">Category</th>
-            <th className="py-2 text-right">Budget</th>
-            <th className="py-2 text-right">Actual</th>
-            <th className="py-2 text-right">Difference</th>
-            <th className="py-2 text-right">Status</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="overflow-hidden rounded-xl border">
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead>Category</TableHead>
+            <TableHead className="text-right">Budget</TableHead>
+            <TableHead className="text-right">Actual</TableHead>
+            <TableHead className="text-right">Difference</TableHead>
+            <TableHead className="text-right">Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {rows.map((r) => {
             const status = computeBudgetStatus(r.planned, r.actual);
             return (
-              <tr className="border-b" key={`${r.categoryId}-${r.ownerMemberId ?? "shared"}`}>
-                <td className="py-2">{r.categoryName}</td>
-                <td className="py-2 text-right">{r.planned.toLocaleString()}</td>
-                <td className="py-2 text-right">{r.actual.toLocaleString()}</td>
-                <td
-                  className={`py-2 text-right ${r.difference < 0 ? "text-red-600" : "text-green-700"}`}
+              <TableRow key={`${r.categoryId}-${r.ownerMemberId ?? "shared"}`}>
+                <TableCell>{r.categoryName}</TableCell>
+                <TableCell className="text-right">{r.planned.toLocaleString()}</TableCell>
+                <TableCell className="text-right">{r.actual.toLocaleString()}</TableCell>
+                <TableCell
+                  className={`text-right ${r.difference < 0 ? "text-red-600" : "text-green-700"}`}
                 >
                   {r.difference >= 0 ? "+" : ""}
                   {r.difference.toLocaleString()}
-                </td>
-                <td className="py-2 text-right">
+                </TableCell>
+                <TableCell className="text-right">
                   <Badge variant={status.variant}>{status.label}</Badge>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

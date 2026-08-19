@@ -1,0 +1,24 @@
+import type { ReactNode } from "react";
+
+import type { LucideIcon } from "lucide-react";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { type Tone, ToneIcon } from "@/modules/dashboard/components/ToneIcon";
+
+export type StatCard = { content: ReactNode; icon: LucideIcon; title: string; tone: Tone };
+
+export function StatCardGrid({ cards }: { cards: StatCard[] }) {
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {cards.map((card) => (
+        <Card className="py-2" key={card.title}>
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle className="text-sm font-normal text-muted-foreground">{card.title}</CardTitle>
+            <ToneIcon icon={card.icon} tone={card.tone} />
+          </CardHeader>
+          <CardContent className="-mt-3">{card.content}</CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}

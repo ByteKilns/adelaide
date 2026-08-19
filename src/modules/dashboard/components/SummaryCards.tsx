@@ -1,19 +1,12 @@
-import type { ReactNode } from "react";
-
 import {
   ArrowDown,
   ArrowUp,
-  type LucideIcon,
   PiggyBank,
   WalletCards,
 } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  type Tone,
-  TONE_BAR_CLASSES,
-  ToneIcon,
-} from "@/modules/dashboard/components/ToneIcon";
+import { type StatCard, StatCardGrid } from "@/components/StatCardGrid";
+import { TONE_BAR_CLASSES } from "@/modules/dashboard/components/ToneIcon";
 import { formatNPR, pctOfIncome } from "@/modules/dashboard/lib/format";
 
 type Props = {
@@ -55,12 +48,7 @@ export function SummaryCards({
   const expensePct = pctOfIncome(totalExpenses, combinedIncome);
   const unallocatedPct = pctOfIncome(unallocated, combinedIncome);
 
-  const cards: {
-    content: ReactNode;
-    icon: LucideIcon;
-    title: string;
-    tone: Tone;
-  }[] = [
+  const cards: StatCard[] = [
     {
       title: "Combined Income",
       icon: WalletCards,
@@ -114,19 +102,5 @@ export function SummaryCards({
     },
   ];
 
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map((card) => (
-        <Card className="py-2" key={card.title}>
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle className="text-sm font-normal text-muted-foreground">
-              {card.title}
-            </CardTitle>
-            <ToneIcon icon={card.icon} tone={card.tone} />
-          </CardHeader>
-          <CardContent className="-mt-3">{card.content}</CardContent>
-        </Card>
-      ))}
-    </div>
-  );
+  return <StatCardGrid cards={cards} />;
 }

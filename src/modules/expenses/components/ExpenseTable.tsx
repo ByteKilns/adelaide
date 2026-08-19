@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { deleteExpenseAction } from "@/modules/expenses/api/expenses.actions";
@@ -95,50 +96,50 @@ export function ExpenseTable({ partnerName, realMemberId, rows }: Props) {
         </TabsList>
       </Tabs>
 
-      <div className="overflow-x-auto rounded-2xl border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b text-left text-muted-foreground">
-              <th className="p-3 font-normal">Date</th>
-              <th className="p-3 font-normal">Category</th>
-              <th className="p-3 font-normal">Owner</th>
-              <th className="p-3 font-normal">Paid by</th>
-              <th className="p-3 text-right font-normal">Amount</th>
-              <th className="p-3" />
-            </tr>
-          </thead>
-          <tbody>
+      <div className="overflow-hidden rounded-2xl border">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>Date</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Owner</TableHead>
+              <TableHead>Paid by</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {filtered.length === 0 && (
-              <tr>
-                <td className="p-6 text-center text-muted-foreground" colSpan={6}>
+              <TableRow className="hover:bg-transparent">
+                <TableCell className="whitespace-normal py-6 text-center text-muted-foreground" colSpan={6}>
                   No expenses in this view.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
             {filtered.map((r) => {
               const ownerRole = roleForOwner(r.ownerMemberId, realMemberId);
               const paidByRole: MemberRole = r.paidByMemberId === realMemberId ? "me" : "partner";
               return (
-                <tr className="border-b last:border-0" key={r.id}>
-                  <td className="p-3 whitespace-nowrap">{r.date}</td>
-                  <td className="p-3">
+                <TableRow key={r.id}>
+                  <TableCell>{r.date}</TableCell>
+                  <TableCell className="whitespace-normal">
                     <p className="font-medium">{r.categoryName}</p>
                     {r.note && <p className="text-xs text-muted-foreground">{r.note}</p>}
-                  </td>
-                  <td className="p-3">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-2">
                       <OwnerAvatar name={r.ownerName ?? ""} role={ownerRole} />
                       <span>{displayLabel(ownerRole, r.ownerName)}</span>
                     </div>
-                  </td>
-                  <td className="p-3">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-2">
                       <OwnerAvatar name={r.paidByName} role={paidByRole} />
                       <span>{paidByRole === "me" ? "Me" : r.paidByName}</span>
                     </div>
-                  </td>
-                  <td className="p-3 text-right font-semibold">-{formatNPR(r.amount)}</td>
-                  <td className="p-3 text-right">
+                  </TableCell>
+                  <TableCell className="text-right font-semibold">-{formatNPR(r.amount)}</TableCell>
+                  <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button className="rounded-md p-1 text-muted-foreground hover:bg-accent" type="button">
@@ -158,12 +159,12 @@ export function ExpenseTable({ partnerName, realMemberId, rows }: Props) {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       <p className="text-sm text-muted-foreground">
