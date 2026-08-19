@@ -9,6 +9,7 @@ import {
   MoreHorizontal,
   type LucideIcon,
 } from "lucide-react";
+import type { Tone } from "@/components/dashboard/tone-icon";
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
   Family: Users,
@@ -23,4 +24,19 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
 
 export function getCategoryIcon(groupName: string): LucideIcon {
   return GROUP_ICONS[groupName] ?? MoreHorizontal;
+}
+
+const GROUP_TONES: Record<string, Tone> = {
+  Family: "pink",
+  Obligations: "purple",
+  Household: "green",
+  Transportation: "orange",
+  Lifestyle: "pink",
+  Personal: "purple",
+  Financial: "purple",
+  Other: "blue",
+};
+
+export function getCategoryTone(groupName: string): Tone {
+  return GROUP_TONES[groupName] ?? "blue";
 }

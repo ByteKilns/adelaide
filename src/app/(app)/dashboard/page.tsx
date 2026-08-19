@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Gauge, PiggyBank } from "lucide-react";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/lib/data/categories";
@@ -6,13 +5,13 @@ import { getIncomesForMonth } from "@/lib/actions/income";
 import { getBudgetItemsForMonth } from "@/lib/actions/budget";
 import { listExpensesForMonth, listRecentExpenses } from "@/lib/actions/expenses";
 import { dashboardSummary, budgetVsActual } from "@/lib/calculations/budget";
-import { getCategoryIcon } from "@/lib/category-icons";
 import { toIncomeInputs, toExpenseInputs, toBudgetItemInputs } from "@/lib/dashboard/map-rows";
 import { classifyOwnerLabel } from "@/lib/dashboard/owner-label";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { OwnerTabs } from "@/components/dashboard/owner-tabs";
 import { ComingSoonCard } from "@/components/dashboard/coming-soon-card";
+import { DashboardPanel } from "@/components/dashboard/dashboard-panel";
 import { BudgetCard } from "@/components/budget/budget-card";
 import { BudgetVsActualTable } from "@/components/budget/budget-vs-actual-table";
 import { RecentExpenses } from "@/components/expenses/recent-expenses";
@@ -135,21 +134,16 @@ export default async function DashboardPage() {
             description="A safe-to-spend forecast based on your budget and spending pace is coming soon."
           />
 
-          <section>
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Budget Overview</h2>
-              <Link href="/budget" className="text-sm text-primary underline">
-                View all budgets
-              </Link>
-            </div>
+          <DashboardPanel title="Budget Overview" actionLabel="View all budgets" actionHref="/budget">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {vsActual.map((row) => (
                 <BudgetCard
                   key={`${row.categoryId}-${row.ownerMemberId ?? "shared"}`}
                   categoryName={categoryName(row.categoryId)}
+                  categoryGroupName={category(row.categoryId)?.groupName ?? ""}
+                  ownerLabel={ownerLabel(row.ownerMemberId)}
                   planned={row.planned}
                   actual={row.actual}
-                  icon={getCategoryIcon(category(row.categoryId)?.groupName ?? "")}
                 />
               ))}
               {vsActual.length === 0 && (
@@ -158,10 +152,9 @@ export default async function DashboardPage() {
                 </p>
               )}
             </div>
-          </section>
+          </DashboardPanel>
 
-          <section>
-            <h2 className="mb-2 text-lg font-semibold">Budget vs Actual</h2>
+          <DashboardPanel title="Budget vs Actual">
             <BudgetVsActualTable
               rows={vsActual.map((row) => ({
                 categoryId: row.categoryId,
@@ -172,7 +165,7 @@ export default async function DashboardPage() {
                 difference: row.difference,
               }))}
             />
-          </section>
+          </DashboardPanel>
         </div>
 
         <div className="space-y-6">

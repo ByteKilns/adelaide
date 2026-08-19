@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Banknote, Receipt, PiggyBank, CreditCard, ArrowUp, ArrowDown } from "lucide-react";
+import { WalletCards, PiggyBank, ArrowUp, ArrowDown } from "lucide-react";
+import { ToneIcon, TONE_BAR_CLASSES } from "@/components/dashboard/tone-icon";
 
 type Props = {
   combinedIncome: number;
@@ -43,9 +44,7 @@ export function SummaryCards({
           <CardTitle className="text-sm font-normal text-muted-foreground">
             Combined Income
           </CardTitle>
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400">
-            <Banknote className="h-4 w-4" />
-          </div>
+          <ToneIcon icon={WalletCards} tone="green" />
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-semibold">NPR {combinedIncome.toLocaleString()}</p>
@@ -59,9 +58,7 @@ export function SummaryCards({
           <CardTitle className="text-sm font-normal text-muted-foreground">
             Total Expenses
           </CardTitle>
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-950 dark:text-red-400">
-            <Receipt className="h-4 w-4" />
-          </div>
+          <ToneIcon icon={WalletCards} tone="pink" />
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-semibold">NPR {totalExpenses.toLocaleString()}</p>
@@ -70,7 +67,7 @@ export function SummaryCards({
               <p className="mt-1 text-xs text-muted-foreground">{expensePct}% of income</p>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-red-500 transition-all"
+                  className={`h-full rounded-full transition-all ${TONE_BAR_CLASSES.pink}`}
                   style={{ width: `${Math.min(expensePct, 100)}%` }}
                 />
               </div>
@@ -85,9 +82,7 @@ export function SummaryCards({
           <CardTitle className="text-sm font-normal text-muted-foreground">
             Total Savings
           </CardTitle>
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <PiggyBank className="h-4 w-4" />
-          </div>
+          <ToneIcon icon={PiggyBank} tone="purple" />
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">Coming soon</p>
@@ -99,9 +94,7 @@ export function SummaryCards({
           <CardTitle className="text-sm font-normal text-muted-foreground">
             Unallocated
           </CardTitle>
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400">
-            <CreditCard className="h-4 w-4" />
-          </div>
+          <ToneIcon icon={WalletCards} tone="orange" />
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-semibold">NPR {unallocated.toLocaleString()}</p>
