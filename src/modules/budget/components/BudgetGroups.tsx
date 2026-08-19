@@ -5,8 +5,8 @@ import { useState, useTransition } from "react";
 import { Wallet } from "lucide-react";
 import { toast } from "sonner";
 
+import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { setBudgetItemAction, setIncomeAction } from "@/modules/budget/api/budget.actions";
 import { BudgetGroupTable } from "@/modules/budget/components/BudgetGroupTable";
@@ -102,8 +102,16 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
               Overview
             </TabsTrigger>
             {groups.map((g) => (
-              <TabsTrigger className={TAB_TRIGGER_CLASS} key={g.key} value={g.key}>
-                {g.key === "me" ? "Me" : g.key === "shared" ? "Shared" : g.label.replace(" Budget", "")}
+              <TabsTrigger
+                className={TAB_TRIGGER_CLASS}
+                key={g.key}
+                value={g.key}
+              >
+                {g.key === "me"
+                  ? "Me"
+                  : g.key === "shared"
+                    ? "Shared"
+                    : g.label.replace(" Budget", "")}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -113,67 +121,62 @@ export function BudgetGroups({ categories, groups, incomesByMember, itemsByCateg
         </Button>
       </div>
 
-      <Dialog onOpenChange={setEditing} open={editing}>
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader icon={Wallet} tone="purple">
-            <DialogTitle>Edit budget</DialogTitle>
-          </DialogHeader>
-
-          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-4">
-            <section>
-              <h3 className="mb-2 text-base font-semibold text-foreground">Income</h3>
-              <div className="space-y-3">
-                {members.map((m) => (
-                  <IncomeForm
-                    key={m.id}
-                    memberId={m.id}
-                    memberName={m.name}
-                    onChange={(value) => setIncomeValues((prev) => ({ ...prev, [m.id]: value }))}
-                    value={incomeValues[m.id] ?? ""}
-                  />
-                ))}
-              </div>
-            </section>
-
-            <section>
-              <h3 className="mb-2 text-base font-semibold text-foreground">Category allocations</h3>
-              <p className="mb-2 text-xs text-muted-foreground">
-                A category can be budgeted under more than one tab at once — set an amount in each tab that
-                applies.
-              </p>
-              <Tabs onValueChange={setOwnerTab} value={ownerTab}>
-                <TabsList className="mb-2 w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
-                  {ownerTabs.map((t) => (
-                    <TabsTrigger className={TAB_TRIGGER_CLASS} key={t.key} value={t.key}>
-                      {t.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-              <div className="divide-y">
-                {categories.map((c) => {
-                  const key = itemKey(c.id, ownerTab);
-                  return (
-                    <BudgetItemRow
-                      amount={itemValues[key] ?? ""}
-                      categoryId={c.id}
-                      categoryName={c.name}
-                      key={c.id}
-                      onAmountChange={(value) => setItemValues((prev) => ({ ...prev, [key]: value }))}
-                    />
-                  );
-                })}
-              </div>
-            </section>
+      <Modal
+        className="sm:max-w-xl"
+        footer={
+          <Button disabled={pending} onClick={handleSaveAll} type="button">
+            {pending ? "Saving..." : "Save Budget"}
+          </Button>
+        }
+        icon={Wallet}
+        onOpenChange={setEditing}
+        open={editing}
+        title="Edit budget"
+        tone="purple"
+      >
+        <section>
+          <h3 className="mb-2 text-base font-semibold text-foreground">Income</h3>
+          <div className="space-y-3">
+            {members.map((m) => (
+              <IncomeForm
+                key={m.id}
+                memberId={m.id}
+                memberName={m.name}
+                onChange={(value) => setIncomeValues((prev) => ({ ...prev, [m.id]: value }))}
+                value={incomeValues[m.id] ?? ""}
+              />
+            ))}
           </div>
+        </section>
 
-          <DialogFooter>
-            <Button disabled={pending} onClick={handleSaveAll} type="button">
-              {pending ? "Saving..." : "Save Budget"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        <section>
+          <h3 className="mb-2 text-base font-semibold text-foreground">Category allocations</h3>
+
+          <Tabs onValueChange={setOwnerTab} value={ownerTab}>
+            <TabsList className="mb-2 w-full justify-start gap-4 rounded-none border-b bg-transparent p-0">
+              {ownerTabs.map((t) => (
+                <TabsTrigger className={TAB_TRIGGER_CLASS} key={t.key} value={t.key}>
+                  {t.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <div className="divide-y">
+            {categories.map((c) => {
+              const key = itemKey(c.id, ownerTab);
+              return (
+                <BudgetItemRow
+                  amount={itemValues[key] ?? ""}
+                  categoryId={c.id}
+                  categoryName={c.name}
+                  key={c.id}
+                  onAmountChange={(value) => setItemValues((prev) => ({ ...prev, [key]: value }))}
+                />
+              );
+            })}
+          </div>
+        </section>
+      </Modal>
 
       <div className="space-y-4">
         {visibleGroups.map((g) => (
