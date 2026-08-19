@@ -59,7 +59,7 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
         </div>
       </div>
 
-      <Button size={"lg"} asChild className="mb-4">
+      <Button asChild className="mb-4" size={"lg"}>
         <Link href="/expenses/new">+ Add Expense</Link>
       </Button>
 
@@ -82,7 +82,7 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
           return (
             <Link
               className={cn(
-                "flex items-center gap-3 rounded-r-lg border-l-2 px-3 py-2 text-sm transition-colors",
+                "flex items-center gap-3 rounded-r-lg border-l-3 px-3 py-2 text-sm transition-colors",
                 active
                   ? "border-primary bg-primary/10 font-medium text-primary"
                   : "border-transparent text-muted-foreground hover:bg-accent",

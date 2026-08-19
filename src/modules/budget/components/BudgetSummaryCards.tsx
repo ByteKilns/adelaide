@@ -78,12 +78,12 @@ export function BudgetSummaryCards({ allocated, combinedIncome, totalBudget, una
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
-        <Card key={card.title}>
-          <CardHeader className="flex items-center justify-between pb-2">
+        <Card className="py-2" key={card.title}>
+          <CardHeader className="flex items-center justify-between">
             <CardTitle className="text-sm font-normal text-muted-foreground">{card.title}</CardTitle>
             <ToneIcon icon={card.icon} tone={card.tone} />
           </CardHeader>
-          <CardContent>{card.content}</CardContent>
+          <CardContent className="-mt-3">{card.content}</CardContent>
         </Card>
       ))}
     </div>
