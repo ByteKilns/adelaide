@@ -97,7 +97,7 @@ function DialogHeader({
   if (!Icon) {
     return (
       <div
-        className={cn("flex shrink-0 flex-col gap-2 bg-popover px-4 pt-4 pb-3", className)}
+        className={cn("flex shrink-0 flex-col gap-2 border-b bg-popover px-4 pt-4 pb-3", className)}
         data-slot="dialog-header"
         {...props}
       >
@@ -108,7 +108,7 @@ function DialogHeader({
 
   return (
     <div
-      className={cn("flex shrink-0 items-center gap-3 bg-popover px-4 pt-4 pb-3", className)}
+      className={cn("flex shrink-0 items-center gap-3 border-b bg-popover px-4 pt-4 pb-3", className)}
       data-slot="dialog-header"
       {...props}
     >
