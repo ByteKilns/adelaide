@@ -74,18 +74,15 @@ export default async function DashboardPage() {
 
   const ownerLabel = (id: string | null) => classifyOwnerLabel(id, memberId, members);
 
-  const expensesFor = (label: string) =>
-    expenses
-      .filter((e) => ownerLabel(e.ownerMemberId) === label)
-      .reduce((s, e) => s + e.amount, 0);
-
   const partner = members.find((m) => m.id !== memberId);
   const ownerViews = [
     {
       key: "me",
       label: "Me",
       income: incomes.find((i) => i.memberId === memberId)?.amount ?? 0,
-      expenses: expensesFor("Me"),
+      expenses: expenses
+        .filter((e) => e.ownerMemberId === memberId)
+        .reduce((s, e) => s + e.amount, 0),
       remaining: 0,
     },
     ...(partner
@@ -94,7 +91,9 @@ export default async function DashboardPage() {
             key: "partner",
             label: partner.user.name,
             income: incomes.find((i) => i.memberId === partner.id)?.amount ?? 0,
-            expenses: expensesFor(partner.user.name),
+            expenses: expenses
+              .filter((e) => e.ownerMemberId === partner.id)
+              .reduce((s, e) => s + e.amount, 0),
             remaining: 0,
           },
         ]
@@ -103,7 +102,7 @@ export default async function DashboardPage() {
       key: "shared",
       label: "Shared",
       income: 0,
-      expenses: expensesFor("Shared"),
+      expenses: expenses.filter((e) => e.ownerMemberId === null).reduce((s, e) => s + e.amount, 0),
       remaining: 0,
     },
   ].map((v) => ({ ...v, remaining: v.income - v.expenses }));
