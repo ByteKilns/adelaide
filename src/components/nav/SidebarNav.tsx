@@ -53,11 +53,13 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/60" />
         <div>
           <p className="text-base leading-tight font-semibold">Couple Budget</p>
-          <p className="text-xs text-muted-foreground">Plan together, grow together</p>
+          <p className="text-xs text-muted-foreground">
+            Plan together, grow together
+          </p>
         </div>
       </div>
 
-      <Button asChild className="mb-4 rounded-full">
+      <Button size={"lg"} asChild className="mb-4">
         <Link href="/expenses/new">+ Add Expense</Link>
       </Button>
 
@@ -68,7 +70,7 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
             return (
               <div
                 aria-disabled="true"
-                className="flex cursor-default items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground"
+                className="flex cursor-default items-center gap-3  px-3 py-2 text-sm text-muted-foreground"
                 key={item.href}
               >
                 <Icon className="h-4 w-4" />
@@ -80,7 +82,7 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
           return (
             <Link
               className={cn(
-                "flex items-center gap-3 rounded-lg border-l-2 px-3 py-2 text-sm transition-colors",
+                "flex items-center gap-3 rounded-r-lg border-l-2 px-3 py-2 text-sm transition-colors",
                 active
                   ? "border-primary bg-primary/10 font-medium text-primary"
                   : "border-transparent text-muted-foreground hover:bg-accent",
