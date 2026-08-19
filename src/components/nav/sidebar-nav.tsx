@@ -9,14 +9,14 @@ import {
   Repeat,
   PiggyBank,
   BarChart3,
-  Tags,
+  List,
   Bell,
   Settings,
+  ChevronDown,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ViewingAsSwitcher } from "./viewing-as-switcher";
 
 type NavItem = { href: string; label: string; icon: LucideIcon; enabled: boolean };
@@ -28,7 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/recurring", label: "Recurring", icon: Repeat, enabled: false },
   { href: "/savings-goals", label: "Savings Goals", icon: PiggyBank, enabled: false },
   { href: "/reports", label: "Reports", icon: BarChart3, enabled: false },
-  { href: "/categories", label: "Categories", icon: Tags, enabled: false },
+  { href: "/categories", label: "Categories", icon: List, enabled: false },
   { href: "/notifications", label: "Notifications", icon: Bell, enabled: false },
   { href: "/settings", label: "Settings", icon: Settings, enabled: false },
 ];
@@ -43,12 +43,16 @@ type Props = {
 
 export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) {
   const pathname = usePathname();
+  const realMemberName = members.find((m) => m.id === realMemberId)?.name ?? "Me";
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r p-4 md:flex">
-      <div className="mb-6">
-        <p className="text-lg font-semibold">Couple Budget</p>
-        <p className="text-xs text-muted-foreground">Plan together, grow together</p>
+    <aside className="hidden w-64 shrink-0 flex-col p-4 md:flex">
+      <div className="mb-6 flex items-center gap-2">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/60" />
+        <div>
+          <p className="text-base leading-tight font-semibold">Couple Budget</p>
+          <p className="text-xs text-muted-foreground">Plan together, grow together</p>
+        </div>
       </div>
 
       <Button asChild className="mb-4 rounded-full">
@@ -63,15 +67,10 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
               <div
                 key={item.href}
                 aria-disabled="true"
-                className="flex items-center justify-between rounded px-3 py-2 text-sm text-muted-foreground/50"
+                className="flex cursor-default items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground"
               >
-                <span className="flex items-center gap-2">
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </span>
-                <Badge variant="outline" className="text-[10px]">
-                  Soon
-                </Badge>
+                <Icon className="h-4 w-4" />
+                {item.label}
               </div>
             );
           }
@@ -81,8 +80,10 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-2 rounded px-3 py-2 text-sm",
-                active ? "bg-accent font-semibold" : "text-muted-foreground hover:bg-accent",
+                "flex items-center gap-3 rounded-lg border-l-2 px-3 py-2 text-sm transition-colors",
+                active
+                  ? "border-primary bg-primary/10 font-medium text-primary"
+                  : "border-transparent text-muted-foreground hover:bg-accent",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -92,7 +93,18 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
         })}
       </nav>
 
-      <div className="mt-4 border-t pt-4">
+      <div className="mt-4 space-y-1 border-t pt-4">
+        <div className="flex items-center gap-2 rounded-lg px-1 py-1.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+            {realMemberName.charAt(0).toUpperCase() || "?"}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">{realMemberName}</p>
+            <p className="text-xs text-muted-foreground">View profile</p>
+          </div>
+          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </div>
+
         <ViewingAsSwitcher
           members={members}
           realMemberId={realMemberId}
