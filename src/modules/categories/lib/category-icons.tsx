@@ -12,6 +12,17 @@ import {
 
 import type { Tone } from "@/components/ToneIcon";
 
+export const CATEGORY_GROUPS = [
+  "Family",
+  "Obligations",
+  "Household",
+  "Transportation",
+  "Lifestyle",
+  "Personal",
+  "Financial",
+  "Other",
+] as const;
+
 const GROUP_ICONS: Record<string, LucideIcon> = {
   Family: Users,
   Obligations: Landmark,
