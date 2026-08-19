@@ -53,9 +53,15 @@ export async function BudgetPage() {
   const unallocated = combinedIncome - allocated;
 
   const incomesByMember = Object.fromEntries(incomes.map((i) => [i.memberId, Number(i.amount)]));
-  const itemsByCategory = Object.fromEntries(
-    budgetItems.map((b) => [b.categoryId, { ownerMemberId: b.ownerMemberId, plannedAmount: Number(b.plannedAmount) }]),
-  );
+  // Keyed by categoryId -> ownerKey ("shared" or a memberId) -> plannedAmount,
+  // since a category can have a separate budget_items row per owner for the
+  // same month (e.g. "Groceries" shared AND owned by each member at once).
+  const itemsByCategory: Record<string, Record<string, number>> = {};
+  for (const b of budgetItems) {
+    const ownerKey = b.ownerMemberId ?? "shared";
+    itemsByCategory[b.categoryId] ??= {};
+    itemsByCategory[b.categoryId][ownerKey] = Number(b.plannedAmount);
+  }
 
   const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
 
@@ -79,6 +85,7 @@ export async function BudgetPage() {
             itemsByCategory={itemsByCategory}
             members={memberList}
             month={month}
+            realMemberId={memberId}
             year={year}
           />
         </div>
