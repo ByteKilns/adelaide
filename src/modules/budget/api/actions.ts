@@ -1,12 +1,13 @@
 "use server";
 
-import { z } from "zod";
-import { db } from "@/db/client";
-import { monthlyBudgets, budgetItems } from "@/db/schema";
 import { and, eq, isNull, ne, not, or } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { db } from "@/db/client";
+import { monthlyBudgets, budgetItems, incomes } from "@/db/schema";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
-import { revalidatePath } from "next/cache";
+import { setBudgetItemSchema, type SetBudgetItemInput } from "../schemas/budget-item";
+import { setIncomeSchema, type SetIncomeInput } from "../schemas/income";
 
 async function getOrCreateMonthlyBudget(householdId: string, year: number, month: number) {
   const [existing] = await db
@@ -34,15 +35,7 @@ export async function getBudgetItemsForMonth(year: number, month: number) {
   return db.select().from(budgetItems).where(eq(budgetItems.monthlyBudgetId, budget.id));
 }
 
-const setBudgetItemSchema = z.object({
-  year: z.number().int(),
-  month: z.number().int().min(1).max(12),
-  categoryId: z.string().uuid(),
-  ownerMemberId: z.string().uuid().nullable(),
-  plannedAmount: z.number().nonnegative(),
-});
-
-export async function setBudgetItemAction(input: z.infer<typeof setBudgetItemSchema>) {
+export async function setBudgetItemAction(input: SetBudgetItemInput) {
   const { householdId } = await getCurrentMember();
   const parsed = setBudgetItemSchema.parse(input);
 
@@ -134,6 +127,42 @@ export async function setBudgetItemAction(input: z.infer<typeof setBudgetItemSch
         });
     }
   });
+
+  revalidatePath("/budget");
+  revalidatePath("/dashboard");
+}
+
+export async function getIncomesForMonth(year: number, month: number) {
+  const { householdId } = await getCurrentMember();
+  return db
+    .select()
+    .from(incomes)
+    .where(and(eq(incomes.householdId, householdId), eq(incomes.year, year), eq(incomes.month, month)));
+}
+
+export async function setIncomeAction(input: SetIncomeInput) {
+  const { householdId } = await getCurrentMember();
+  const parsed = setIncomeSchema.parse(input);
+
+  const members = await getHouseholdMembers(householdId);
+  if (!members.some((m) => m.id === parsed.memberId)) {
+    throw new Error("Member does not belong to this household");
+  }
+
+  await db
+    .insert(incomes)
+    .values({
+      householdId,
+      memberId: parsed.memberId,
+      year: parsed.year,
+      month: parsed.month,
+      amount: String(parsed.amount),
+      note: parsed.note,
+    })
+    .onConflictDoUpdate({
+      target: [incomes.memberId, incomes.year, incomes.month],
+      set: { amount: String(parsed.amount), note: parsed.note ?? null },
+    });
 
   revalidatePath("/budget");
   revalidatePath("/dashboard");
