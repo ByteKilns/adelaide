@@ -32,7 +32,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/reports", label: "Reports", icon: BarChart3, enabled: false },
   { href: "/categories", label: "Categories", icon: List, enabled: false },
   { href: "/notifications", label: "Notifications", icon: Bell, enabled: false },
-  { href: "/settings", label: "Settings", icon: Settings, enabled: false },
+  { href: "/settings", label: "Settings", icon: Settings, enabled: true },
 ];
 
 type Member = { id: string; name: string };

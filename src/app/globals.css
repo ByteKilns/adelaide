@@ -117,6 +117,62 @@
   --sidebar-ring: #9b6bc4;
 }
 
+/* Accent color presets — override --primary/--ring/--sidebar-primary/
+   --sidebar-ring only, since those are the tokens the "brand color"
+   actually flows through. "purple" is the default and needs no override
+   (it's what :root/.dark already define above). */
+[data-accent="blue"] {
+  --primary: #2563eb;
+  --ring: #2563eb;
+  --sidebar-primary: #2563eb;
+  --sidebar-ring: #2563eb;
+}
+.dark[data-accent="blue"] {
+  --primary: #60a5fa;
+  --ring: #60a5fa;
+  --sidebar-primary: #60a5fa;
+  --sidebar-ring: #60a5fa;
+}
+
+[data-accent="green"] {
+  --primary: #15803d;
+  --ring: #15803d;
+  --sidebar-primary: #15803d;
+  --sidebar-ring: #15803d;
+}
+.dark[data-accent="green"] {
+  --primary: #4ade80;
+  --ring: #4ade80;
+  --sidebar-primary: #4ade80;
+  --sidebar-ring: #4ade80;
+}
+
+[data-accent="pink"] {
+  --primary: #be185d;
+  --ring: #be185d;
+  --sidebar-primary: #be185d;
+  --sidebar-ring: #be185d;
+}
+.dark[data-accent="pink"] {
+  --primary: #f472b6;
+  --ring: #f472b6;
+  --sidebar-primary: #f472b6;
+  --sidebar-ring: #f472b6;
+}
+
+[data-accent="orange"] {
+  --primary: #c2410c;
+  --ring: #c2410c;
+  --sidebar-primary: #c2410c;
+  --sidebar-ring: #c2410c;
+}
+.dark[data-accent="orange"] {
+  --primary: #fb923c;
+  --ring: #fb923c;
+  --sidebar-primary: #fb923c;
+  --sidebar-ring: #fb923c;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

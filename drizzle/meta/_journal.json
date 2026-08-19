@@ -8,6 +8,13 @@
       "when": 1786987167079,
       "tag": "0000_burly_galactus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787161313733,
+      "tag": "0001_complex_harrier",
+      "breakpoints": true
     }
   ]
 }
