@@ -6,6 +6,7 @@ import { MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
+import { DataTable, type DataTableColumn } from "@/components/DataTable";
 import { TabSwitcher } from "@/components/TabSwitcher";
 import {
   DropdownMenu,
@@ -13,7 +14,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { deleteExpenseAction } from "@/modules/expenses/api/expenses.actions";
 import { OwnerAvatar } from "@/modules/expenses/components/OwnerAvatar";
@@ -72,6 +72,76 @@ export function ExpenseTable({ partnerName, realMemberId, rows }: Props) {
     });
   }
 
+  const columns: DataTableColumn<ExpenseRow>[] = [
+    { header: "Date", key: "date", render: (r) => r.date },
+    {
+      className: "whitespace-normal",
+      header: "Category",
+      key: "category",
+      render: (r) => (
+        <>
+          <p className="font-medium">{r.categoryName}</p>
+          {r.note && <p className="text-xs text-muted-foreground">{r.note}</p>}
+        </>
+      ),
+    },
+    {
+      header: "Owner",
+      key: "owner",
+      render: (r) => {
+        const role = roleForOwner(r.ownerMemberId, realMemberId);
+        return (
+          <div className="flex items-center gap-2">
+            <OwnerAvatar name={r.ownerName ?? ""} role={role} />
+            <span>{displayLabel(role, r.ownerName)}</span>
+          </div>
+        );
+      },
+    },
+    {
+      header: "Paid by",
+      key: "paidBy",
+      render: (r) => {
+        const role: MemberRole = r.paidByMemberId === realMemberId ? "me" : "partner";
+        return (
+          <div className="flex items-center gap-2">
+            <OwnerAvatar name={r.paidByName} role={role} />
+            <span>{role === "me" ? "Me" : r.paidByName}</span>
+          </div>
+        );
+      },
+    },
+    {
+      align: "right",
+      className: "font-semibold",
+      header: "Amount",
+      key: "amount",
+      render: (r) => `-${formatNPR(r.amount)}`,
+    },
+    {
+      align: "right",
+      header: "",
+      key: "actions",
+      render: (r) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="rounded-md p-1 text-muted-foreground hover:bg-accent" type="button">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={`/expenses/${r.id}/edit`}>Edit</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={pendingId === r.id} onClick={() => handleDelete(r.id)} variant="destructive">
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-3">
       <TabSwitcher
@@ -86,76 +156,12 @@ export function ExpenseTable({ partnerName, realMemberId, rows }: Props) {
         value={tab}
       />
 
-      <div className="overflow-hidden rounded-2xl border">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Date</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead>Paid by</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.length === 0 && (
-              <TableRow className="hover:bg-transparent">
-                <TableCell className="whitespace-normal py-6 text-center text-muted-foreground" colSpan={6}>
-                  No expenses in this view.
-                </TableCell>
-              </TableRow>
-            )}
-            {filtered.map((r) => {
-              const ownerRole = roleForOwner(r.ownerMemberId, realMemberId);
-              const paidByRole: MemberRole = r.paidByMemberId === realMemberId ? "me" : "partner";
-              return (
-                <TableRow key={r.id}>
-                  <TableCell>{r.date}</TableCell>
-                  <TableCell className="whitespace-normal">
-                    <p className="font-medium">{r.categoryName}</p>
-                    {r.note && <p className="text-xs text-muted-foreground">{r.note}</p>}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <OwnerAvatar name={r.ownerName ?? ""} role={ownerRole} />
-                      <span>{displayLabel(ownerRole, r.ownerName)}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <OwnerAvatar name={r.paidByName} role={paidByRole} />
-                      <span>{paidByRole === "me" ? "Me" : r.paidByName}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-semibold">-{formatNPR(r.amount)}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="rounded-md p-1 text-muted-foreground hover:bg-accent" type="button">
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/expenses/${r.id}/edit`}>Edit</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          disabled={pendingId === r.id}
-                          onClick={() => handleDelete(r.id)}
-                          variant="destructive"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        emptyMessage="No expenses in this view."
+        rowKey={(r) => r.id}
+        rows={filtered}
+      />
 
       <p className="text-sm text-muted-foreground">
         Showing all {filtered.length} expense{filtered.length === 1 ? "" : "s"} this month.

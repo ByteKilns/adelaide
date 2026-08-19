@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { MoreVertical, Plus } from "lucide-react";
 import { toast } from "sonner";
 
+import { DataTable, type DataTableColumn } from "@/components/DataTable";
 import { TabSwitcher } from "@/components/TabSwitcher";
 import { ToneIcon } from "@/components/ToneIcon";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { archiveCategoryAction, restoreCategoryAction } from "@/modules/categories/api/categories.actions";
 import { CategoryFormModal } from "@/modules/categories/components/CategoryFormModal";
 import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
@@ -77,6 +77,55 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
     });
   }
 
+  const columns: DataTableColumn<Category>[] = [
+    {
+      header: "Category",
+      key: "name",
+      render: (c) => (
+        <div className="flex items-center gap-2">
+          <ToneIcon className="h-8 w-8" icon={getCategoryIcon(c.groupName)} tone={getCategoryTone(c.groupName)} />
+          <span className="font-medium">{c.name}</span>
+        </div>
+      ),
+    },
+    { className: "text-muted-foreground", header: "Group", key: "group", render: (c) => c.groupName },
+    {
+      header: "Type",
+      key: "type",
+      render: (c) => (
+        <Badge variant={c.budgetType === "fixed" ? "secondary" : "outline"}>
+          {c.budgetType === "fixed" ? "Fixed" : "Flexible"}
+        </Badge>
+      ),
+    },
+    {
+      align: "right",
+      header: "",
+      key: "actions",
+      render: (c) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="rounded-md p-1 text-muted-foreground hover:bg-accent" type="button">
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => openEdit(c)}>Edit</DropdownMenuItem>
+            {c.archived ? (
+              <DropdownMenuItem disabled={pendingId === c.id} onClick={() => handleRestore(c.id)}>
+                Restore
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem disabled={pendingId === c.id} onClick={() => handleArchive(c.id)} variant="destructive">
+                Archive
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -94,68 +143,12 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Category</TableHead>
-              <TableHead>Group</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {visible.length === 0 && (
-              <TableRow className="hover:bg-transparent">
-                <TableCell className="py-6 text-center whitespace-normal text-muted-foreground" colSpan={4}>
-                  {tab === "active" ? "No categories yet." : "No archived categories."}
-                </TableCell>
-              </TableRow>
-            )}
-            {visible.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <ToneIcon className="h-8 w-8" icon={getCategoryIcon(c.groupName)} tone={getCategoryTone(c.groupName)} />
-                    <span className="font-medium">{c.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{c.groupName}</TableCell>
-                <TableCell>
-                  <Badge variant={c.budgetType === "fixed" ? "secondary" : "outline"}>
-                    {c.budgetType === "fixed" ? "Fixed" : "Flexible"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="rounded-md p-1 text-muted-foreground hover:bg-accent" type="button">
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => openEdit(c)}>Edit</DropdownMenuItem>
-                      {c.archived ? (
-                        <DropdownMenuItem disabled={pendingId === c.id} onClick={() => handleRestore(c.id)}>
-                          Restore
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem
-                          disabled={pendingId === c.id}
-                          onClick={() => handleArchive(c.id)}
-                          variant="destructive"
-                        >
-                          Archive
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        emptyMessage={tab === "active" ? "No categories yet." : "No archived categories."}
+        rowKey={(c) => c.id}
+        rows={visible}
+      />
 
       <CategoryFormModal category={editing} onOpenChange={setFormOpen} open={formOpen} />
     </div>

@@ -4,14 +4,62 @@ import { useState } from "react";
 
 import { ChevronDown, Users } from "lucide-react";
 
+import { DataTable, type DataTableColumn } from "@/components/DataTable";
 import { ToneIcon } from "@/components/ToneIcon";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { BudgetGroup } from "@/modules/budget/lib/budget-groups";
+import type { BudgetGroup, BudgetRow } from "@/modules/budget/lib/budget-groups";
 import { computeBudgetStatus } from "@/modules/budget/lib/budget-status";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 
 const VISIBLE_ROWS = 4;
+
+const COLUMNS: DataTableColumn<BudgetRow>[] = [
+  { header: "Category", key: "category", render: (r) => r.categoryName },
+  {
+    header: "Type",
+    key: "type",
+    render: (r) => (
+      <Badge variant={r.budgetType === "fixed" ? "secondary" : "outline"}>
+        {r.budgetType === "fixed" ? "Fixed" : "Flexible"}
+      </Badge>
+    ),
+  },
+  { align: "right", header: "Budget", key: "planned", render: (r) => formatNPR(r.planned) },
+  { align: "right", header: "Spent", key: "actual", render: (r) => formatNPR(r.actual) },
+  { align: "right", header: "Remaining", key: "remaining", render: (r) => formatNPR(r.planned - r.actual) },
+  {
+    header: "Progress",
+    key: "progress",
+    render: (r) => {
+      const status = computeBudgetStatus(r.planned, r.actual);
+      return (
+        <div className="flex items-center gap-2">
+          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+            <div
+              className={`h-full rounded-full ${
+                status.variant === "destructive"
+                  ? "bg-destructive"
+                  : status.variant === "secondary"
+                    ? "bg-amber-500"
+                    : "bg-green-500"
+              }`}
+              style={{ width: `${Math.min(status.pct, 100)}%` }}
+            />
+          </div>
+          <span className="text-xs text-muted-foreground">{status.pct}%</span>
+        </div>
+      );
+    },
+  },
+  {
+    header: "Status",
+    key: "status",
+    render: (r) => {
+      const status = computeBudgetStatus(r.planned, r.actual);
+      return <Badge variant={status.variant}>{status.label}</Badge>;
+    },
+  },
+];
 
 export function BudgetGroupTable({ group }: { group: BudgetGroup }) {
   const [expanded, setExpanded] = useState(false);
@@ -33,59 +81,7 @@ export function BudgetGroupTable({ group }: { group: BudgetGroup }) {
       {group.rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">No budget set for this group yet.</p>
       ) : (
-        <div className="overflow-hidden rounded-xl border">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>Category</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="text-right">Budget</TableHead>
-                <TableHead className="text-right">Spent</TableHead>
-                <TableHead className="text-right">Remaining</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((r) => {
-                const status = computeBudgetStatus(r.planned, r.actual);
-                return (
-                  <TableRow key={r.categoryId}>
-                    <TableCell>{r.categoryName}</TableCell>
-                    <TableCell>
-                      <Badge variant={r.budgetType === "fixed" ? "secondary" : "outline"}>
-                        {r.budgetType === "fixed" ? "Fixed" : "Flexible"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">{formatNPR(r.planned)}</TableCell>
-                    <TableCell className="text-right">{formatNPR(r.actual)}</TableCell>
-                    <TableCell className="text-right">{formatNPR(r.planned - r.actual)}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-                          <div
-                            className={`h-full rounded-full ${
-                              status.variant === "destructive"
-                                ? "bg-destructive"
-                                : status.variant === "secondary"
-                                  ? "bg-amber-500"
-                                  : "bg-green-500"
-                            }`}
-                            style={{ width: `${Math.min(status.pct, 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-xs text-muted-foreground">{status.pct}%</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={status.variant}>{status.label}</Badge>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable columns={COLUMNS} containerClassName="rounded-xl" rowKey={(r) => r.categoryId} rows={rows} />
       )}
 
       {hasMore && (

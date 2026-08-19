@@ -1,5 +1,5 @@
+import { DataTable, type DataTableColumn } from "@/components/DataTable";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { computeBudgetStatus } from "@/modules/budget/lib/budget-status";
 
 // `categoryId` is combined with `ownerMemberId` (defaulting to "shared" when
@@ -16,41 +16,39 @@ type Row = {
   planned: number;
 };
 
+const COLUMNS: DataTableColumn<Row>[] = [
+  { header: "Category", key: "category", render: (r) => r.categoryName },
+  { align: "right", header: "Budget", key: "planned", render: (r) => r.planned.toLocaleString() },
+  { align: "right", header: "Actual", key: "actual", render: (r) => r.actual.toLocaleString() },
+  {
+    align: "right",
+    header: "Difference",
+    key: "difference",
+    render: (r) => (
+      <span className={r.difference < 0 ? "text-red-600" : "text-green-700"}>
+        {r.difference >= 0 ? "+" : ""}
+        {r.difference.toLocaleString()}
+      </span>
+    ),
+  },
+  {
+    align: "right",
+    header: "Status",
+    key: "status",
+    render: (r) => {
+      const status = computeBudgetStatus(r.planned, r.actual);
+      return <Badge variant={status.variant}>{status.label}</Badge>;
+    },
+  },
+];
+
 export function BudgetVsActualTable({ rows }: { rows: Row[] }) {
   return (
-    <div className="overflow-hidden rounded-xl border">
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead>Category</TableHead>
-            <TableHead className="text-right">Budget</TableHead>
-            <TableHead className="text-right">Actual</TableHead>
-            <TableHead className="text-right">Difference</TableHead>
-            <TableHead className="text-right">Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((r) => {
-            const status = computeBudgetStatus(r.planned, r.actual);
-            return (
-              <TableRow key={`${r.categoryId}-${r.ownerMemberId ?? "shared"}`}>
-                <TableCell>{r.categoryName}</TableCell>
-                <TableCell className="text-right">{r.planned.toLocaleString()}</TableCell>
-                <TableCell className="text-right">{r.actual.toLocaleString()}</TableCell>
-                <TableCell
-                  className={`text-right ${r.difference < 0 ? "text-red-600" : "text-green-700"}`}
-                >
-                  {r.difference >= 0 ? "+" : ""}
-                  {r.difference.toLocaleString()}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Badge variant={status.variant}>{status.label}</Badge>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+    <DataTable
+      columns={COLUMNS}
+      containerClassName="rounded-xl"
+      rowKey={(r) => `${r.categoryId}-${r.ownerMemberId ?? "shared"}`}
+      rows={rows}
+    />
   );
 }
