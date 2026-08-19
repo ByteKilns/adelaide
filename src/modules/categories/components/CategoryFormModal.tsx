@@ -6,10 +6,9 @@ import { List } from "lucide-react";
 import { toast } from "sonner";
 
 import { Modal } from "@/components/Modal";
+import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createCategoryAction, updateCategoryAction } from "@/modules/categories/api/categories.actions";
 import { CATEGORY_GROUPS } from "@/modules/categories/lib/category-icons";
 import type { CategoryInput } from "@/modules/categories/schemas/category.schema";
@@ -72,37 +71,24 @@ export function CategoryFormModal({ category, onOpenChange, open }: Props) {
           value={form.name}
         />
 
-        <div className="space-y-1">
-          <Label htmlFor="category-group">Group</Label>
-          <Select onValueChange={(v) => setForm((f) => ({ ...f, groupName: v }))} value={form.groupName}>
-            <SelectTrigger className="w-full" id="category-group">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {CATEGORY_GROUPS.map((g) => (
-                <SelectItem key={g} value={g}>
-                  {g}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectField
+          id="category-group"
+          label="Group"
+          onValueChange={(v) => setForm((f) => ({ ...f, groupName: v }))}
+          options={CATEGORY_GROUPS.map((g) => ({ label: g, value: g }))}
+          value={form.groupName}
+        />
 
-        <div className="space-y-1">
-          <Label htmlFor="category-type">Type</Label>
-          <Select
-            onValueChange={(v) => setForm((f) => ({ ...f, budgetType: v as CategoryInput["budgetType"] }))}
-            value={form.budgetType}
-          >
-            <SelectTrigger className="w-full" id="category-type">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="flexible">Flexible</SelectItem>
-              <SelectItem value="fixed">Fixed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <SelectField
+          id="category-type"
+          label="Type"
+          onValueChange={(v) => setForm((f) => ({ ...f, budgetType: v as CategoryInput["budgetType"] }))}
+          options={[
+            { label: "Flexible", value: "flexible" },
+            { label: "Fixed", value: "fixed" },
+          ]}
+          value={form.budgetType}
+        />
       </form>
     </Modal>
   );

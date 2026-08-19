@@ -5,16 +5,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { createExpenseAction, updateExpenseAction } from "@/modules/expenses/api/expenses.actions";
 
 type Member = { id: string; name: string };
@@ -102,54 +95,30 @@ export function ExpenseForm({
         value={amount}
       />
 
-      <div className="space-y-1">
-        <Label>Category</Label>
-        <Select onValueChange={setCategoryId} value={categoryId}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((c) => (
-              <SelectItem key={c.id} value={c.id}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectField
+        label="Category"
+        onValueChange={setCategoryId}
+        options={categories.map((c) => ({ label: c.name, value: c.id }))}
+        value={categoryId}
+      />
 
-      <div className="space-y-1">
-        <Label>For</Label>
-        <Select onValueChange={handleOwnerChange} value={owner}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="shared">Shared</SelectItem>
-            {members.map((m) => (
-              <SelectItem key={m.id} value={m.id}>
-                {m.id === currentMemberId ? "Me" : m.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectField
+        label="For"
+        onValueChange={handleOwnerChange}
+        options={[
+          { label: "Shared", value: "shared" },
+          ...members.map((m) => ({ label: m.id === currentMemberId ? "Me" : m.name, value: m.id })),
+        ]}
+        value={owner}
+      />
 
-      <div className="space-y-1">
-        <Label>Paid by</Label>
-        <Select disabled={owner !== "shared"} onValueChange={setPaidBy} value={paidBy}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {members.map((m) => (
-              <SelectItem key={m.id} value={m.id}>
-                {m.id === currentMemberId ? "Me" : m.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectField
+        disabled={owner !== "shared"}
+        label="Paid by"
+        onValueChange={setPaidBy}
+        options={members.map((m) => ({ label: m.id === currentMemberId ? "Me" : m.name, value: m.id }))}
+        value={paidBy}
+      />
 
       <TextField id="date" label="Date" onChange={(e) => setDate(e.target.value)} required type="date" value={date} />
 
