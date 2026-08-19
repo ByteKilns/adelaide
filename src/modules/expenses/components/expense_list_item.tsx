@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { deleteExpenseAction } from "@/lib/actions/expenses";
+import { deleteExpenseAction } from "@/modules/expenses/api/actions";
 import { Button } from "@/components/ui/button";
 
 type Props = {

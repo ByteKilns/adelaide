@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { createExpenseAction, updateExpenseAction } from "@/lib/actions/expenses";
+import { createExpenseAction, updateExpenseAction } from "@/modules/expenses/api/actions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";

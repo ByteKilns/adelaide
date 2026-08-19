@@ -1,21 +1,12 @@
 "use server";
 
-import { z } from "zod";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { expenses } from "@/db/schema";
-import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
-import { revalidatePath } from "next/cache";
-
-const expenseSchema = z.object({
-  amount: z.number().positive(),
-  categoryId: z.string().uuid(),
-  ownerMemberId: z.string().uuid().nullable(),
-  paidByMemberId: z.string().uuid(),
-  date: z.string(), // "YYYY-MM-DD"
-  note: z.string().optional(),
-});
+import { expenseSchema, type ExpenseInput } from "../schemas/expense";
 
 async function assertMemberInHousehold(householdId: string, memberId: string) {
   const members = await getHouseholdMembers(householdId);
@@ -31,7 +22,7 @@ async function assertCategoryInHousehold(householdId: string, categoryId: string
   }
 }
 
-export async function createExpenseAction(input: z.infer<typeof expenseSchema>) {
+export async function createExpenseAction(input: ExpenseInput) {
   const { householdId } = await getCurrentMember();
   const parsed = expenseSchema.parse(input);
   await assertCategoryInHousehold(householdId, parsed.categoryId);
@@ -54,7 +45,7 @@ export async function createExpenseAction(input: z.infer<typeof expenseSchema>) 
   revalidatePath("/dashboard");
 }
 
-export async function updateExpenseAction(id: string, input: z.infer<typeof expenseSchema>) {
+export async function updateExpenseAction(id: string, input: ExpenseInput) {
   const { householdId } = await getCurrentMember();
   const parsed = expenseSchema.parse(input);
   await assertCategoryInHousehold(householdId, parsed.categoryId);
