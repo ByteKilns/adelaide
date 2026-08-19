@@ -7,6 +7,8 @@ import { getBudgetItemsForMonth } from "@/lib/actions/budget";
 import { listExpensesForMonth, listRecentExpenses } from "@/lib/actions/expenses";
 import { dashboardSummary, budgetVsActual } from "@/lib/calculations/budget";
 import { getCategoryIcon } from "@/lib/category-icons";
+import { toIncomeInputs, toExpenseInputs, toBudgetItemInputs } from "@/lib/dashboard/map-rows";
+import { classifyOwnerLabel } from "@/lib/dashboard/owner-label";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { OwnerTabs } from "@/components/dashboard/owner-tabs";
@@ -51,32 +53,31 @@ export default async function DashboardPage() {
     listRecentExpenses(5),
   ]);
 
-  const incomes = incomeRows.map((i) => ({ memberId: i.memberId, amount: Number(i.amount) }));
-  const expenses = expenseRows.map((e) => ({
-    categoryId: e.categoryId,
-    ownerMemberId: e.ownerMemberId,
-    amount: Number(e.amount),
-  }));
-  const budgetItems = budgetItemRows.map((b) => ({
-    categoryId: b.categoryId,
-    ownerMemberId: b.ownerMemberId,
-    plannedAmount: Number(b.plannedAmount),
-  }));
+  const incomes = toIncomeInputs(incomeRows);
+  const expenses = toExpenseInputs(expenseRows);
+  const budgetItems = toBudgetItemInputs(budgetItemRows);
 
   const summary = dashboardSummary(incomes, expenses);
   const vsActual = budgetVsActual(budgetItems, expenses);
 
+  // Previous-month budget-vs-actual is deliberately NOT computed here — only
+  // dashboardSummary (for the trend lines above). Nothing on this page shows
+  // a previous-month budget-vs-actual breakdown, so there's no need to fetch
+  // budget items for the previous month at all.
   const prevSummary = dashboardSummary(
-    prevIncomeRows.map((i) => ({ memberId: i.memberId, amount: Number(i.amount) })),
-    prevExpenseRows.map((e) => ({
-      categoryId: e.categoryId,
-      ownerMemberId: e.ownerMemberId,
-      amount: Number(e.amount),
-    })),
+    toIncomeInputs(prevIncomeRows),
+    toExpenseInputs(prevExpenseRows),
   );
 
   const category = (id: string) => categories.find((c) => c.id === id);
   const categoryName = (id: string) => category(id)?.name ?? "Unknown";
+
+  const ownerLabel = (id: string | null) => classifyOwnerLabel(id, memberId, members);
+
+  const expensesFor = (label: string) =>
+    expenses
+      .filter((e) => ownerLabel(e.ownerMemberId) === label)
+      .reduce((s, e) => s + e.amount, 0);
 
   const partner = members.find((m) => m.id !== memberId);
   const ownerViews = [
@@ -84,9 +85,7 @@ export default async function DashboardPage() {
       key: "me",
       label: "Me",
       income: incomes.find((i) => i.memberId === memberId)?.amount ?? 0,
-      expenses: expenses
-        .filter((e) => e.ownerMemberId === memberId)
-        .reduce((s, e) => s + e.amount, 0),
+      expenses: expensesFor("Me"),
       remaining: 0,
     },
     ...(partner
@@ -95,9 +94,7 @@ export default async function DashboardPage() {
             key: "partner",
             label: partner.user.name,
             income: incomes.find((i) => i.memberId === partner.id)?.amount ?? 0,
-            expenses: expenses
-              .filter((e) => e.ownerMemberId === partner.id)
-              .reduce((s, e) => s + e.amount, 0),
+            expenses: expensesFor(partner.user.name),
             remaining: 0,
           },
         ]
@@ -106,16 +103,10 @@ export default async function DashboardPage() {
       key: "shared",
       label: "Shared",
       income: 0,
-      expenses: expenses.filter((e) => e.ownerMemberId === null).reduce((s, e) => s + e.amount, 0),
+      expenses: expensesFor("Shared"),
       remaining: 0,
     },
   ].map((v) => ({ ...v, remaining: v.income - v.expenses }));
-
-  const ownerLabel = (id: string | null) => {
-    if (id === null) return "Shared";
-    if (id === memberId) return "Me";
-    return members.find((m) => m.id === id)?.user.name ?? "Partner";
-  };
 
   const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";
