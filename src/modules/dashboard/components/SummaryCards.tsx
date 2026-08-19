@@ -11,7 +11,7 @@ import {
   ToneIcon,
   TONE_BAR_CLASSES,
   type Tone,
-} from "@/modules/dashboard/components/tone_icon";
+} from "@/modules/dashboard/components/ToneIcon";
 import { formatNPR, pctOfIncome } from "@/modules/dashboard/lib/format";
 
 type Props = {

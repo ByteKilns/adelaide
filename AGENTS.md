@@ -7,3 +7,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Principles
+
+- **YAGNI (You Aren't Gonna Need It)**: Don't build functionality, abstractions, or configuration for hypothetical future requirements. Implement only what the current task needs.
+- **DRY (Don't Repeat Yourself)**: Avoid duplicating logic or knowledge across the codebase. Extract shared code when duplication becomes a real maintenance burden — but don't over-abstract two similar-looking things prematurely.
+
+## File naming
+
+- Folders: kebab-case (e.g. `dashboard-widgets/`).
+- React component files: PascalCase (e.g. `SummaryCards.tsx`).

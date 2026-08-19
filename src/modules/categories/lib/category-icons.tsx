@@ -9,7 +9,7 @@ import {
   MoreHorizontal,
   type LucideIcon,
 } from "lucide-react";
-import type { Tone } from "@/modules/dashboard/components/tone_icon";
+import type { Tone } from "@/modules/dashboard/components/ToneIcon";
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
   Family: Users,

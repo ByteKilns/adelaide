@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ViewingAsSwitcher } from "./viewing-as-switcher";
+import { ViewingAsSwitcher } from "./ViewingAsSwitcher";
 
 type NavItem = { href: string; label: string; icon: LucideIcon; enabled: boolean };
 
@@ -46,7 +46,7 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
   const realMemberName = members.find((m) => m.id === realMemberId)?.name ?? "Me";
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col p-4 md:flex">
+    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto p-4 md:flex">
       <div className="mb-6 flex items-center gap-2">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/60" />
         <div>

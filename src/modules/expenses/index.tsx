@@ -6,8 +6,8 @@ import { expenses } from "@/db/schema";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
 import { listExpensesForMonth } from "@/modules/expenses/api/actions";
-import { ExpenseListItem } from "@/modules/expenses/components/expense_list_item";
-import { ExpenseForm } from "@/modules/expenses/components/expense_form";
+import { ExpenseListItem } from "@/modules/expenses/components/ExpenseListItem";
+import { ExpenseForm } from "@/modules/expenses/components/ExpenseForm";
 import { Button } from "@/components/ui/button";
 
 export async function ExpensesPage() {

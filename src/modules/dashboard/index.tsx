@@ -6,14 +6,14 @@ import { listExpensesForMonth, listRecentExpenses } from "@/modules/expenses/api
 import { dashboardSummary, budgetVsActual } from "@/modules/budget/lib/calculations";
 import { toIncomeInputs, toExpenseInputs, toBudgetItemInputs } from "@/modules/dashboard/lib/map-rows";
 import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
-import { DashboardHeader } from "@/modules/dashboard/components/dashboard_header";
-import { SummaryCards } from "@/modules/dashboard/components/summary_cards";
-import { OwnerTabs } from "@/modules/dashboard/components/owner_tabs";
-import { ComingSoonCard } from "@/modules/dashboard/components/coming_soon_card";
-import { DashboardPanel } from "@/modules/dashboard/components/dashboard_panel";
-import { BudgetCard } from "@/modules/budget/components/budget_card";
-import { BudgetVsActualTable } from "@/modules/budget/components/budget_vs_actual_table";
-import { RecentExpenses } from "@/modules/dashboard/components/recent_expenses";
+import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
+import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
+import { OwnerTabs } from "@/modules/dashboard/components/OwnerTabs";
+import { ComingSoonCard } from "@/modules/dashboard/components/ComingSoonCard";
+import { DashboardPanel } from "@/modules/dashboard/components/DashboardPanel";
+import { BudgetCard } from "@/modules/budget/components/BudgetCard";
+import { BudgetVsActualTable } from "@/modules/budget/components/BudgetVsActualTable";
+import { RecentExpenses } from "@/modules/dashboard/components/RecentExpenses";
 
 function previousMonth(year: number, month: number) {
   return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
