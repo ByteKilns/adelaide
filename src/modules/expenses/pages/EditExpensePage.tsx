@@ -23,19 +23,21 @@ export async function EditExpensePage({ params }: { params: Promise<{ id: string
   if (!expense) notFound();
 
   return (
-    <ExpenseForm
-      categories={categories.map((c) => ({ id: c.id, name: c.name }))}
-      currentMemberId={memberId}
-      expenseId={expense.id}
-      initial={{
-        amount: Number(expense.amount),
-        categoryId: expense.categoryId,
-        date: expense.date,
-        note: expense.note,
-        ownerMemberId: expense.ownerMemberId,
-        paidByMemberId: expense.paidByMemberId,
-      }}
-      members={members.map((m) => ({ id: m.id, name: m.user.name }))}
-    />
+    <div className="mx-auto max-w-sm p-4">
+      <ExpenseForm
+        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+        currentMemberId={memberId}
+        expenseId={expense.id}
+        initial={{
+          amount: Number(expense.amount),
+          categoryId: expense.categoryId,
+          date: expense.date,
+          note: expense.note,
+          ownerMemberId: expense.ownerMemberId,
+          paidByMemberId: expense.paidByMemberId,
+        }}
+        members={members.map((m) => ({ id: m.id, name: m.user.name }))}
+      />
+    </div>
   );
 }

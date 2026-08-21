@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   BarChart3,
   Bell,
@@ -19,6 +21,7 @@ import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AddExpenseModal } from "@/modules/expenses/components/AddExpenseModal";
 
 import { ViewingAsSwitcher } from "./ViewingAsSwitcher";
 
@@ -37,15 +40,19 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 type Member = { id: string; image: null | string; name: string };
+type Category = { id: string; name: string };
 
 type Props = {
+  categories: Category[];
+  currentMemberId: string;
   members: Member[];
   realMemberId: string;
   viewingAsMemberId: string;
 };
 
-export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) {
+export function SidebarNav({ categories, currentMemberId, members, realMemberId, viewingAsMemberId }: Props) {
   const pathname = usePathname();
+  const [addExpenseOpen, setAddExpenseOpen] = useState(false);
   const realMember = members.find((m) => m.id === realMemberId);
   const realMemberName = realMember?.name ?? "Me";
 
@@ -61,8 +68,8 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
         </div>
       </div>
 
-      <Button asChild className="mb-4" size={"lg"}>
-        <Link href="/expenses/new">+ Add Expense</Link>
+      <Button className="mb-4" onClick={() => setAddExpenseOpen(true)} size={"lg"}>
+        + Add Expense
       </Button>
 
       <nav className="flex flex-1 flex-col gap-1">
@@ -122,6 +129,14 @@ export function SidebarNav({ members, realMemberId, viewingAsMemberId }: Props) 
           viewingAsMemberId={viewingAsMemberId}
         />
       </div>
+
+      <AddExpenseModal
+        categories={categories}
+        currentMemberId={currentMemberId}
+        members={members.map((m) => ({ id: m.id, name: m.name }))}
+        onOpenChange={setAddExpenseOpen}
+        open={addExpenseOpen}
+      />
     </aside>
   );
 }

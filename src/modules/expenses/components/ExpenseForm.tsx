@@ -27,13 +27,16 @@ type Props = {
     paidByMemberId: string;
   };
   members: Member[];
+  // Defaults to navigating to /expenses (the standalone new/edit pages).
+  // The Add Expense modal overrides this to just close itself instead.
+  onSuccess?: () => void;
 };
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function ExpenseForm({ categories, currentMemberId, expenseId, initial, members }: Props) {
+export function ExpenseForm({ categories, currentMemberId, expenseId, initial, members, onSuccess }: Props) {
   const router = useRouter();
   const {
     control,
@@ -73,14 +76,18 @@ export function ExpenseForm({ categories, currentMemberId, expenseId, initial, m
       } else {
         await createExpenseAction(payload);
       }
-      router.push("/expenses");
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push("/expenses");
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
     }
   });
 
   return (
-    <form className="mx-auto max-w-sm space-y-4 p-4" onSubmit={onSubmit}>
+    <form className="space-y-4" onSubmit={onSubmit}>
       <TextField
         error={errors.amount?.message}
         id="amount"
