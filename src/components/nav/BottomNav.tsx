@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Home, Plus, Receipt, Wallet } from "lucide-react";
+import { Home, Plus, Receipt, Settings, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,6 +13,7 @@ const ITEMS = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/expenses", label: "Expenses", icon: Receipt },
   { href: "/budget", label: "Budget", icon: Wallet },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 type Category = { id: string; name: string };

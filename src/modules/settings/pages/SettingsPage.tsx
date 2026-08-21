@@ -1,9 +1,12 @@
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/db/client";
 import { users } from "@/db/schema";
 import { ACCENT_COLOR_COOKIE_NAME, isAccentColor } from "@/lib/accent-color-cookie";
+import { logoutAction } from "@/lib/actions/auth";
 import { getCurrentMember } from "@/lib/session";
 import { PasswordSection } from "@/modules/settings/components/PasswordSection";
 import { ProfilePictureSection } from "@/modules/settings/components/ProfilePictureSection";
@@ -29,6 +32,19 @@ export async function SettingsPage() {
       <ThemeSection initialAccent={accent} />
       <ProfilePictureSection initialImage={user?.image ?? null} name={user?.name ?? "?"} />
       <PasswordSection />
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-medium">Account</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form action={logoutAction}>
+            <Button type="submit" variant="destructive">
+              Sign out
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Home,
   List,
+  LogOut,
   type LucideIcon,
   PiggyBank,
   Receipt,
@@ -20,6 +21,8 @@ import { usePathname } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { logoutAction } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
 import { AddExpenseModal } from "@/modules/expenses/components/AddExpenseModal";
 
@@ -107,21 +110,40 @@ export function SidebarNav({ categories, currentMemberId, members, realMemberId,
       </nav>
 
       <div className="mt-4 space-y-1 border-t pt-4">
-        <div className="flex items-center gap-2 rounded-lg px-1 py-1.5">
-          <Avatar className="size-8" size="sm">
-            {realMember?.image && (
-              <AvatarImage alt={realMemberName} src={realMember.image} />
-            )}
-            <AvatarFallback className="bg-primary text-sm font-semibold text-primary-foreground">
-              {realMemberName.charAt(0).toUpperCase() || "?"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{realMemberName}</p>
-            <p className="text-xs text-muted-foreground">View profile</p>
-          </div>
-          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="flex w-full items-center gap-2 rounded-lg px-1 py-1.5 hover:bg-accent"
+              type="button"
+            >
+              <Avatar className="size-8" size="sm">
+                {realMember?.image && (
+                  <AvatarImage alt={realMemberName} src={realMember.image} />
+                )}
+                <AvatarFallback className="bg-primary text-sm font-semibold text-primary-foreground">
+                  {realMemberName.charAt(0).toUpperCase() || "?"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1 text-left">
+                <p className="truncate text-sm font-medium">{realMemberName}</p>
+                <p className="text-xs text-muted-foreground">Account</p>
+              </div>
+              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <Settings className="h-4 w-4" />
+                Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => logoutAction()} variant="destructive">
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <ViewingAsSwitcher
           members={members}

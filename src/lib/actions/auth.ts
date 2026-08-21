@@ -2,7 +2,7 @@
 
 import { AuthError } from "next-auth";
 
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 
 export async function loginAction(
   _prevState: { error?: string } | undefined,
@@ -21,4 +21,8 @@ export async function loginAction(
     }
     throw err;
   }
+}
+
+export async function logoutAction() {
+  await signOut({ redirectTo: "/login" });
 }
