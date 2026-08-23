@@ -1,10 +1,10 @@
+import Link from "next/link";
+
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import {
   getBudgetItemsForMonth,
   getIncomesForMonth,
 } from "@/modules/budget/api/budget.actions";
-import { BudgetCard } from "@/modules/budget/components/BudgetCard";
-import { BudgetVsActualTable } from "@/modules/budget/components/BudgetVsActualTable";
 import { budgetVsActual, dashboardSummary } from "@/modules/budget/lib/calculations";
 import { listCategories } from "@/modules/categories/api/categories";
 import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
@@ -119,6 +119,7 @@ export async function DashboardPage() {
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";
 
   const totalPlanned = budgetItems.reduce((s, b) => s + b.plannedAmount, 0);
+  const totalActual = vsActual.reduce((s, row) => s + row.actual, 0);
   const safeToSpend = safeToSpendToday(totalPlanned, summary.totalExpenses, year, month);
   const daysLeft = daysLeftInMonth(year, month);
 
@@ -149,37 +150,22 @@ export async function DashboardPage() {
 
           <SafeToSpendCard daysLeft={daysLeft} monthLabel={monthLabel} safeToSpend={safeToSpend} />
 
-          <DashboardPanel actionHref="/budget" actionLabel="View all budgets" title="Budget Overview">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {vsActual.map((row) => (
-                <BudgetCard
-                  actual={row.actual}
-                  categoryGroupName={category(row.categoryId)?.groupName ?? ""}
-                  categoryName={categoryName(row.categoryId)}
-                  key={`${row.categoryId}-${row.ownerMemberId ?? "shared"}`}
-                  ownerLabel={ownerLabel(row.ownerMemberId)}
-                  planned={row.planned}
-                />
-              ))}
-              {vsActual.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  No budget set for this month yet.
-                </p>
-              )}
+          <DashboardPanel title="Budget">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm text-muted-foreground">
+                {vsActual.length === 0 ? (
+                  "No budget set for this month yet."
+                ) : (
+                  <>
+                    NPR {totalActual.toLocaleString()} spent of NPR {totalPlanned.toLocaleString()} budgeted across{" "}
+                    {vsActual.length} categor{vsActual.length === 1 ? "y" : "ies"}
+                  </>
+                )}
+              </p>
+              <Link className="shrink-0 text-sm text-primary underline" href="/budget">
+                View budget
+              </Link>
             </div>
-          </DashboardPanel>
-
-          <DashboardPanel title="Budget vs Actual">
-            <BudgetVsActualTable
-              rows={vsActual.map((row) => ({
-                categoryId: row.categoryId,
-                ownerMemberId: row.ownerMemberId,
-                categoryName: categoryName(row.categoryId),
-                planned: row.planned,
-                actual: row.actual,
-                difference: row.difference,
-              }))}
-            />
           </DashboardPanel>
         </div>
 
