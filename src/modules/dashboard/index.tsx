@@ -1,5 +1,3 @@
-import { Gauge, PiggyBank } from "lucide-react";
-
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import {
   getBudgetItemsForMonth,
@@ -9,15 +7,19 @@ import { BudgetCard } from "@/modules/budget/components/BudgetCard";
 import { BudgetVsActualTable } from "@/modules/budget/components/BudgetVsActualTable";
 import { budgetVsActual, dashboardSummary } from "@/modules/budget/lib/calculations";
 import { listCategories } from "@/modules/categories/api/categories";
-import { ComingSoonCard } from "@/modules/dashboard/components/ComingSoonCard";
 import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
 import { DashboardPanel } from "@/modules/dashboard/components/DashboardPanel";
+import { DashboardSavingsCard } from "@/modules/dashboard/components/DashboardSavingsCard";
 import { OwnerTabs } from "@/modules/dashboard/components/OwnerTabs";
 import { RecentExpenses } from "@/modules/dashboard/components/RecentExpenses";
 import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
 import { toBudgetItemInputs, toExpenseInputs, toIncomeInputs } from "@/modules/dashboard/lib/map-rows";
 import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
 import { listExpensesForMonth, listRecentExpenses } from "@/modules/expenses/api/expenses.actions";
+import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
+import { daysLeftInMonth, safeToSpendToday } from "@/modules/reports/lib/reports-stats";
+import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
+import { savingsOverviewStats } from "@/modules/savings-goals/lib/savings-stats";
 
 function previousMonth(year: number, month: number) {
   return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
@@ -44,6 +46,8 @@ export async function DashboardPage() {
     prevIncomeRows,
     prevExpenseRows,
     recentExpenseRows,
+    goalRows,
+    contributionRows,
   ] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
@@ -53,6 +57,8 @@ export async function DashboardPage() {
     getIncomesForMonth(prev.year, prev.month),
     listExpensesForMonth(prev.year, prev.month),
     listRecentExpenses(5),
+    listSavingsGoals(householdId),
+    listSavingsContributions(householdId),
   ]);
 
   const incomes = toIncomeInputs(incomeRows);
@@ -112,6 +118,17 @@ export async function DashboardPage() {
   const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";
 
+  const totalPlanned = budgetItems.reduce((s, b) => s + b.plannedAmount, 0);
+  const safeToSpend = safeToSpendToday(totalPlanned, summary.totalExpenses, year, month);
+  const daysLeft = daysLeftInMonth(year, month);
+
+  const savingsStats = savingsOverviewStats(
+    goalRows.map((g) => ({ createdAt: g.createdAt, id: g.id, targetAmount: Number(g.targetAmount), targetDate: g.targetDate })),
+    contributionRows.map((c) => ({ amount: Number(c.amount), date: c.date, goalId: c.goalId })),
+    year,
+    month,
+  );
+
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
       <DashboardHeader monthLabel={monthLabel} name={currentMemberName} />
@@ -130,11 +147,7 @@ export async function DashboardPage() {
             <OwnerTabs views={ownerViews} />
           </DashboardPanel>
 
-          <ComingSoonCard
-            description="A safe-to-spend forecast based on your budget and spending pace is coming soon."
-            icon={Gauge}
-            title="Financial Health"
-          />
+          <SafeToSpendCard daysLeft={daysLeft} monthLabel={monthLabel} safeToSpend={safeToSpend} />
 
           <DashboardPanel actionHref="/budget" actionLabel="View all budgets" title="Budget Overview">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -182,10 +195,10 @@ export async function DashboardPage() {
             }))}
           />
 
-          <ComingSoonCard
-            description="Set shared or personal savings targets and track progress here soon."
-            icon={PiggyBank}
-            title="Savings Goals"
+          <DashboardSavingsCard
+            averageProgress={savingsStats.averageProgress}
+            monthlyContribution={savingsStats.monthlyContribution}
+            totalGoals={savingsStats.totalGoals}
           />
         </div>
       </div>

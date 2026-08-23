@@ -1,9 +1,6 @@
-import { PiggyBank } from "lucide-react";
-
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
-import { getIncomesForMonth } from "@/modules/budget/api/budget.actions";
+import { getBudgetItemsForMonth, getIncomesForMonth } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
-import { ComingSoonCard } from "@/modules/dashboard/components/ComingSoonCard";
 import { pctOfIncome } from "@/modules/dashboard/lib/format";
 import { listExpensesForMonth } from "@/modules/expenses/api/expenses.actions";
 import { ExpenseFilters } from "@/modules/expenses/components/ExpenseFilters";
@@ -12,6 +9,8 @@ import { ExpenseSummaryCard } from "@/modules/expenses/components/ExpenseSummary
 import { ExpenseTable } from "@/modules/expenses/components/ExpenseTable";
 import { TopCategoriesCard } from "@/modules/expenses/components/TopCategoriesCard";
 import { ownerBreakdown, topCategories } from "@/modules/expenses/lib/expense-breakdown";
+import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
+import { daysLeftInMonth, safeToSpendToday } from "@/modules/reports/lib/reports-stats";
 
 export async function ExpensesPage() {
   const { householdId, memberId } = await getEffectiveMember();
@@ -19,11 +18,12 @@ export async function ExpensesPage() {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
 
-  const [members, categories, expenseRows, incomeRows] = await Promise.all([
+  const [members, categories, expenseRows, incomeRows, budgetItemRows] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
     listExpensesForMonth(year, month),
     getIncomesForMonth(year, month),
+    getBudgetItemsForMonth(year, month),
   ]);
 
   const category = (id: string) => categories.find((c) => c.id === id);
@@ -64,6 +64,9 @@ export async function ExpensesPage() {
   }));
 
   const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
+  const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month);
+  const daysLeft = daysLeftInMonth(year, month);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
@@ -82,11 +85,7 @@ export async function ExpensesPage() {
             total={totalExpenses}
           />
           <TopCategoriesCard categories={topCats} />
-          <ComingSoonCard
-            description="A safe-to-spend forecast based on your budget and spending pace is coming soon."
-            icon={PiggyBank}
-            title="Safe to Spend Today"
-          />
+          <SafeToSpendCard daysLeft={daysLeft} monthLabel={monthLabel} safeToSpend={safeToSpend} />
         </div>
       </div>
     </div>
