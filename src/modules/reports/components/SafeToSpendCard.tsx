@@ -1,7 +1,5 @@
 import { WalletCards } from "lucide-react";
 
-import { ToneIcon } from "@/components/ToneIcon";
-import { Card, CardContent } from "@/components/ui/card";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 
 type Props = {
@@ -12,6 +10,32 @@ type Props = {
   totalPlanned: number;
 };
 
+type Tone = { amount: string; bg: string; dot: string; icon: string; status: string };
+
+const ON_TRACK: Tone = {
+  amount: "text-green-600 dark:text-green-400",
+  bg: "bg-green-50 dark:bg-green-950/30",
+  dot: "bg-green-500",
+  icon: "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400",
+  status: "text-green-600 dark:text-green-400",
+};
+
+const OVER_BUDGET: Tone = {
+  amount: "text-destructive",
+  bg: "bg-destructive/5",
+  dot: "bg-destructive",
+  icon: "bg-destructive/10 text-destructive",
+  status: "text-destructive",
+};
+
+const NO_BUDGET: Tone = {
+  amount: "text-foreground",
+  bg: "bg-muted/40",
+  dot: "bg-muted-foreground",
+  icon: "bg-muted text-muted-foreground",
+  status: "text-muted-foreground",
+};
+
 export function SafeToSpendCard({ daysLeft, monthLabel, safeToSpend, totalActual, totalPlanned }: Props) {
   const monthName = monthLabel.split(" ")[0];
   const remaining = totalPlanned - totalActual;
@@ -19,39 +43,37 @@ export function SafeToSpendCard({ daysLeft, monthLabel, safeToSpend, totalActual
   const onTrack = !noBudget && remaining >= 0;
 
   const status = noBudget ? "No budget set" : onTrack ? "On track" : "Over budget";
-  const dotClass = noBudget ? "bg-muted-foreground" : onTrack ? "bg-green-500" : "bg-destructive";
-  const textClass = noBudget ? "text-muted-foreground" : onTrack ? "text-green-600" : "text-destructive";
+  const tone = noBudget ? NO_BUDGET : onTrack ? ON_TRACK : OVER_BUDGET;
 
   return (
-    <Card>
-      <CardContent className="space-y-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-start gap-3">
-            <ToneIcon icon={WalletCards} tone="purple" />
-            <div>
-              <h2 className="text-sm font-semibold">Safe to spend today</h2>
-              <p className="text-xs text-muted-foreground">
-                {daysLeft} day{daysLeft === 1 ? "" : "s"} left in {monthName}
-              </p>
-            </div>
-          </div>
-          <button
-            aria-label="Learn how safe to spend is calculated"
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs text-muted-foreground hover:bg-accent"
-            title="(Remaining budget for the month) ÷ (days left), never below NPR 0."
-            type="button"
-          >
-            ?
-          </button>
+    <div className={`flex items-center justify-between gap-4 rounded-2xl p-4 ${tone.bg}`}>
+      <div className="flex items-center gap-3">
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${tone.icon}`}>
+          <WalletCards className="h-4 w-4" />
         </div>
+        <div>
+          <p className="text-sm font-medium">Safe to spend today</p>
+          <p className="text-xs text-muted-foreground">
+            {daysLeft} day{daysLeft === 1 ? "" : "s"} left in {monthName}
+          </p>
+        </div>
+      </div>
 
-        <p className="text-2xl font-extrabold">{formatNPR(safeToSpend)}</p>
-
-        <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${textClass}`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${dotClass}`} />
+      <div className="flex items-center gap-3">
+        <p className={`text-lg font-extrabold ${tone.amount}`}>{formatNPR(safeToSpend)}</p>
+        <span className={`flex items-center gap-1.5 text-sm font-medium ${tone.status}`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${tone.dot}`} />
           {status}
         </span>
-      </CardContent>
-    </Card>
+        <button
+          aria-label="Learn how safe to spend is calculated"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border bg-background text-xs text-muted-foreground hover:bg-accent"
+          title="(Remaining budget for the month) ÷ (days left), never below NPR 0."
+          type="button"
+        >
+          ?
+        </button>
+      </div>
+    </div>
   );
 }
