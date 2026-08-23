@@ -1,8 +1,11 @@
-import { ChevronDown, ChevronLeft, ChevronRight, Copy } from "lucide-react";
+import { ChevronLeft, ChevronRight, Copy } from "lucide-react";
+import Link from "next/link";
 
-type Props = { monthLabel: string };
+import { copyPreviousMonthBudgetAction } from "@/modules/budget/api/budget.actions";
 
-export function BudgetHeader({ monthLabel }: Props) {
+type Props = { canCopyPreviousMonth: boolean; month: number; monthLabel: string; nextHref: string; prevHref: string; year: number };
+
+export function BudgetHeader({ canCopyPreviousMonth, month, monthLabel, nextHref, prevHref, year }: Props) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div>
@@ -10,33 +13,26 @@ export function BudgetHeader({ monthLabel }: Props) {
         <p className="text-sm text-muted-foreground">Plan your money for the month</p>
       </div>
       <div className="flex items-center gap-3">
-        {/* Month navigation is a visual placeholder for now — switching
-            months isn't wired up yet, matching the same pattern used on the
-            dashboard and expenses headers. */}
-        <div
-          aria-disabled="true"
-          className="flex items-center gap-1 rounded-full border bg-background px-1 py-1 text-foreground"
-        >
-          <span className="cursor-not-allowed rounded-full p-1 text-muted-foreground/50">
+        <div className="flex items-center gap-1 rounded-full border bg-background px-1 py-1 text-foreground">
+          <Link aria-label="Previous month" className="rounded-full p-1 hover:bg-accent" href={prevHref}>
             <ChevronLeft className="h-4 w-4" />
-          </span>
-          <span className="flex items-center gap-1 px-2 text-sm font-medium">
-            {monthLabel}
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-          </span>
-          <span className="cursor-not-allowed rounded-full p-1 text-muted-foreground/50">
+          </Link>
+          <span className="px-2 text-sm font-medium">{monthLabel}</span>
+          <Link aria-label="Next month" className="rounded-full p-1 hover:bg-accent" href={nextHref}>
             <ChevronRight className="h-4 w-4" />
-          </span>
+          </Link>
         </div>
-        {/* "Copy previous month" isn't wired up yet either. */}
-        <button
-          className="flex items-center gap-2 rounded-full border bg-background px-3 py-1.5 text-sm text-muted-foreground/50"
-          disabled
-          type="button"
-        >
-          <Copy className="h-4 w-4" />
-          Copy previous month
-        </button>
+
+        <form action={copyPreviousMonthBudgetAction.bind(null, year, month)}>
+          <button
+            className="flex items-center gap-2 rounded-full border bg-background px-3 py-1.5 text-sm text-muted-foreground enabled:hover:bg-accent disabled:cursor-not-allowed disabled:text-muted-foreground/50"
+            disabled={!canCopyPreviousMonth}
+            type="submit"
+          >
+            <Copy className="h-4 w-4" />
+            Copy previous month
+          </button>
+        </form>
       </div>
     </div>
   );

@@ -134,6 +134,53 @@ export async function setBudgetItemAction(input: SetBudgetItemInput) {
   revalidatePath("/dashboard");
 }
 
+function previousMonth(year: number, month: number) {
+  return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
+}
+
+// Non-destructive: only fills in categories/owners that don't already have a
+// budget_items row for the target month, so re-running this (or copying into
+// a month you've already partly filled out) never clobbers anything.
+export async function copyPreviousMonthBudgetAction(year: number, month: number) {
+  const { householdId } = await getCurrentMember();
+  const prev = previousMonth(year, month);
+
+  const [prevBudget] = await db
+    .select()
+    .from(monthlyBudgets)
+    .where(and(eq(monthlyBudgets.householdId, householdId), eq(monthlyBudgets.year, prev.year), eq(monthlyBudgets.month, prev.month)));
+  if (!prevBudget) {
+    revalidatePath("/budget");
+    return;
+  }
+
+  const prevItems = await db.select().from(budgetItems).where(eq(budgetItems.monthlyBudgetId, prevBudget.id));
+  if (prevItems.length === 0) {
+    revalidatePath("/budget");
+    return;
+  }
+
+  const budget = await getOrCreateMonthlyBudget(householdId, year, month);
+  const existingItems = await db.select().from(budgetItems).where(eq(budgetItems.monthlyBudgetId, budget.id));
+  const existingKeys = new Set(existingItems.map((i) => `${i.categoryId}::${i.ownerMemberId ?? "shared"}`));
+
+  const toInsert = prevItems
+    .filter((i) => !existingKeys.has(`${i.categoryId}::${i.ownerMemberId ?? "shared"}`))
+    .map((i) => ({
+      categoryId: i.categoryId,
+      monthlyBudgetId: budget.id,
+      ownerMemberId: i.ownerMemberId,
+      plannedAmount: i.plannedAmount,
+    }));
+
+  if (toInsert.length > 0) {
+    await db.insert(budgetItems).values(toInsert);
+  }
+
+  revalidatePath("/budget");
+  revalidatePath("/dashboard");
+}
+
 export async function getIncomesForMonth(year: number, month: number) {
   const { householdId } = await getCurrentMember();
   return db

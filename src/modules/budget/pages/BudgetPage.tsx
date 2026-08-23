@@ -11,20 +11,46 @@ import { budgetGroups, topBudgetCategories } from "@/modules/budget/lib/budget-g
 import { budgetVsActual } from "@/modules/budget/lib/calculations";
 import { listCategories } from "@/modules/categories/api/categories";
 import { listExpensesForMonth } from "@/modules/expenses/api/expenses.actions";
+import { checkBudgetReminder } from "@/modules/notifications/api/notifications.actions";
 
-export async function BudgetPage() {
+function previousMonth(year: number, month: number) {
+  return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
+}
+
+function nextMonth(year: number, month: number) {
+  return month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 };
+}
+
+function parseMonthParam(value: string | string[] | undefined, fallback: number, max: number) {
+  const num = Number(Array.isArray(value) ? value[0] : value);
+  return Number.isInteger(num) && num >= 1 && num <= max ? num : fallback;
+}
+
+type Props = { searchParams: Promise<{ month?: string; year?: string }> };
+
+export async function BudgetPage({ searchParams }: Props) {
   const { householdId, memberId } = await getCurrentMember();
+  const params = await searchParams;
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const year = parseMonthParam(params.year, currentYear, 9999);
+  const month = parseMonthParam(params.month, currentMonth, 12);
+  const prev = previousMonth(year, month);
+  const next = nextMonth(year, month);
 
-  const [members, categories, incomes, budgetItems, expenseRows] = await Promise.all([
+  const [members, categories, incomes, budgetItems, expenseRows, prevBudgetItems] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
     getIncomesForMonth(year, month),
     getBudgetItemsForMonth(year, month),
     listExpensesForMonth(year, month),
+    getBudgetItemsForMonth(prev.year, prev.month),
   ]);
+
+  if (year === currentYear && month === currentMonth) {
+    await checkBudgetReminder(householdId, year, month, budgetItems.length);
+  }
 
   const memberList = members.map((m) => ({ id: m.id, name: m.user.name }));
   const combinedIncome = incomes.reduce((s, i) => s + Number(i.amount), 0);
@@ -46,16 +72,10 @@ export async function BudgetPage() {
   const topCategories = topBudgetCategories(groups, 5);
 
   const totalBudget = groups.reduce((s, g) => s + g.totalPlanned, 0);
-  // No separate "target budget" concept exists in the schema (distinct from
-  // the sum of per-category allocations), so Total Budget and Allocated are
-  // intentionally the same figure here.
   const allocated = totalBudget;
   const unallocated = combinedIncome - allocated;
 
   const incomesByMember = Object.fromEntries(incomes.map((i) => [i.memberId, Number(i.amount)]));
-  // Keyed by categoryId -> ownerKey ("shared" or a memberId) -> plannedAmount,
-  // since a category can have a separate budget_items row per owner for the
-  // same month (e.g. "Groceries" shared AND owned by each member at once).
   const itemsByCategory: Record<string, Record<string, number>> = {};
   for (const b of budgetItems) {
     const ownerKey = b.ownerMemberId ?? "shared";
@@ -63,11 +83,18 @@ export async function BudgetPage() {
     itemsByCategory[b.categoryId][ownerKey] = Number(b.plannedAmount);
   }
 
-  const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" });
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
-      <BudgetHeader monthLabel={monthLabel} />
+      <BudgetHeader
+        canCopyPreviousMonth={prevBudgetItems.length > 0}
+        month={month}
+        monthLabel={monthLabel}
+        nextHref={`/budget?year=${next.year}&month=${next.month}`}
+        prevHref={`/budget?year=${prev.year}&month=${prev.month}`}
+        year={year}
+      />
 
       <BudgetSummaryCards
         allocated={allocated}

@@ -133,6 +133,25 @@ export async function syncDueSoonNotifications(householdId: string) {
   }
 }
 
+// Called from Dashboard/Budget whenever they render the actual current
+// calendar month (never for a past/future month the user has merely
+// navigated to) and that month has zero budget items. dedupeKey is
+// per-household-per-month, so this only ever fires once per month no matter
+// how many times the page is visited.
+export async function checkBudgetReminder(householdId: string, year: number, month: number, itemCount: number) {
+  if (itemCount > 0) return;
+
+  const monthLabel = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" });
+  await insertNotification({
+    body: "You haven't planned a budget for this month yet. Head to Budget to set your category amounts.",
+    category: "budget",
+    dedupeKey: `budget-reminder:${householdId}:${year}:${month}`,
+    householdId,
+    severity: "info",
+    title: `Set your budget for ${monthLabel}`,
+  });
+}
+
 export async function listNotifications(householdId: string) {
   return db.select().from(notifications).where(eq(notifications.householdId, householdId)).orderBy(desc(notifications.createdAt));
 }

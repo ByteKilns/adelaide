@@ -16,6 +16,7 @@ import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
 import { toBudgetItemInputs, toExpenseInputs, toIncomeInputs } from "@/modules/dashboard/lib/map-rows";
 import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
 import { listExpensesForMonth, listRecentExpenses } from "@/modules/expenses/api/expenses.actions";
+import { checkBudgetReminder } from "@/modules/notifications/api/notifications.actions";
 import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
 import { daysLeftInMonth, safeToSpendToday } from "@/modules/reports/lib/reports-stats";
 import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
@@ -60,6 +61,8 @@ export async function DashboardPage() {
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
   ]);
+
+  await checkBudgetReminder(householdId, year, month, budgetItemRows.length);
 
   const incomes = toIncomeInputs(incomeRows);
   const expenses = toExpenseInputs(expenseRows);
