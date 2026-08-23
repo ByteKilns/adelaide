@@ -1,5 +1,6 @@
 import { PiggyBank, Target, Wallet, WalletCards } from "lucide-react";
 
+import { StatAmount } from "@/components/StatAmount";
 import { type StatCard, StatCardGrid } from "@/components/StatCardGrid";
 import { formatNPR, pctOfIncome } from "@/modules/dashboard/lib/format";
 
@@ -27,7 +28,7 @@ export function BudgetSummaryCards({ allocated, combinedIncome, totalBudget, una
     {
       content: (
         <>
-          <p className="text-xl font-semibold">{formatNPR(combinedIncome)}</p>
+          <StatAmount>{formatNPR(combinedIncome)}</StatAmount>
           <p className="mt-1 text-xs text-muted-foreground">This month</p>
         </>
       ),
@@ -38,7 +39,7 @@ export function BudgetSummaryCards({ allocated, combinedIncome, totalBudget, una
     {
       content: (
         <>
-          <p className="text-xl font-semibold">{formatNPR(totalBudget)}</p>
+          <StatAmount>{formatNPR(totalBudget)}</StatAmount>
           <ProgressLine pct={pctOfIncome(totalBudget, combinedIncome)} />
         </>
       ),
@@ -49,7 +50,7 @@ export function BudgetSummaryCards({ allocated, combinedIncome, totalBudget, una
     {
       content: (
         <>
-          <p className="text-xl font-semibold">{formatNPR(allocated)}</p>
+          <StatAmount>{formatNPR(allocated)}</StatAmount>
           <ProgressLine pct={pctOfIncome(allocated, combinedIncome)} />
         </>
       ),
@@ -60,7 +61,7 @@ export function BudgetSummaryCards({ allocated, combinedIncome, totalBudget, una
     {
       content: (
         <>
-          <p className="text-xl font-semibold">{formatNPR(unallocated)}</p>
+          <StatAmount>{formatNPR(unallocated)}</StatAmount>
           <p className="mt-1 text-xs text-muted-foreground">
             {pctOfIncome(unallocated, combinedIncome) ?? 0}% of income
           </p>

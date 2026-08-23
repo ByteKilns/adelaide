@@ -1,5 +1,5 @@
 export function formatNPR(value: number) {
-  return `NPR ${value.toLocaleString()}`;
+  return `RS ${value.toLocaleString()}`;
 }
 
 export function pctOfIncome(value: number, combinedIncome: number): number | null {

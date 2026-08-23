@@ -5,6 +5,7 @@ import {
   WalletCards,
 } from "lucide-react";
 
+import { StatAmount } from "@/components/StatAmount";
 import { type StatCard, StatCardGrid } from "@/components/StatCardGrid";
 import { TONE_BAR_CLASSES } from "@/components/ToneIcon";
 import { formatNPR, pctOfIncome } from "@/modules/dashboard/lib/format";
@@ -13,6 +14,7 @@ type Props = {
   combinedIncome: number;
   expenseTrendPct: number | null;
   incomeTrendPct: number | null;
+  monthlySavings: number;
   totalExpenses: number;
   unallocated: number;
 };
@@ -29,10 +31,6 @@ function TrendLine({ pct }: { pct: number | null }) {
   );
 }
 
-function Amount({ value }: { value: number }) {
-  return <p className="text-lg font-semibold">{formatNPR(value)}</p>;
-}
-
 function PctOfIncome({ pct }: { pct: number | null }) {
   if (pct === null) return null;
   return <p className="mt-1 text-xs text-muted-foreground">{pct}% of income</p>;
@@ -44,9 +42,11 @@ export function SummaryCards({
   unallocated,
   incomeTrendPct,
   expenseTrendPct,
+  monthlySavings,
 }: Props) {
   const expensePct = pctOfIncome(totalExpenses, combinedIncome);
   const unallocatedPct = pctOfIncome(unallocated, combinedIncome);
+  const savingsPct = pctOfIncome(monthlySavings, combinedIncome);
 
   const cards: StatCard[] = [
     {
@@ -55,7 +55,7 @@ export function SummaryCards({
       tone: "green",
       content: (
         <>
-          <Amount value={combinedIncome} />
+          <StatAmount>{formatNPR(combinedIncome)}</StatAmount>
           <p className="mt-1 text-xs text-muted-foreground">This month</p>
           <TrendLine pct={incomeTrendPct} />
         </>
@@ -67,7 +67,7 @@ export function SummaryCards({
       tone: "pink",
       content: (
         <>
-          <Amount value={totalExpenses} />
+          <StatAmount>{formatNPR(totalExpenses)}</StatAmount>
           {expensePct !== null && (
             <>
               <PctOfIncome pct={expensePct} />
@@ -87,7 +87,12 @@ export function SummaryCards({
       title: "Total Savings",
       icon: PiggyBank,
       tone: "purple",
-      content: <p className="text-sm text-muted-foreground">Coming soon</p>,
+      content: (
+        <>
+          <StatAmount>{formatNPR(monthlySavings)}</StatAmount>
+          <PctOfIncome pct={savingsPct} />
+        </>
+      ),
     },
     {
       title: "Unallocated",
@@ -95,7 +100,7 @@ export function SummaryCards({
       tone: "orange",
       content: (
         <>
-          <Amount value={unallocated} />
+          <StatAmount>{formatNPR(unallocated)}</StatAmount>
           <PctOfIncome pct={unallocatedPct} />
         </>
       ),

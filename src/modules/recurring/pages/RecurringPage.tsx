@@ -1,5 +1,6 @@
 import { CalendarClock, CalendarDays, CheckCircle2, Clock } from "lucide-react";
 
+import { StatAmount } from "@/components/StatAmount";
 import { StatCardGrid } from "@/components/StatCardGrid";
 import { formatBsMonthYear, formatBsShortDate } from "@/lib/nepali-date";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
@@ -105,7 +106,7 @@ export async function RecurringPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{formatNPR(stats.totalRecurring)}</p>
+                <StatAmount>{formatNPR(stats.totalRecurring)}</StatAmount>
                 <p className="text-xs text-muted-foreground">This month</p>
               </div>
             ),
@@ -116,7 +117,7 @@ export async function RecurringPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{formatNPR(stats.paidThisMonth)}</p>
+                <StatAmount>{formatNPR(stats.paidThisMonth)}</StatAmount>
                 <p className="text-xs text-muted-foreground">{stats.paidThisMonthCount} paid</p>
               </div>
             ),
@@ -127,7 +128,7 @@ export async function RecurringPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{formatNPR(stats.upcoming)}</p>
+                <StatAmount>{formatNPR(stats.upcoming)}</StatAmount>
                 <p className="text-xs text-muted-foreground">{stats.upcomingCount} upcoming</p>
               </div>
             ),
@@ -138,7 +139,7 @@ export async function RecurringPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{nextDueLabel}</p>
+                <StatAmount>{nextDueLabel}</StatAmount>
                 <p className="truncate text-xs text-muted-foreground">
                   {rows.find((r) => r.id === stats.nextDue?.id)?.name ?? "Nothing scheduled"}
                 </p>

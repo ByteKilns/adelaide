@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, PiggyBank, Target } from "lucide-react";
 
+import { StatAmount } from "@/components/StatAmount";
 import { StatCardGrid } from "@/components/StatCardGrid";
 import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
@@ -56,7 +57,7 @@ export async function SavingsGoalsPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{formatNPR(stats.totalSaved)}</p>
+                <StatAmount>{formatNPR(stats.totalSaved)}</StatAmount>
                 <p className="text-xs text-muted-foreground">Across all goals</p>
               </div>
             ),
@@ -67,7 +68,7 @@ export async function SavingsGoalsPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{formatNPR(stats.monthlyContribution)}</p>
+                <StatAmount>{formatNPR(stats.monthlyContribution)}</StatAmount>
                 <p className="text-xs text-muted-foreground">This month</p>
               </div>
             ),
@@ -78,7 +79,7 @@ export async function SavingsGoalsPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{stats.totalGoals}</p>
+                <StatAmount>{stats.totalGoals}</StatAmount>
                 <p className="text-xs text-muted-foreground">Active goals</p>
               </div>
             ),
@@ -89,7 +90,7 @@ export async function SavingsGoalsPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{stats.averageProgress}%</p>
+                <StatAmount>{stats.averageProgress}%</StatAmount>
                 <p className="text-xs text-muted-foreground">Across all goals</p>
               </div>
             ),

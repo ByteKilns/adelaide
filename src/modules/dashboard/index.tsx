@@ -162,6 +162,7 @@ export async function DashboardPage({ searchParams }: Props) {
         combinedIncome={summary.combinedIncome}
         expenseTrendPct={trendPct(summary.totalExpenses, prevSummary.totalExpenses)}
         incomeTrendPct={trendPct(summary.combinedIncome, prevSummary.combinedIncome)}
+        monthlySavings={savingsStats.monthlyContribution}
         totalExpenses={summary.totalExpenses}
         unallocated={summary.unallocated}
       />

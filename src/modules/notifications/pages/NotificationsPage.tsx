@@ -1,6 +1,7 @@
 import { Bell, CalendarDays, CircleAlert, CircleCheck } from "lucide-react";
 import { cookies } from "next/headers";
 
+import { StatAmount } from "@/components/StatAmount";
 import { StatCardGrid } from "@/components/StatCardGrid";
 import { formatBsMonthYear } from "@/lib/nepali-date";
 import { NOTIFICATION_PREFS_COOKIE_NAME, parseNotificationPreferences } from "@/lib/notification-preferences-cookie";
@@ -90,7 +91,7 @@ export async function NotificationsPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{totalNotifications}</p>
+                <StatAmount>{totalNotifications}</StatAmount>
                 <p className="text-xs text-muted-foreground">This month</p>
               </div>
             ),
@@ -101,7 +102,7 @@ export async function NotificationsPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{unreadCount}</p>
+                <StatAmount>{unreadCount}</StatAmount>
                 <p className="text-xs text-muted-foreground">Need your attention</p>
               </div>
             ),
@@ -112,7 +113,7 @@ export async function NotificationsPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{upcomingPayments.length}</p>
+                <StatAmount>{upcomingPayments.length}</StatAmount>
                 <p className="text-xs text-muted-foreground">Next 7 days</p>
               </div>
             ),
@@ -123,7 +124,7 @@ export async function NotificationsPage() {
           {
             content: (
               <div>
-                <p className="text-xl font-semibold">{resolvedThisMonth}</p>
+                <StatAmount>{resolvedThisMonth}</StatAmount>
                 <p className="text-xs text-muted-foreground">
                   {resolvedTrend === null ? "Resolved this month" : `${resolvedTrend >= 0 ? "+" : ""}${resolvedTrend}% vs last month`}
                 </p>
