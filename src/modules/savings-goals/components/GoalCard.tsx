@@ -7,6 +7,7 @@ import { TONE_BADGE_CLASSES, TONE_BAR_CLASSES } from "@/components/ToneIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { formatBsDate } from "@/lib/nepali-date";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { type MemberRole, memberTone, roleForOwner } from "@/modules/expenses/lib/member-tone";
 import type { GoalStatus } from "@/modules/savings-goals/lib/savings-stats";
@@ -40,7 +41,7 @@ function displayLabel(role: MemberRole, name: string | null): string {
 }
 
 function formatTargetDate(dateStr: string) {
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
+  return formatBsDate(dateStr);
 }
 
 type Props = {

@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 
 import { db } from "@/db/client";
 import { budgetItems, categories, expenses, monthlyBudgets, notifications, recurringExpenses } from "@/db/schema";
+import { formatBsMonthYear } from "@/lib/nepali-date";
 import { NOTIFICATION_PREFS_COOKIE_NAME, type NotificationPreferences } from "@/lib/notification-preferences-cookie";
 import { getCurrentMember } from "@/lib/session";
 import { formatNPR } from "@/modules/dashboard/lib/format";
@@ -141,7 +142,7 @@ export async function syncDueSoonNotifications(householdId: string) {
 export async function checkBudgetReminder(householdId: string, year: number, month: number, itemCount: number) {
   if (itemCount > 0) return;
 
-  const monthLabel = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = formatBsMonthYear(`${year}-${String(month).padStart(2, "0")}-01`);
   await insertNotification({
     body: "You haven't planned a budget for this month yet. Head to Budget to set your category amounts.",
     category: "budget",

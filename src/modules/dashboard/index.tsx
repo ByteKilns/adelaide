@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import {
   getBudgetItemsForMonth,
@@ -118,7 +119,7 @@ export async function DashboardPage() {
     },
   ].map((v) => ({ ...v, remaining: v.income - v.expenses }));
 
-  const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";
 
   const totalPlanned = budgetItems.reduce((s, b) => s + b.plannedAmount, 0);

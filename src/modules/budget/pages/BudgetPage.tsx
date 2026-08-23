@@ -1,3 +1,4 @@
+import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth } from "@/modules/budget/api/budget.actions";
 import { AllocationSummaryCard } from "@/modules/budget/components/AllocationSummaryCard";
@@ -83,7 +84,7 @@ export async function BudgetPage({ searchParams }: Props) {
     itemsByCategory[b.categoryId][ownerKey] = Number(b.plannedAmount);
   }
 
-  const monthLabel = new Date(year, month - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = formatBsMonthYear(`${year}-${String(month).padStart(2, "0")}-01`);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">

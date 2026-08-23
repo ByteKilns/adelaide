@@ -1,6 +1,7 @@
 import { CheckCircle2, Clock, PiggyBank, Target } from "lucide-react";
 
 import { StatCardGrid } from "@/components/StatCardGrid";
+import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
@@ -44,7 +45,7 @@ export async function SavingsGoalsPage() {
   const points = monthlyTotals(contributions, 6);
   const contributionEntries = buildContributionEntries(contributionRows, goalRows, memberById, memberId);
 
-  const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">

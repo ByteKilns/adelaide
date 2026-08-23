@@ -8,6 +8,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Modal } from "@/components/Modal";
+import { NepaliDateField } from "@/components/NepaliDateField";
 import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
@@ -166,11 +167,16 @@ export function GoalForm({ currentMemberId, editing, members, onOpenChange, open
             type="number"
             {...register("targetAmount", { valueAsNumber: true })}
           />
-          <TextField
-            id="goal-target-date"
-            label="Target date (optional)"
-            type="date"
-            {...register("targetDate", { setValueAs: (v: string) => (v ? v : null) })}
+          <Controller
+            control={control}
+            name="targetDate"
+            render={({ field }) => (
+              <NepaliDateField
+                label="Target date (optional)"
+                onChange={(v) => field.onChange(v || null)}
+                value={field.value ?? ""}
+              />
+            )}
           />
         </div>
       </form>

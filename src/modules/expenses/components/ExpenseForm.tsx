@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { NepaliDateField } from "@/components/NepaliDateField";
 import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
@@ -137,7 +138,13 @@ export function ExpenseForm({ categories, currentMemberId, expenseId, initial, m
         )}
       />
 
-      <TextField error={errors.date?.message} id="date" label="Date" type="date" {...register("date")} />
+      <Controller
+        control={control}
+        name="date"
+        render={({ field }) => (
+          <NepaliDateField error={errors.date?.message} label="Date" onChange={field.onChange} value={field.value} />
+        )}
+      />
 
       <TextField id="note" label="Note (optional)" {...register("note")} />
 

@@ -2,6 +2,7 @@ import { Target } from "lucide-react";
 
 import { ToneIcon } from "@/components/ToneIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatBsShortDate } from "@/lib/nepali-date";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { type MemberRole, memberTone } from "@/modules/expenses/lib/member-tone";
 
@@ -22,7 +23,7 @@ function formatRelativeDate(dateStr: string) {
   const diffDays = Math.round((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
-  return date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+  return formatBsShortDate(dateStr);
 }
 
 export function RecentContributionsCard({ items }: { items: ContributionEntry[] }) {

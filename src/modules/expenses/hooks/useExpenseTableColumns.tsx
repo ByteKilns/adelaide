@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import type { DataTableColumn } from "@/components/DataTable";
 import { RowActionsMenu } from "@/components/RowActionsMenu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { formatBsShortDate } from "@/lib/nepali-date";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { deleteExpenseAction } from "@/modules/expenses/api/expenses.actions";
 import { OwnerAvatar } from "@/modules/expenses/components/OwnerAvatar";
@@ -51,7 +52,7 @@ export function useExpenseTableColumns(realMemberId: string): DataTableColumn<Ex
   }
 
   return [
-    { header: "Date", key: "date", render: (r) => r.date },
+    { header: "Date", key: "date", render: (r) => formatBsShortDate(r.date) },
     {
       className: "whitespace-normal",
       header: "Category",

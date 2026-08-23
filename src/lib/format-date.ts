@@ -1,3 +1,5 @@
+import { formatBsShortDate } from "@/lib/nepali-date";
+
 // `dateStr` is a "YYYY-MM-DD" string from a Postgres `date` column. Parsing
 // it via `new Date("YYYY-MM-DD")` treats it as UTC midnight, which can land
 // on the wrong local day when compared against "today" — so this parses the
@@ -13,5 +15,5 @@ export function formatRelativeDate(dateStr: string): string {
 
   if (date.getTime() === today.getTime()) return "Today";
   if (date.getTime() === yesterday.getTime()) return "Yesterday";
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return formatBsShortDate(dateStr);
 }

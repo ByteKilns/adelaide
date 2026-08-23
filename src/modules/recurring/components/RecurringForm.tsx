@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Modal } from "@/components/Modal";
+import { NepaliDateField } from "@/components/NepaliDateField";
 import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
@@ -148,12 +149,17 @@ export function RecurringForm({ categories, currentMemberId, editing, members, o
           />
         </div>
 
-        <TextField
-          error={errors.nextDueDate?.message}
-          id="recurring-next-due"
-          label="Next due date"
-          type="date"
-          {...register("nextDueDate")}
+        <Controller
+          control={control}
+          name="nextDueDate"
+          render={({ field }) => (
+            <NepaliDateField
+              error={errors.nextDueDate?.message}
+              label="Next due date"
+              onChange={field.onChange}
+              value={field.value}
+            />
+          )}
         />
 
         <Controller

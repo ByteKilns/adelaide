@@ -1,3 +1,4 @@
+import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
@@ -63,7 +64,7 @@ export async function ExpensesPage() {
     groupName: category(c.categoryId)?.groupName ?? "",
   }));
 
-  const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
   const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
   const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month);
   const daysLeft = daysLeftInMonth(year, month);

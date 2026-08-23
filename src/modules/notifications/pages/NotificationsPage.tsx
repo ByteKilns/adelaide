@@ -2,6 +2,7 @@ import { Bell, CalendarDays, CircleAlert, CircleCheck } from "lucide-react";
 import { cookies } from "next/headers";
 
 import { StatCardGrid } from "@/components/StatCardGrid";
+import { formatBsMonthYear } from "@/lib/nepali-date";
 import { NOTIFICATION_PREFS_COOKIE_NAME, parseNotificationPreferences } from "@/lib/notification-preferences-cookie";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
@@ -78,7 +79,7 @@ export async function NotificationsPage() {
   const resolvedLastMonth = rows.filter((r) => r.readAt !== null && r.readAt >= lastMonthStart && r.readAt < monthStart).length;
   const resolvedTrend = trendPct(resolvedThisMonth, resolvedLastMonth);
 
-  const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">

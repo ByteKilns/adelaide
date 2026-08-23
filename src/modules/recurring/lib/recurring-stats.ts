@@ -1,4 +1,5 @@
 import type { Tone } from "@/components/ToneIcon";
+import { formatBsDate } from "@/lib/nepali-date";
 import { getCategoryTone } from "@/modules/categories/lib/category-icons";
 
 export type RecurringItem = {
@@ -83,11 +84,7 @@ export function daysUntil(dateStr: string): number {
 }
 
 export function formatDueDate(dateStr: string): string {
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return formatBsDate(dateStr);
 }
 
 export type CategoryGroupTotal = { amount: number; groupName: string; tone: Tone };

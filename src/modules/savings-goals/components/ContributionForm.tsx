@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Modal } from "@/components/Modal";
+import { NepaliDateField } from "@/components/NepaliDateField";
 import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
 import { Button } from "@/components/ui/button";
@@ -86,7 +87,13 @@ export function ContributionForm({ currentMemberId, goalId, goalName, members, o
           )}
         />
 
-        <TextField error={errors.date?.message} id="contribution-date" label="Date" type="date" {...register("date")} />
+        <Controller
+          control={control}
+          name="date"
+          render={({ field }) => (
+            <NepaliDateField error={errors.date?.message} label="Date" onChange={field.onChange} value={field.value} />
+          )}
+        />
       </form>
     </Modal>
   );

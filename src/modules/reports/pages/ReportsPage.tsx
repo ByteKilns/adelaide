@@ -1,3 +1,4 @@
+import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
@@ -121,7 +122,7 @@ export async function ReportsPage() {
   const savingsPoints = monthlyTotals(contributions, 6);
   const recentContributions = buildContributionEntries(contributionRows, goalRows, memberById, memberId);
 
-  const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
   const exportRows = expenseRows.map((e) => ({
     amount: Number(e.amount),
     category: categoryName(e.categoryId),

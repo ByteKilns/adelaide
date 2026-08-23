@@ -1,6 +1,7 @@
 import { CalendarClock, CalendarDays, CheckCircle2, Clock } from "lucide-react";
 
 import { StatCardGrid } from "@/components/StatCardGrid";
+import { formatBsMonthYear, formatBsShortDate } from "@/lib/nepali-date";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
 import { formatNPR } from "@/modules/dashboard/lib/format";
@@ -91,10 +92,8 @@ export async function RecurringPage() {
       ownerLabel: displayLabel(roleForOwner(r.ownerMemberId, memberId), r.ownerName),
     }));
 
-  const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
-  const nextDueLabel = stats.nextDue
-    ? new Date(`${stats.nextDue.date}T00:00:00`).toLocaleDateString("en-US", { day: "numeric", month: "short" })
-    : "—";
+  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
+  const nextDueLabel = stats.nextDue ? formatBsShortDate(stats.nextDue.date) : "—";
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">

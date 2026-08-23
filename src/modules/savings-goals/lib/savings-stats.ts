@@ -1,3 +1,4 @@
+import { formatBsMonthShort } from "@/lib/nepali-date";
 import type { GoalCardData } from "@/modules/savings-goals/components/GoalCard";
 import type { ContributionEntry } from "@/modules/savings-goals/components/RecentContributionsCard";
 
@@ -45,7 +46,7 @@ export function monthlyTotals(
   const months: { label: string; month: number; year: number }[] = [];
   for (let i = monthsBack - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({ label: d.toLocaleString("en-US", { month: "short" }), month: d.getMonth() + 1, year: d.getFullYear() });
+    months.push({ label: formatBsMonthShort(d.toISOString().slice(0, 10)), month: d.getMonth() + 1, year: d.getFullYear() });
   }
 
   const sorted = [...contributions].sort((a, b) => a.date.localeCompare(b.date));

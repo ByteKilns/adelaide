@@ -1,4 +1,5 @@
 import type { Tone } from "@/components/ToneIcon";
+import { formatBsMonthShort } from "@/lib/nepali-date";
 import { getCategoryTone } from "@/modules/categories/lib/category-icons";
 
 export function trendPct(current: number, previous: number): null | number {
@@ -48,7 +49,7 @@ export function monthlyIncomeExpenseTrend(
   const months: { label: string; month: number; year: number }[] = [];
   for (let i = monthsBack - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({ label: d.toLocaleString("en-US", { month: "short" }), month: d.getMonth() + 1, year: d.getFullYear() });
+    months.push({ label: formatBsMonthShort(d.toISOString().slice(0, 10)), month: d.getMonth() + 1, year: d.getFullYear() });
   }
 
   return months.map(({ label, month, year }) => {
