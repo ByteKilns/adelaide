@@ -36,7 +36,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/budget", label: "Budget", icon: Wallet, enabled: true },
   { href: "/recurring", label: "Recurring", icon: Repeat, enabled: true },
   { href: "/savings-goals", label: "Savings Goals", icon: PiggyBank, enabled: true },
-  { href: "/reports", label: "Reports", icon: BarChart3, enabled: false },
+  { href: "/reports", label: "Reports", icon: BarChart3, enabled: true },
   { href: "/categories", label: "Categories", icon: List, enabled: true },
   { href: "/notifications", label: "Notifications", icon: Bell, enabled: false },
   { href: "/settings", label: "Settings", icon: Settings, enabled: true },

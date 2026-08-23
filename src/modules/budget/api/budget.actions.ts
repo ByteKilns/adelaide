@@ -142,6 +142,11 @@ export async function getIncomesForMonth(year: number, month: number) {
     .where(and(eq(incomes.householdId, householdId), eq(incomes.year, year), eq(incomes.month, month)));
 }
 
+export async function listAllIncomes() {
+  const { householdId } = await getCurrentMember();
+  return db.select().from(incomes).where(eq(incomes.householdId, householdId));
+}
+
 export async function setIncomeAction(input: SetIncomeInput) {
   const { householdId } = await getCurrentMember();
   const parsed = setIncomeSchema.parse(input);

@@ -98,6 +98,15 @@ export async function listExpensesForMonth(year: number, month: number) {
     .orderBy(desc(expenses.date), desc(expenses.createdAt));
 }
 
+export async function listExpensesForRange(startDate: string, endDate: string) {
+  const { householdId } = await getCurrentMember();
+  return db
+    .select()
+    .from(expenses)
+    .where(and(eq(expenses.householdId, householdId), gte(expenses.date, startDate), lte(expenses.date, endDate)))
+    .orderBy(desc(expenses.date), desc(expenses.createdAt));
+}
+
 export async function listRecentExpenses(limit: number) {
   const { householdId } = await getCurrentMember();
   return db

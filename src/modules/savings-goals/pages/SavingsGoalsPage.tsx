@@ -4,13 +4,12 @@ import { StatCardGrid } from "@/components/StatCardGrid";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
-import type { GoalCardData } from "@/modules/savings-goals/components/GoalCard";
 import { GoalProgressOverviewCard } from "@/modules/savings-goals/components/GoalProgressOverviewCard";
-import { type ContributionEntry, RecentContributionsCard } from "@/modules/savings-goals/components/RecentContributionsCard";
+import { RecentContributionsCard } from "@/modules/savings-goals/components/RecentContributionsCard";
 import { SavingsGoalsHeader } from "@/modules/savings-goals/components/SavingsGoalsHeader";
 import { SavingsGoalsManager } from "@/modules/savings-goals/components/SavingsGoalsManager";
 import { SavingsOverviewCard } from "@/modules/savings-goals/components/SavingsOverviewCard";
-import { classifyGoal, type GoalStatus, monthlyTotals, savedAmountForGoal, savingsOverviewStats } from "@/modules/savings-goals/lib/savings-stats";
+import { buildContributionEntries, buildGoalCards, monthlyTotals, savingsOverviewStats } from "@/modules/savings-goals/lib/savings-stats";
 
 export async function SavingsGoalsPage() {
   const { householdId, memberId } = await getCurrentMember();
@@ -29,28 +28,7 @@ export async function SavingsGoalsPage() {
 
   const contributions = contributionRows.map((c) => ({ amount: Number(c.amount), date: c.date, goalId: c.goalId }));
 
-  const goals: GoalCardData[] = goalRows.map((g) => {
-    const saved = savedAmountForGoal(g.id, contributions);
-    const targetAmount = Number(g.targetAmount);
-    const owner = g.ownerMemberId ? memberById.get(g.ownerMemberId) : null;
-    return {
-      createdAt: g.createdAt,
-      description: g.description,
-      id: g.id,
-      image: g.image,
-      name: g.name,
-      ownerMemberId: g.ownerMemberId,
-      ownerName: owner?.user.name ?? null,
-      pct: targetAmount > 0 ? Math.round((saved / targetAmount) * 100) : 0,
-      saved,
-      status: classifyGoal({ createdAt: g.createdAt, id: g.id, targetAmount, targetDate: g.targetDate }, saved),
-      targetAmount,
-      targetDate: g.targetDate,
-    };
-  });
-
-  const statusCounts: Record<GoalStatus, number> = { "at-risk": 0, behind: 0, "on-track": 0 };
-  for (const goal of goals) statusCounts[goal.status]++;
+  const { goals, statusCounts } = buildGoalCards(goalRows, contributions, memberById);
 
   const stats = savingsOverviewStats(
     goalRows.map((g) => ({ createdAt: g.createdAt, id: g.id, targetAmount: Number(g.targetAmount), targetDate: g.targetDate })),
@@ -64,21 +42,7 @@ export async function SavingsGoalsPage() {
       : null;
 
   const points = monthlyTotals(contributions, 6);
-
-  const contributionEntries: ContributionEntry[] = contributionRows.map((c) => {
-    const goal = goalRows.find((g) => g.id === c.goalId);
-    const member = memberById.get(c.memberId);
-    const role = member ? (member.id === memberId ? "me" : "partner") : "shared";
-    return {
-      amount: Number(c.amount),
-      date: c.date,
-      goalImage: goal?.image ?? null,
-      goalName: goal?.name ?? "Unknown goal",
-      id: c.id,
-      ownerLabel: member?.user.name ?? "Unknown",
-      role,
-    };
-  });
+  const contributionEntries = buildContributionEntries(contributionRows, goalRows, memberById, memberId);
 
   const monthLabel = now.toLocaleString("en-US", { month: "long", year: "numeric" });
 

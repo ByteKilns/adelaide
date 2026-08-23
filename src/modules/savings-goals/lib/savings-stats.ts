@@ -1,3 +1,6 @@
+import type { GoalCardData } from "@/modules/savings-goals/components/GoalCard";
+import type { ContributionEntry } from "@/modules/savings-goals/components/RecentContributionsCard";
+
 export type GoalStatus = "at-risk" | "behind" | "on-track";
 
 export type Goal = {
@@ -92,4 +95,74 @@ export function savingsOverviewStats(
     progressPcts.length > 0 ? Math.round((progressPcts.reduce((s, p) => s + p, 0) / progressPcts.length) * 100) : 0;
 
   return { averageProgress, lastMonthContribution, monthlyContribution, totalGoals: goals.length, totalSaved };
+}
+
+export type GoalRow = {
+  createdAt: Date;
+  description: null | string;
+  householdId: string;
+  id: string;
+  image: null | string;
+  name: string;
+  ownerMemberId: null | string;
+  targetAmount: string;
+  targetDate: null | string;
+};
+
+// Shared by SavingsGoalsPage and the Reports "Savings" tab — both need the
+// exact same raw-rows-to-view-model shaping, so it lives here once rather
+// than being reimplemented (and risking drift) in each page.
+export function buildGoalCards(
+  goalRows: GoalRow[],
+  contributions: Contribution[],
+  memberById: Map<string, { user: { name: string } }>,
+): { goals: GoalCardData[]; statusCounts: Record<GoalStatus, number> } {
+  const goals: GoalCardData[] = goalRows.map((g) => {
+    const saved = savedAmountForGoal(g.id, contributions);
+    const targetAmount = Number(g.targetAmount);
+    const owner = g.ownerMemberId ? memberById.get(g.ownerMemberId) : null;
+    return {
+      createdAt: g.createdAt,
+      description: g.description,
+      id: g.id,
+      image: g.image,
+      name: g.name,
+      ownerMemberId: g.ownerMemberId,
+      ownerName: owner?.user.name ?? null,
+      pct: targetAmount > 0 ? Math.round((saved / targetAmount) * 100) : 0,
+      saved,
+      status: classifyGoal({ createdAt: g.createdAt, id: g.id, targetAmount, targetDate: g.targetDate }, saved),
+      targetAmount,
+      targetDate: g.targetDate,
+    };
+  });
+
+  const statusCounts: Record<GoalStatus, number> = { "at-risk": 0, behind: 0, "on-track": 0 };
+  for (const goal of goals) statusCounts[goal.status]++;
+
+  return { goals, statusCounts };
+}
+
+export type ContributionRow = { amount: string; date: string; goalId: string; id: string; memberId: string };
+
+export function buildContributionEntries(
+  contributionRows: ContributionRow[],
+  goalRows: { id: string; image: null | string; name: string }[],
+  memberById: Map<string, { user: { name: string } }>,
+  realMemberId: string,
+): ContributionEntry[] {
+  return contributionRows.map((c) => {
+    const goal = goalRows.find((g) => g.id === c.goalId);
+    const member = memberById.get(c.memberId);
+    const role = c.memberId === realMemberId ? "me" : member ? "partner" : "shared";
+    return {
+      amount: Number(c.amount),
+      date: c.date,
+      goalImage: goal?.image ?? null,
+      goalName: goal?.name ?? "Unknown goal",
+      id: c.id,
+      ownerLabel: member?.user.name ?? "Unknown",
+      role,
+    };
+  });
 }
