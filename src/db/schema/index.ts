@@ -6,3 +6,4 @@ export * from "./budgets";
 export * from "./incomes";
 export * from "./recurringExpenses";
 export * from "./expenses";
+export * from "./savingsGoals";
