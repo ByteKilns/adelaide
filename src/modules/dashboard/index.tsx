@@ -89,10 +89,9 @@ export async function DashboardPage({ searchParams }: Props) {
   // dashboardSummary (for the trend lines above). Nothing on this page shows
   // a previous-month budget-vs-actual breakdown, so there's no need to fetch
   // budget items for the previous month at all.
-  const prevSummary = dashboardSummary(
-    toIncomeInputs(prevIncomeRows),
-    toExpenseInputs(prevExpenseRows),
-  );
+  const prevIncomes = toIncomeInputs(prevIncomeRows);
+  const prevExpensesList = toExpenseInputs(prevExpenseRows);
+  const prevSummary = dashboardSummary(prevIncomes, prevExpensesList);
 
   const category = (id: string) => categories.find((c) => c.id === id);
   const categoryName = (id: string) => category(id)?.name ?? "Unknown";
@@ -105,7 +104,11 @@ export async function DashboardPage({ searchParams }: Props) {
       key: "me",
       label: "Me",
       income: incomes.find((i) => i.memberId === memberId)?.amount ?? 0,
+      prevIncome: prevIncomes.find((i) => i.memberId === memberId)?.amount ?? 0,
       expenses: expenses
+        .filter((e) => e.ownerMemberId === memberId)
+        .reduce((s, e) => s + e.amount, 0),
+      prevExpenses: prevExpensesList
         .filter((e) => e.ownerMemberId === memberId)
         .reduce((s, e) => s + e.amount, 0),
       remaining: 0,
@@ -116,7 +119,11 @@ export async function DashboardPage({ searchParams }: Props) {
             key: "partner",
             label: partner.user.name,
             income: incomes.find((i) => i.memberId === partner.id)?.amount ?? 0,
+            prevIncome: prevIncomes.find((i) => i.memberId === partner.id)?.amount ?? 0,
             expenses: expenses
+              .filter((e) => e.ownerMemberId === partner.id)
+              .reduce((s, e) => s + e.amount, 0),
+            prevExpenses: prevExpensesList
               .filter((e) => e.ownerMemberId === partner.id)
               .reduce((s, e) => s + e.amount, 0),
             remaining: 0,
@@ -127,10 +134,17 @@ export async function DashboardPage({ searchParams }: Props) {
       key: "shared",
       label: "Shared",
       income: 0,
+      prevIncome: 0,
       expenses: expenses.filter((e) => e.ownerMemberId === null).reduce((s, e) => s + e.amount, 0),
+      prevExpenses: prevExpensesList.filter((e) => e.ownerMemberId === null).reduce((s, e) => s + e.amount, 0),
       remaining: 0,
     },
-  ].map((v) => ({ ...v, remaining: v.income - v.expenses }));
+  ].map((v) => ({
+    ...v,
+    remaining: v.income - v.expenses,
+    incomeTrendPct: trendPct(v.income, v.prevIncome),
+    expenseTrendPct: trendPct(v.expenses, v.prevExpenses),
+  }));
 
   const monthLabel = formatBsMonthYear(`${year}-${String(month).padStart(2, "0")}-01`);
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";

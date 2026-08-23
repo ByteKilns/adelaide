@@ -5,5 +5,5 @@ import type { ReactNode } from "react";
 // exact style for their headline number, so it lives here once instead of
 // each page repeating the className.
 export function StatAmount({ children }: { children: ReactNode }) {
-  return <p className="text-lg font-extrabold">{children}</p>;
+  return <p className="text-md font-extrabold">{children}</p>;
 }

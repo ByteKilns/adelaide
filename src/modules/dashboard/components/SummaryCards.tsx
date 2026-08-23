@@ -1,13 +1,9 @@
-import {
-  ArrowDown,
-  ArrowUp,
-  PiggyBank,
-  WalletCards,
-} from "lucide-react";
+import { PiggyBank, WalletCards } from "lucide-react";
 
 import { StatAmount } from "@/components/StatAmount";
 import { type StatCard, StatCardGrid } from "@/components/StatCardGrid";
 import { TONE_BAR_CLASSES } from "@/components/ToneIcon";
+import { TrendLine } from "@/components/TrendLine";
 import { formatNPR, pctOfIncome } from "@/modules/dashboard/lib/format";
 
 type Props = {
@@ -18,18 +14,6 @@ type Props = {
   totalExpenses: number;
   unallocated: number;
 };
-
-function TrendLine({ pct }: { pct: number | null }) {
-  if (pct === null) return null;
-  const Icon = pct >= 0 ? ArrowUp : ArrowDown;
-  const colorClass = pct >= 0 ? "text-green-600" : "text-red-600";
-  return (
-    <p className={`mt-1 flex items-center gap-1 text-xs ${colorClass}`}>
-      <Icon className="h-3 w-3" />
-      {Math.abs(pct)}% vs last month
-    </p>
-  );
-}
 
 function PctOfIncome({ pct }: { pct: number | null }) {
   if (pct === null) return null;
