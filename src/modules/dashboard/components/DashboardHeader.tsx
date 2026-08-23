@@ -1,9 +1,19 @@
-import { Bell, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-type Props = { monthLabel: string; name: string; nextHref: string; prevHref: string; unreadNotifications: number };
+import { NotificationBell } from "@/modules/notifications/components/NotificationBell";
+import type { NotificationRow } from "@/modules/notifications/components/NotificationsManager";
 
-export function DashboardHeader({ monthLabel, name, nextHref, prevHref, unreadNotifications }: Props) {
+type Props = {
+  monthLabel: string;
+  name: string;
+  nextHref: string;
+  notifications: NotificationRow[];
+  prevHref: string;
+  unreadNotifications: number;
+};
+
+export function DashboardHeader({ monthLabel, name, nextHref, notifications, prevHref, unreadNotifications }: Props) {
   const initial = name.charAt(0).toUpperCase() || "?";
 
   return (
@@ -26,18 +36,7 @@ export function DashboardHeader({ monthLabel, name, nextHref, prevHref, unreadNo
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <Link
-          className="relative rounded-full border bg-background p-2 text-muted-foreground hover:bg-accent"
-          href="/notifications"
-          title="Notifications"
-        >
-          <Bell className="h-5 w-5" />
-          {unreadNotifications > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium text-white">
-              {unreadNotifications}
-            </span>
-          )}
-        </Link>
+        <NotificationBell notifications={notifications} unreadCount={unreadNotifications} />
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
           {initial}
         </div>

@@ -157,6 +157,15 @@ export async function listNotifications(householdId: string) {
   return db.select().from(notifications).where(eq(notifications.householdId, householdId)).orderBy(desc(notifications.createdAt));
 }
 
+export async function listRecentNotifications(householdId: string, limit: number) {
+  return db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.householdId, householdId))
+    .orderBy(desc(notifications.createdAt))
+    .limit(limit);
+}
+
 export async function countUnreadNotifications(householdId: string) {
   const rows = await db
     .select({ id: notifications.id })

@@ -18,7 +18,11 @@ import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
 import { toBudgetItemInputs, toExpenseInputs, toIncomeInputs } from "@/modules/dashboard/lib/map-rows";
 import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
 import { listExpensesForMonth, listRecentExpenses } from "@/modules/expenses/api/expenses.actions";
-import { checkBudgetReminder, countUnreadNotifications } from "@/modules/notifications/api/notifications.actions";
+import {
+  checkBudgetReminder,
+  countUnreadNotifications,
+  listRecentNotifications,
+} from "@/modules/notifications/api/notifications.actions";
 import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
 import { daysLeftInMonth, safeToSpendToday } from "@/modules/reports/lib/reports-stats";
 import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
@@ -54,6 +58,7 @@ export async function DashboardPage({ searchParams }: Props) {
     goalRows,
     contributionRows,
     unreadNotifications,
+    recentNotifications,
   ] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
@@ -66,6 +71,7 @@ export async function DashboardPage({ searchParams }: Props) {
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
     countUnreadNotifications(householdId),
+    listRecentNotifications(householdId, 5),
   ]);
 
   if (year === currentYear && month === currentMonth) {
@@ -147,6 +153,7 @@ export async function DashboardPage({ searchParams }: Props) {
         monthLabel={monthLabel}
         name={currentMemberName}
         nextHref={`/dashboard?year=${next.year}&month=${next.month}`}
+        notifications={recentNotifications}
         prevHref={`/dashboard?year=${prev.year}&month=${prev.month}`}
         unreadNotifications={unreadNotifications}
       />
