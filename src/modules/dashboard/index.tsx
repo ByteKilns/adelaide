@@ -187,7 +187,13 @@ export async function DashboardPage({ searchParams }: Props) {
             <OwnerTabs views={ownerViews} />
           </DashboardPanel>
 
-          <SafeToSpendCard daysLeft={daysLeft} monthLabel={monthLabel} safeToSpend={safeToSpend} />
+          <SafeToSpendCard
+            daysLeft={daysLeft}
+            monthLabel={monthLabel}
+            safeToSpend={safeToSpend}
+            totalActual={summary.totalExpenses}
+            totalPlanned={totalPlanned}
+          />
 
           <DashboardPanel title="Budget">
             <div className="flex items-center justify-between gap-4">

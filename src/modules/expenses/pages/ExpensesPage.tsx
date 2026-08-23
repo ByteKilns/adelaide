@@ -86,7 +86,13 @@ export async function ExpensesPage() {
             total={totalExpenses}
           />
           <TopCategoriesCard categories={topCats} />
-          <SafeToSpendCard daysLeft={daysLeft} monthLabel={monthLabel} safeToSpend={safeToSpend} />
+          <SafeToSpendCard
+            daysLeft={daysLeft}
+            monthLabel={monthLabel}
+            safeToSpend={safeToSpend}
+            totalActual={totalExpenses}
+            totalPlanned={totalPlanned}
+          />
         </div>
       </div>
     </div>

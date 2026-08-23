@@ -47,6 +47,7 @@ type Props = {
   savingsVsLastMonthPct: null | number;
   topCategories: (TopCategory & { groupName: string })[];
   totalExpenses: number;
+  totalPlanned: number;
   trendPoints: MonthPoint[];
 };
 
@@ -76,7 +77,13 @@ export function ReportsTabs(props: Props) {
           <div className="space-y-6">
             <ExpenseSummaryCard pctOfIncome={props.pctOfIncome} slices={props.ownerSlices} total={props.totalExpenses} />
             <TopCategoriesCard categories={props.topCategories} />
-            <SafeToSpendCard daysLeft={props.daysLeft} monthLabel={props.monthLabel} safeToSpend={props.safeToSpend} />
+            <SafeToSpendCard
+              daysLeft={props.daysLeft}
+              monthLabel={props.monthLabel}
+              safeToSpend={props.safeToSpend}
+              totalActual={props.totalExpenses}
+              totalPlanned={props.totalPlanned}
+            />
             <SmartInsightCard message={props.insightMessage} />
           </div>
         </div>

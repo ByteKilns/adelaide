@@ -157,6 +157,7 @@ export async function ReportsPage() {
         savingsVsLastMonthPct={savingsVsLastMonthPct}
         topCategories={topCats}
         totalExpenses={totalExpenses}
+        totalPlanned={totalPlanned}
         trendPoints={trendPoints}
       />
     </div>
