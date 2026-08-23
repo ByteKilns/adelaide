@@ -26,4 +26,7 @@ export const recurringExpenses = pgTable("recurring_expenses", {
   frequency: recurringFrequencyEnum("frequency").notNull().default("monthly"),
   status: recurringStatusEnum("status").notNull().default("active"),
   nextDueDate: date("next_due_date").notNull(),
+  // Optional last occurrence — once a paid cycle would roll nextDueDate past
+  // this, the item is auto-marked "completed" instead of advancing further.
+  endDate: date("end_date"),
 });

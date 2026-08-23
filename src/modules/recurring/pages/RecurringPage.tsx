@@ -53,6 +53,7 @@ export async function RecurringPage() {
       amount: Number(item.amount),
       categoryGroupName: category?.groupName ?? "Other",
       categoryName: category?.name ?? "Unknown",
+      endDate: item.endDate,
       frequency: item.frequency,
       icon: item.icon,
       id: item.id,

@@ -49,6 +49,7 @@ export async function createRecurringExpenseAction(input: RecurringExpenseInput)
   await db.insert(recurringExpenses).values({
     amount: String(parsed.amount),
     categoryId: parsed.categoryId,
+    endDate: parsed.endDate,
     frequency: parsed.frequency,
     householdId,
     icon: parsed.icon,
@@ -74,6 +75,7 @@ export async function updateRecurringExpenseAction(id: string, input: RecurringE
     .set({
       amount: String(parsed.amount),
       categoryId: parsed.categoryId,
+      endDate: parsed.endDate,
       frequency: parsed.frequency,
       icon: parsed.icon,
       name: parsed.name,
@@ -141,6 +143,12 @@ export async function markRecurringExpensePaidAction(id: string) {
     throw new Error("Recurring expense not found");
   }
 
+  const nextDueDate = advanceDueDate(item.nextDueDate, item.frequency);
+  // Once the next cycle would fall after the item's end date, there's no
+  // further occurrence to track — mark it completed instead of leaving an
+  // "active" item whose due date will never actually come due.
+  const isLastOccurrence = item.endDate !== null && nextDueDate > item.endDate;
+
   await db.transaction(async (tx) => {
     await tx.insert(expenses).values({
       amount: item.amount,
@@ -155,7 +163,7 @@ export async function markRecurringExpensePaidAction(id: string) {
 
     await tx
       .update(recurringExpenses)
-      .set({ nextDueDate: advanceDueDate(item.nextDueDate, item.frequency) })
+      .set({ nextDueDate, status: isLastOccurrence ? "completed" : item.status })
       .where(eq(recurringExpenses.id, id));
   });
 

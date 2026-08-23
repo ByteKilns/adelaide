@@ -39,6 +39,7 @@ function todayISO() {
 const EMPTY: RecurringExpenseInput = {
   amount: 0,
   categoryId: "",
+  endDate: null,
   frequency: "monthly",
   icon: "receipt",
   name: "",
@@ -149,18 +150,33 @@ export function RecurringForm({ categories, currentMemberId, editing, members, o
           />
         </div>
 
-        <Controller
-          control={control}
-          name="nextDueDate"
-          render={({ field }) => (
-            <NepaliDateField
-              error={errors.nextDueDate?.message}
-              label="Next due date"
-              onChange={field.onChange}
-              value={field.value}
-            />
-          )}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <Controller
+            control={control}
+            name="nextDueDate"
+            render={({ field }) => (
+              <NepaliDateField
+                error={errors.nextDueDate?.message}
+                label="Next due date"
+                onChange={field.onChange}
+                value={field.value}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="endDate"
+            render={({ field }) => (
+              <NepaliDateField
+                error={errors.endDate?.message}
+                label="End date (optional)"
+                onChange={(v) => field.onChange(v || null)}
+                value={field.value ?? ""}
+              />
+            )}
+          />
+        </div>
 
         <Controller
           control={control}

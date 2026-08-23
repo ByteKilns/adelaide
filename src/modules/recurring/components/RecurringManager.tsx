@@ -44,6 +44,7 @@ export function RecurringManager({ categories, currentMemberId, members, realMem
     setEditing({
       amount: row.amount,
       categoryId: categories.find((c) => c.name === row.categoryName)?.id ?? "",
+      endDate: row.endDate,
       frequency: row.frequency,
       icon: row.icon as RecurringExpenseEditing["icon"],
       id: row.id,

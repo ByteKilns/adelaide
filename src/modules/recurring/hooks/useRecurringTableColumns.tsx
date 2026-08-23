@@ -28,6 +28,7 @@ export type RecurringRow = {
   amount: number;
   categoryGroupName: string;
   categoryName: string;
+  endDate: null | string;
   frequency: "monthly" | "yearly";
   icon: string;
   id: string;
@@ -140,9 +141,12 @@ export function useRecurringTableColumns(
       render: (r) => {
         const days = daysUntil(r.nextDueDate);
         return (
-          <span className={days <= 3 ? "font-medium text-destructive" : days <= 7 ? "font-medium text-amber-600" : ""}>
-            {formatDueDate(r.nextDueDate)}
-          </span>
+          <div>
+            <span className={days <= 3 ? "font-medium text-destructive" : days <= 7 ? "font-medium text-amber-600" : ""}>
+              {formatDueDate(r.nextDueDate)}
+            </span>
+            {r.endDate && <p className="text-xs text-muted-foreground">ends {formatDueDate(r.endDate)}</p>}
+          </div>
         );
       },
     },
