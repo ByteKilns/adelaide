@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
 import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import {
@@ -17,27 +18,29 @@ import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
 import { toBudgetItemInputs, toExpenseInputs, toIncomeInputs } from "@/modules/dashboard/lib/map-rows";
 import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
 import { listExpensesForMonth, listRecentExpenses } from "@/modules/expenses/api/expenses.actions";
-import { checkBudgetReminder } from "@/modules/notifications/api/notifications.actions";
+import { checkBudgetReminder, countUnreadNotifications } from "@/modules/notifications/api/notifications.actions";
 import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
 import { daysLeftInMonth, safeToSpendToday } from "@/modules/reports/lib/reports-stats";
 import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
 import { savingsOverviewStats } from "@/modules/savings-goals/lib/savings-stats";
-
-function previousMonth(year: number, month: number) {
-  return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
-}
 
 function trendPct(current: number, previous: number): number | null {
   if (previous <= 0) return null;
   return Math.round(((current - previous) / previous) * 100);
 }
 
-export async function DashboardPage() {
+type Props = { searchParams: Promise<{ month?: string; year?: string }> };
+
+export async function DashboardPage({ searchParams }: Props) {
   const { householdId, memberId } = await getEffectiveMember();
+  const params = await searchParams;
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const year = parseMonthParam(params.year, currentYear, 9999);
+  const month = parseMonthParam(params.month, currentMonth, 12);
   const prev = previousMonth(year, month);
+  const next = nextMonth(year, month);
 
   const [
     members,
@@ -50,6 +53,7 @@ export async function DashboardPage() {
     recentExpenseRows,
     goalRows,
     contributionRows,
+    unreadNotifications,
   ] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
@@ -61,9 +65,12 @@ export async function DashboardPage() {
     listRecentExpenses(5),
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
+    countUnreadNotifications(householdId),
   ]);
 
-  await checkBudgetReminder(householdId, year, month, budgetItemRows.length);
+  if (year === currentYear && month === currentMonth) {
+    await checkBudgetReminder(householdId, year, month, budgetItemRows.length);
+  }
 
   const incomes = toIncomeInputs(incomeRows);
   const expenses = toExpenseInputs(expenseRows);
@@ -119,7 +126,7 @@ export async function DashboardPage() {
     },
   ].map((v) => ({ ...v, remaining: v.income - v.expenses }));
 
-  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
+  const monthLabel = formatBsMonthYear(`${year}-${String(month).padStart(2, "0")}-01`);
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";
 
   const totalPlanned = budgetItems.reduce((s, b) => s + b.plannedAmount, 0);
@@ -136,7 +143,13 @@ export async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
-      <DashboardHeader monthLabel={monthLabel} name={currentMemberName} />
+      <DashboardHeader
+        monthLabel={monthLabel}
+        name={currentMemberName}
+        nextHref={`/dashboard?year=${next.year}&month=${next.month}`}
+        prevHref={`/dashboard?year=${prev.year}&month=${prev.month}`}
+        unreadNotifications={unreadNotifications}
+      />
 
       <SummaryCards
         combinedIncome={summary.combinedIncome}

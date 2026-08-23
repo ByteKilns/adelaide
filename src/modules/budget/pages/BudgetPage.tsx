@@ -1,3 +1,4 @@
+import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
 import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth } from "@/modules/budget/api/budget.actions";
@@ -13,19 +14,6 @@ import { budgetVsActual } from "@/modules/budget/lib/calculations";
 import { listCategories } from "@/modules/categories/api/categories";
 import { listExpensesForMonth } from "@/modules/expenses/api/expenses.actions";
 import { checkBudgetReminder } from "@/modules/notifications/api/notifications.actions";
-
-function previousMonth(year: number, month: number) {
-  return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
-}
-
-function nextMonth(year: number, month: number) {
-  return month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 };
-}
-
-function parseMonthParam(value: string | string[] | undefined, fallback: number, max: number) {
-  const num = Number(Array.isArray(value) ? value[0] : value);
-  return Number.isInteger(num) && num >= 1 && num <= max ? num : fallback;
-}
 
 type Props = { searchParams: Promise<{ month?: string; year?: string }> };
 
