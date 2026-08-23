@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { savingsContributions, savingsGoals } from "@/db/schema";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
+import { formatNPR } from "@/modules/dashboard/lib/format";
+import { insertNotification } from "@/modules/notifications/api/notifications.actions";
 import { type ContributionInput, contributionSchema, type SavingsGoalInput, savingsGoalSchema } from "@/modules/savings-goals/schemas/savings-goal.schema";
 
 function revalidateSavingsGoalsPaths() {
@@ -85,7 +87,7 @@ export async function deleteSavingsGoalAction(id: string) {
   revalidateSavingsGoalsPaths();
 }
 
-async function assertGoalInHousehold(householdId: string, goalId: string) {
+async function getGoalInHousehold(householdId: string, goalId: string) {
   const [goal] = await db
     .select()
     .from(savingsGoals)
@@ -93,19 +95,32 @@ async function assertGoalInHousehold(householdId: string, goalId: string) {
   if (!goal) {
     throw new Error("Goal does not belong to this household");
   }
+  return goal;
 }
 
 export async function addContributionAction(goalId: string, input: ContributionInput) {
-  const { householdId } = await getCurrentMember();
+  const { householdId, name: actorName } = await getCurrentMember();
   const parsed = contributionSchema.parse(input);
-  await assertGoalInHousehold(householdId, goalId);
+  const goal = await getGoalInHousehold(householdId, goalId);
   await assertMemberInHousehold(householdId, parsed.memberId);
 
-  await db.insert(savingsContributions).values({
-    amount: String(parsed.amount),
-    date: parsed.date,
-    goalId,
-    memberId: parsed.memberId,
+  const [created] = await db
+    .insert(savingsContributions)
+    .values({
+      amount: String(parsed.amount),
+      date: parsed.date,
+      goalId,
+      memberId: parsed.memberId,
+    })
+    .returning();
+
+  await insertNotification({
+    body: `${actorName} added ${formatNPR(parsed.amount)} to ${goal.name}.`,
+    category: "goal",
+    dedupeKey: `contribution:${created.id}`,
+    householdId,
+    severity: "success",
+    title: "New contribution added",
   });
 
   revalidateSavingsGoalsPaths();

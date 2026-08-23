@@ -38,7 +38,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/savings-goals", label: "Savings Goals", icon: PiggyBank, enabled: true },
   { href: "/reports", label: "Reports", icon: BarChart3, enabled: true },
   { href: "/categories", label: "Categories", icon: List, enabled: true },
-  { href: "/notifications", label: "Notifications", icon: Bell, enabled: false },
+  { href: "/notifications", label: "Notifications", icon: Bell, enabled: true },
   { href: "/settings", label: "Settings", icon: Settings, enabled: true },
 ];
 
@@ -50,10 +50,18 @@ type Props = {
   currentMemberId: string;
   members: Member[];
   realMemberId: string;
+  unreadNotifications: number;
   viewingAsMemberId: string;
 };
 
-export function SidebarNav({ categories, currentMemberId, members, realMemberId, viewingAsMemberId }: Props) {
+export function SidebarNav({
+  categories,
+  currentMemberId,
+  members,
+  realMemberId,
+  unreadNotifications,
+  viewingAsMemberId,
+}: Props) {
   const pathname = usePathname();
   const [addExpenseOpen, setAddExpenseOpen] = useState(false);
   const realMember = members.find((m) => m.id === realMemberId);
@@ -104,6 +112,11 @@ export function SidebarNav({ categories, currentMemberId, members, realMemberId,
             >
               <Icon className="h-4 w-4" />
               {item.label}
+              {item.href === "/notifications" && unreadNotifications > 0 && (
+                <span className="ml-auto rounded-full bg-destructive px-1.5 py-0.5 text-xs font-medium text-white">
+                  {unreadNotifications}
+                </span>
+              )}
             </Link>
           );
         })}

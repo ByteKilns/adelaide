@@ -7,6 +7,8 @@ import { db } from "@/db/client";
 import { expenses } from "@/db/schema";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
+import { formatNPR } from "@/modules/dashboard/lib/format";
+import { checkBudgetThreshold, insertNotification } from "@/modules/notifications/api/notifications.actions";
 
 import { type ExpenseInput, expenseSchema } from "../schemas/expense.schema";
 
@@ -25,23 +27,43 @@ async function assertCategoryInHousehold(householdId: string, categoryId: string
 }
 
 export async function createExpenseAction(input: ExpenseInput) {
-  const { householdId } = await getCurrentMember();
+  const { householdId, name: actorName } = await getCurrentMember();
   const parsed = expenseSchema.parse(input);
-  await assertCategoryInHousehold(householdId, parsed.categoryId);
+  const categories = await listCategories(householdId);
+  if (!categories.some((c) => c.id === parsed.categoryId)) {
+    throw new Error("Category does not belong to this household");
+  }
   await assertMemberInHousehold(householdId, parsed.paidByMemberId);
   if (parsed.ownerMemberId) {
     await assertMemberInHousehold(householdId, parsed.ownerMemberId);
   }
 
-  await db.insert(expenses).values({
-    householdId,
-    amount: String(parsed.amount),
-    categoryId: parsed.categoryId,
-    ownerMemberId: parsed.ownerMemberId,
-    paidByMemberId: parsed.paidByMemberId,
-    date: parsed.date,
-    note: parsed.note,
-  });
+  const [created] = await db
+    .insert(expenses)
+    .values({
+      householdId,
+      amount: String(parsed.amount),
+      categoryId: parsed.categoryId,
+      ownerMemberId: parsed.ownerMemberId,
+      paidByMemberId: parsed.paidByMemberId,
+      date: parsed.date,
+      note: parsed.note,
+    })
+    .returning();
+
+  const categoryName = categories.find((c) => c.id === parsed.categoryId)?.name ?? "Unknown";
+
+  if (parsed.ownerMemberId === null) {
+    await insertNotification({
+      body: `${actorName} added ${categoryName} · ${formatNPR(parsed.amount)} to shared expenses.`,
+      category: "shared",
+      dedupeKey: `expense:${created.id}`,
+      householdId,
+      severity: "info",
+      title: "New shared expense added",
+    });
+  }
+  await checkBudgetThreshold(householdId, parsed.categoryId, parsed.ownerMemberId, parsed.date);
 
   revalidatePath("/expenses");
   revalidatePath("/dashboard");
