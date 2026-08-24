@@ -8,9 +8,11 @@ import { ExpenseTable } from "@/modules/expenses/components/ExpenseTable";
 import type { ExpenseRow } from "@/modules/expenses/hooks/useExpenseTableColumns";
 import type { OwnerSlice } from "@/modules/expenses/lib/expense-breakdown";
 import { IncomeExpenseTrendCard } from "@/modules/reports/components/IncomeExpenseTrendCard";
+import { SpendingPaceCard } from "@/modules/reports/components/SpendingPaceCard";
 import type {
   CategorySlice,
   MonthPoint,
+  PacePoint,
 } from "@/modules/reports/lib/reports-stats";
 
 type Props = {
@@ -18,11 +20,13 @@ type Props = {
   combinedIncome: number;
   dateFormat: DateFormat;
   ownerSlices: OwnerSlice[];
+  pacePoints: PacePoint[];
   partnerName: string | null;
   pctOfIncome: null | number;
   realMemberId: string;
   rows: ExpenseRow[];
   totalExpenses: number;
+  totalPlanned: number;
   trendPoints: MonthPoint[];
 };
 
@@ -31,11 +35,13 @@ export function ExpensesPageTabs({
   combinedIncome,
   dateFormat,
   ownerSlices,
+  pacePoints,
   partnerName,
   pctOfIncome,
   realMemberId,
   rows,
   totalExpenses,
+  totalPlanned,
   trendPoints,
 }: Props) {
   return (
@@ -43,7 +49,7 @@ export function ExpensesPageTabs({
       defaultValue="expenses"
       tabs={[
         { label: "Expenses", value: "expenses" },
-        { label: "Charts", value: "charts" },
+        { label: "Overview", value: "charts" },
       ]}
     >
       <TabsContent className="pt-4" value="expenses">
@@ -56,6 +62,7 @@ export function ExpensesPageTabs({
       </TabsContent>
       <TabsContent className="pt-4" value="charts">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <SpendingPaceCard points={pacePoints} totalPlanned={totalPlanned} />
           <IncomeExpenseTrendCard
             className="lg:col-span-2"
             combinedIncome={combinedIncome}

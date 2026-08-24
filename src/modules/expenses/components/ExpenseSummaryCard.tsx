@@ -28,7 +28,7 @@ export function ExpenseSummaryContent({ pctOfIncome, slices, total }: ContentPro
     <>
       <p className="text-xs text-muted-foreground">Total Expenses</p>
       <div className="flex items-center gap-2">
-        <p className="text-2xl font-semibold">{formatNPR(total)}</p>
+        <p className="text-xl font-semibold">{formatNPR(total)}</p>
         {pctOfIncome !== null && (
           <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
             {pctOfIncome}% of income
@@ -61,7 +61,10 @@ export function ExpenseSummaryContent({ pctOfIncome, slices, total }: ContentPro
         {slices.map((s) => (
           <li className="flex items-center justify-between" key={s.key}>
             <span className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: TONE_HEX[s.tone] }} />
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: TONE_HEX[s.tone] }}
+              />
               {s.label}
             </span>
             <span className="text-muted-foreground">{formatNPR(s.amount)}</span>

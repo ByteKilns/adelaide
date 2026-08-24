@@ -11,7 +11,13 @@ import { ExpensesPageTabs } from "@/modules/expenses/components/ExpensesPageTabs
 import { ownerBreakdown } from "@/modules/expenses/lib/expense-breakdown";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
 import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
-import { categoryBreakdown, daysLeftInMonth, monthlyIncomeExpenseTrend, safeToSpendToday } from "@/modules/reports/lib/reports-stats";
+import {
+  categoryBreakdown,
+  dailySpendingPace,
+  daysLeftInMonth,
+  monthlyIncomeExpenseTrend,
+  safeToSpendToday,
+} from "@/modules/reports/lib/reports-stats";
 
 type Props = { searchParams: Promise<{ month?: string; year?: string }> };
 
@@ -91,6 +97,12 @@ export async function ExpensesPage({ searchParams }: Props) {
   const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
   const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month);
   const daysLeft = daysLeftInMonth(year, month);
+  const pacePoints = dailySpendingPace(
+    expenseRows.map((e) => ({ amount: Number(e.amount), date: e.date })),
+    year,
+    month,
+    totalPlanned,
+  );
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
@@ -114,11 +126,13 @@ export async function ExpensesPage({ searchParams }: Props) {
         combinedIncome={combinedIncome}
         dateFormat={dateFormat}
         ownerSlices={slices}
+        pacePoints={pacePoints}
         partnerName={partner?.user.name ?? null}
         pctOfIncome={pctOfIncome(totalExpenses, combinedIncome)}
         realMemberId={memberId}
         rows={rows}
         totalExpenses={totalExpenses}
+        totalPlanned={totalPlanned}
         trendPoints={trendPoints}
       />
     </div>

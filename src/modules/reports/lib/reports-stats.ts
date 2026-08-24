@@ -82,6 +82,45 @@ export function safeToSpendToday(totalPlanned: number, totalActual: number, year
   return Math.max(0, Math.round(remaining / daysLeft));
 }
 
+export type PacePoint = { actual: null | number; day: number; pace: number };
+
+// Cumulative actual spend vs. an even daily-pace line (budget spread evenly
+// across the month), day by day. For the current month, `actual` stops at
+// today (null afterward, so the line doesn't imply spending that hasn't
+// happened yet); for a past month it runs the full length. `pace` always
+// runs the full month as a reference line — it's meaningless without a
+// budget, so callers should skip rendering it when totalPlanned <= 0.
+export function dailySpendingPace(
+  expenses: { amount: number; date: string }[],
+  year: number,
+  month: number,
+  totalPlanned: number,
+): PacePoint[] {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const now = new Date();
+  const isCurrentMonth = now.getFullYear() === year && now.getMonth() + 1 === month;
+  const lastActualDay = isCurrentMonth ? now.getDate() : daysInMonth;
+
+  const spentByDay = new Map<number, number>();
+  for (const e of expenses) {
+    const day = Number(e.date.split("-")[2]);
+    spentByDay.set(day, (spentByDay.get(day) ?? 0) + e.amount);
+  }
+
+  const points: PacePoint[] = [];
+  let cumulative = 0;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const withinActualRange = day <= lastActualDay;
+    if (withinActualRange) cumulative += spentByDay.get(day) ?? 0;
+    points.push({
+      actual: withinActualRange ? Math.round(cumulative) : null,
+      day,
+      pace: Math.round((totalPlanned * day) / daysInMonth),
+    });
+  }
+  return points;
+}
+
 export function daysLeftInMonth(year: number, month: number): number {
   const now = new Date();
   const daysInMonth = new Date(year, month, 0).getDate();
