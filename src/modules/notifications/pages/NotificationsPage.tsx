@@ -3,7 +3,8 @@ import { cookies } from "next/headers";
 
 import { StatAmount } from "@/components/StatAmount";
 import { StatCardGrid } from "@/components/StatCardGrid";
-import { formatBsMonthYear } from "@/lib/nepali-date";
+import { formatMonthYear } from "@/lib/date-format";
+import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { NOTIFICATION_PREFS_COOKIE_NAME, parseNotificationPreferences } from "@/lib/notification-preferences-cookie";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
@@ -25,12 +26,13 @@ export async function NotificationsPage() {
 
   await syncDueSoonNotifications(householdId);
 
-  const [members, categories, notificationRows, recurringItems, cookieStore] = await Promise.all([
+  const [members, categories, notificationRows, recurringItems, cookieStore, dateFormat] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
     listNotifications(householdId),
     listRecurringExpenses(householdId),
     cookies(),
+    getDateFormatPref(),
   ]);
 
   const preferences = parseNotificationPreferences(cookieStore.get(NOTIFICATION_PREFS_COOKIE_NAME)?.value);
@@ -80,7 +82,7 @@ export async function NotificationsPage() {
   const resolvedLastMonth = rows.filter((r) => r.readAt !== null && r.readAt >= lastMonthStart && r.readAt < monthStart).length;
   const resolvedTrend = trendPct(resolvedThisMonth, resolvedLastMonth);
 
-  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
+  const monthLabel = formatMonthYear(now.toISOString().slice(0, 10), dateFormat);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
@@ -137,7 +139,12 @@ export async function NotificationsPage() {
         ]}
       />
 
-      <NotificationsPageClient initialPreferences={preferences} rows={rows} upcomingPayments={upcomingPayments} />
+      <NotificationsPageClient
+        dateFormat={dateFormat}
+        initialPreferences={preferences}
+        rows={rows}
+        upcomingPayments={upcomingPayments}
+      />
     </div>
   );
 }

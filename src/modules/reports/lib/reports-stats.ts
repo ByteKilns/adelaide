@@ -1,5 +1,6 @@
 import type { Tone } from "@/components/ToneIcon";
-import { formatBsMonthShort } from "@/lib/nepali-date";
+import { formatMonthShort } from "@/lib/date-format";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { getCategoryTone } from "@/modules/categories/lib/category-icons";
 
 export function trendPct(current: number, previous: number): null | number {
@@ -44,12 +45,17 @@ export function monthlyIncomeExpenseTrend(
   incomeRows: { amount: number; month: number; year: number }[],
   expenseRows: { amount: number; date: string }[],
   monthsBack: number,
+  dateFormat: DateFormat,
 ): MonthPoint[] {
   const now = new Date();
   const months: { label: string; month: number; year: number }[] = [];
   for (let i = monthsBack - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({ label: formatBsMonthShort(d.toISOString().slice(0, 10)), month: d.getMonth() + 1, year: d.getFullYear() });
+    months.push({
+      label: formatMonthShort(d.toISOString().slice(0, 10), dateFormat),
+      month: d.getMonth() + 1,
+      year: d.getFullYear(),
+    });
   }
 
   return months.map(({ label, month, year }) => {

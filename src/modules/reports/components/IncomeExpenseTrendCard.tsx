@@ -3,16 +3,20 @@
 import { Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import type { MonthPoint } from "@/modules/reports/lib/reports-stats";
 
-export function IncomeExpenseTrendCard({ combinedIncome, points, totalExpenses }: {
+type Props = {
+  className?: string;
   combinedIncome: number;
   points: MonthPoint[];
   totalExpenses: number;
-}) {
+};
+
+export function IncomeExpenseTrendCard({ className, combinedIncome, points, totalExpenses }: Props) {
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-medium">Spending Overview</CardTitle>
         <p className="text-sm text-muted-foreground">Your expenses compared to income, last 6 months</p>

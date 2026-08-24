@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { ToneIcon } from "@/components/ToneIcon";
 import { Button } from "@/components/ui/button";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import type { NotificationPreferences } from "@/lib/notification-preferences-cookie";
 import { markAllNotificationsReadAction, markNotificationReadAction } from "@/modules/notifications/api/notifications.actions";
 import { formatNotificationTime } from "@/modules/notifications/lib/notification-format";
@@ -32,13 +33,14 @@ const CATEGORY_LABEL: Record<NotificationRow["category"], string> = {
 export type NotificationTab = "all" | "alerts" | "unread";
 
 type Props = {
+  dateFormat: DateFormat;
   onTabChange: (tab: NotificationTab) => void;
   preferences: NotificationPreferences;
   rows: NotificationRow[];
   tab: NotificationTab;
 };
 
-export function NotificationsManager({ onTabChange, preferences, rows, tab }: Props) {
+export function NotificationsManager({ dateFormat, onTabChange, preferences, rows, tab }: Props) {
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [, startTransition] = useTransition();
 
@@ -122,7 +124,7 @@ export function NotificationsManager({ onTabChange, preferences, rows, tab }: Pr
                 </span>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2">
-                <small className="text-xs text-muted-foreground">{formatNotificationTime(row.createdAt)}</small>
+                <small className="text-xs text-muted-foreground">{formatNotificationTime(row.createdAt, dateFormat)}</small>
                 <button
                   aria-label={read ? "Notification read" : `Mark ${row.title} as read`}
                   className="rounded-md p-1 text-muted-foreground hover:bg-accent"

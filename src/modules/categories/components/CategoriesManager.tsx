@@ -51,6 +51,7 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
       <DataTable
         columns={columns}
         emptyMessage={tab === "active" ? "No categories yet." : "No archived categories."}
+        itemLabel="categories"
         rowKey={(c) => c.id}
         rows={visible}
       />

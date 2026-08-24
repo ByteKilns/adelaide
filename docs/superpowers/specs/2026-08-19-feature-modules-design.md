@@ -46,7 +46,7 @@ src/
   modules/
     dashboard/
       index.tsx              # DashboardPage (Server Component) — current dashboard/page.tsx body
-      components/             # SummaryCards, OwnerTabs, DashboardHeader, DashboardPanel, ComingSoonCard, ToneIcon
+      components/             # SummaryCards, OwnerTabs, DashboardHeader, DashboardPanel, ComingSoonCard, ToneIcon, RecentExpenses
       lib/                     # format.ts, map-rows.ts, owner-label.ts
       constants/
       schemas/
@@ -130,6 +130,9 @@ src/
   `ExpensesPage`, `NewExpensePage`, `EditExpensePage`
 - `components/expenses/expense_form.tsx`, `expense_list_item.tsx` →
   `modules/expenses/components/`
+- `components/expenses/recent_expenses.tsx` → `modules/dashboard/components/recent_expenses.tsx`
+  (it's presentational — takes already-shaped rows as props — and its only
+  consumer is the dashboard page, despite living under `expenses/` today)
 - `lib/actions/expenses.ts` → split into `modules/expenses/api/actions.ts`
   (server actions + queries) and `modules/expenses/schemas/expense.ts`
   (the `expenseSchema` zod object)

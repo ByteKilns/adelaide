@@ -10,7 +10,10 @@ import {
   List,
   LogOut,
   type LucideIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
   PiggyBank,
+  Plus,
   Receipt,
   Repeat,
   Settings,
@@ -23,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { logoutAction } from "@/lib/actions/auth";
+import { SIDEBAR_COLLAPSED_COOKIE_NAME } from "@/lib/sidebar-cookie";
 import { cn } from "@/lib/utils";
 import { AddExpenseModal } from "@/modules/expenses/components/AddExpenseModal";
 
@@ -48,6 +52,7 @@ type Category = { id: string; name: string };
 type Props = {
   categories: Category[];
   currentMemberId: string;
+  initialCollapsed: boolean;
   members: Member[];
   realMemberId: string;
   unreadNotifications: number;
@@ -57,6 +62,7 @@ type Props = {
 export function SidebarNav({
   categories,
   currentMemberId,
+  initialCollapsed,
   members,
   realMemberId,
   unreadNotifications,
@@ -64,23 +70,54 @@ export function SidebarNav({
 }: Props) {
   const pathname = usePathname();
   const [addExpenseOpen, setAddExpenseOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(initialCollapsed);
   const realMember = members.find((m) => m.id === realMemberId);
   const realMemberName = realMember?.name ?? "Me";
 
+  function toggleCollapsed() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      document.cookie = `${SIDEBAR_COLLAPSED_COOKIE_NAME}=${next}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+      return next;
+    });
+  }
+
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto p-4 md:flex">
-      <div className="mb-6 flex items-center gap-2">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/60" />
-        <div>
-          <p className="text-base leading-tight font-semibold">Adelaide</p>
-          <p className="text-xs text-muted-foreground">
-            Plan together, grow together
-          </p>
+    <aside
+      className={cn(
+        "sticky top-0 hidden h-screen shrink-0 flex-col overflow-y-auto p-4 transition-[width] duration-200 md:flex",
+        collapsed ? "w-[76px]" : "w-64",
+      )}
+    >
+      <div className={cn("mb-6 flex items-center gap-2", collapsed ? "flex-col" : "justify-between")}>
+        <div className={cn("flex min-w-0 items-center gap-2", collapsed && "flex-col")}>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/60" />
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="truncate text-base leading-tight font-semibold">Adelaide</p>
+              <p className="truncate text-xs text-muted-foreground">
+                Plan together, grow together
+              </p>
+            </div>
+          )}
         </div>
+        <button
+          className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-accent"
+          onClick={toggleCollapsed}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          type="button"
+        >
+          {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+        </button>
       </div>
 
-      <Button className="mb-4" onClick={() => setAddExpenseOpen(true)} size={"lg"}>
-        + Add Expense
+      <Button
+        className="mb-4"
+        onClick={() => setAddExpenseOpen(true)}
+        size={collapsed ? "icon" : "lg"}
+        title={collapsed ? "Add Expense" : undefined}
+      >
+        {collapsed ? <Plus className="h-4 w-4" /> : "+ Add Expense"}
       </Button>
 
       <nav className="flex flex-1 flex-col gap-1">
@@ -90,11 +127,15 @@ export function SidebarNav({
             return (
               <div
                 aria-disabled="true"
-                className="flex cursor-default items-center gap-3  px-3 py-2 text-sm text-muted-foreground"
+                className={cn(
+                  "flex cursor-default items-center gap-3 px-3 py-2 text-sm text-muted-foreground",
+                  collapsed && "justify-center px-0",
+                )}
                 key={item.href}
+                title={collapsed ? item.label : undefined}
               >
                 <Icon className="h-4 w-4" />
-                {item.label}
+                {!collapsed && item.label}
               </div>
             );
           }
@@ -102,19 +143,26 @@ export function SidebarNav({
           return (
             <Link
               className={cn(
-                "flex items-center gap-3 rounded-r-lg border-l-3 px-3 py-2 text-sm transition-colors",
+                "relative flex items-center gap-3 rounded-r-lg border-l-3 px-3 py-2 text-sm transition-colors",
+                collapsed && "justify-center px-0",
                 active
                   ? "border-primary bg-primary/10 font-medium text-primary"
                   : "border-transparent text-muted-foreground hover:bg-accent",
               )}
               href={item.href}
               key={item.href}
+              title={collapsed ? item.label : undefined}
             >
               <Icon className="h-4 w-4" />
-              {item.label}
+              {!collapsed && item.label}
               {item.href === "/notifications" && unreadNotifications > 0 && (
-                <span className="ml-auto rounded-full bg-destructive px-1.5 py-0.5 text-xs font-medium text-white">
-                  {unreadNotifications}
+                <span
+                  className={cn(
+                    "rounded-full bg-destructive font-medium text-white",
+                    collapsed ? "absolute top-1 right-4 h-2 w-2" : "ml-auto px-1.5 py-0.5 text-xs",
+                  )}
+                >
+                  {!collapsed && unreadNotifications}
                 </span>
               )}
             </Link>
@@ -126,7 +174,11 @@ export function SidebarNav({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="flex w-full items-center gap-2 rounded-lg px-1 py-1.5 hover:bg-accent"
+              className={cn(
+                "flex w-full items-center gap-2 rounded-lg px-1 py-1.5 hover:bg-accent",
+                collapsed && "justify-center",
+              )}
+              title={collapsed ? realMemberName : undefined}
               type="button"
             >
               <Avatar className="size-8" size="sm">
@@ -137,11 +189,15 @@ export function SidebarNav({
                   {realMemberName.charAt(0).toUpperCase() || "?"}
                 </AvatarFallback>
               </Avatar>
-              <div className="min-w-0 flex-1 text-left">
-                <p className="truncate text-sm font-medium">{realMemberName}</p>
-                <p className="text-xs text-muted-foreground">Account</p>
-              </div>
-              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+              {!collapsed && (
+                <>
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="truncate text-sm font-medium">{realMemberName}</p>
+                    <p className="text-xs text-muted-foreground">Account</p>
+                  </div>
+                  <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                </>
+              )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
@@ -158,11 +214,13 @@ export function SidebarNav({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <ViewingAsSwitcher
-          members={members}
-          realMemberId={realMemberId}
-          viewingAsMemberId={viewingAsMemberId}
-        />
+        {!collapsed && (
+          <ViewingAsSwitcher
+            members={members}
+            realMemberId={realMemberId}
+            viewingAsMemberId={viewingAsMemberId}
+          />
+        )}
       </div>
 
       <AddExpenseModal

@@ -1,31 +1,45 @@
-import { formatBsMonthYear } from "@/lib/nepali-date";
+import { formatMonthYear } from "@/lib/date-format";
+import { getDateFormatPref } from "@/lib/date-format-cookie";
+import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
-import { getBudgetItemsForMonth, getIncomesForMonth } from "@/modules/budget/api/budget.actions";
+import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
 import { pctOfIncome } from "@/modules/dashboard/lib/format";
-import { listExpensesForMonth } from "@/modules/expenses/api/expenses.actions";
-import { ExpenseFilters } from "@/modules/expenses/components/ExpenseFilters";
+import { listExpensesForMonth, listExpensesForRange } from "@/modules/expenses/api/expenses.actions";
 import { ExpenseHeader } from "@/modules/expenses/components/ExpenseHeader";
-import { ExpenseSummaryCard } from "@/modules/expenses/components/ExpenseSummaryCard";
-import { ExpenseTable } from "@/modules/expenses/components/ExpenseTable";
-import { TopCategoriesCard } from "@/modules/expenses/components/TopCategoriesCard";
-import { ownerBreakdown, topCategories } from "@/modules/expenses/lib/expense-breakdown";
+import { ExpensesPageTabs } from "@/modules/expenses/components/ExpensesPageTabs";
+import { ownerBreakdown } from "@/modules/expenses/lib/expense-breakdown";
+import { roleForOwner } from "@/modules/expenses/lib/member-tone";
 import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
-import { daysLeftInMonth, safeToSpendToday } from "@/modules/reports/lib/reports-stats";
+import { categoryBreakdown, daysLeftInMonth, monthlyIncomeExpenseTrend, safeToSpendToday } from "@/modules/reports/lib/reports-stats";
 
-export async function ExpensesPage() {
+type Props = { searchParams: Promise<{ month?: string; year?: string }> };
+
+export async function ExpensesPage({ searchParams }: Props) {
   const { householdId, memberId } = await getEffectiveMember();
+  const params = await searchParams;
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const year = parseMonthParam(params.year, currentYear, 9999);
+  const month = parseMonthParam(params.month, currentMonth, 12);
+  const prev = previousMonth(year, month);
+  const next = nextMonth(year, month);
 
-  const [members, categories, expenseRows, incomeRows, budgetItemRows] = await Promise.all([
-    getHouseholdMembers(householdId),
-    listCategories(householdId),
-    listExpensesForMonth(year, month),
-    getIncomesForMonth(year, month),
-    getBudgetItemsForMonth(year, month),
-  ]);
+  const rangeStart = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().slice(0, 10);
+  const rangeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+
+  const [members, categories, expenseRows, incomeRows, budgetItemRows, allIncomeRows, rangeExpenseRows, dateFormat] =
+    await Promise.all([
+      getHouseholdMembers(householdId),
+      listCategories(householdId),
+      listExpensesForMonth(year, month),
+      getIncomesForMonth(year, month),
+      getBudgetItemsForMonth(year, month),
+      listAllIncomes(),
+      listExpensesForRange(rangeStart, rangeEnd),
+      getDateFormatPref(),
+    ]);
 
   const category = (id: string) => categories.find((c) => c.id === id);
   const categoryName = (id: string) => category(id)?.name ?? "Unknown";
@@ -54,47 +68,59 @@ export async function ExpensesPage() {
     paidByName: memberName(e.paidByMemberId),
   }));
 
+  const exportRows = expenseRows.map((e) => ({
+    amount: Number(e.amount),
+    category: categoryName(e.categoryId),
+    date: e.date,
+    name: e.note ?? categoryName(e.categoryId),
+    owner: e.ownerMemberId ? roleForOwner(e.ownerMemberId, memberId) : "shared",
+  }));
+
   const slices = ownerBreakdown(
     expenses,
     members.map((m) => ({ id: m.id, name: m.user.name })),
     memberId,
   );
-  const topCats = topCategories(expenses, categories, 5).map((c) => ({
-    ...c,
-    groupName: category(c.categoryId)?.groupName ?? "",
-  }));
+  const expenseSlices = categoryBreakdown(expenses, categories, 5);
 
-  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
+  const allIncomes = allIncomeRows.map((i) => ({ amount: Number(i.amount), month: i.month, year: i.year }));
+  const rangeExpenses = rangeExpenseRows.map((e) => ({ amount: Number(e.amount), date: e.date }));
+  const trendPoints = monthlyIncomeExpenseTrend(allIncomes, rangeExpenses, 6, dateFormat);
+
+  const monthLabel = formatMonthYear(`${year}-${String(month).padStart(2, "0")}-01`, dateFormat);
   const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
   const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month);
   const daysLeft = daysLeftInMonth(year, month);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
-      <ExpenseHeader monthLabel={monthLabel} />
+      <ExpenseHeader
+        exportRows={exportRows}
+        monthLabel={monthLabel}
+        nextHref={`/expenses?year=${next.year}&month=${next.month}`}
+        prevHref={`/expenses?year=${prev.year}&month=${prev.month}`}
+      />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <ExpenseFilters />
-          <ExpenseTable partnerName={partner?.user.name ?? null} realMemberId={memberId} rows={rows} />
-        </div>
+      <SafeToSpendCard
+        daysLeft={daysLeft}
+        monthLabel={monthLabel}
+        safeToSpend={safeToSpend}
+        totalActual={totalExpenses}
+        totalPlanned={totalPlanned}
+      />
 
-        <div className="space-y-6">
-          <ExpenseSummaryCard
-            pctOfIncome={pctOfIncome(totalExpenses, combinedIncome)}
-            slices={slices}
-            total={totalExpenses}
-          />
-          <TopCategoriesCard categories={topCats} />
-          <SafeToSpendCard
-            daysLeft={daysLeft}
-            monthLabel={monthLabel}
-            safeToSpend={safeToSpend}
-            totalActual={totalExpenses}
-            totalPlanned={totalPlanned}
-          />
-        </div>
-      </div>
+      <ExpensesPageTabs
+        categorySlices={expenseSlices}
+        combinedIncome={combinedIncome}
+        dateFormat={dateFormat}
+        ownerSlices={slices}
+        partnerName={partner?.user.name ?? null}
+        pctOfIncome={pctOfIncome(totalExpenses, combinedIncome)}
+        realMemberId={memberId}
+        rows={rows}
+        totalExpenses={totalExpenses}
+        trendPoints={trendPoints}
+      />
     </div>
   );
 }

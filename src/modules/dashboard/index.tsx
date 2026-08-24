@@ -1,13 +1,12 @@
-import Link from "next/link";
-
+import { formatMonthYear } from "@/lib/date-format";
+import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
-import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import {
   getBudgetItemsForMonth,
   getIncomesForMonth,
 } from "@/modules/budget/api/budget.actions";
-import { budgetVsActual, dashboardSummary } from "@/modules/budget/lib/calculations";
+import { dashboardSummary } from "@/modules/budget/lib/calculations";
 import { listCategories } from "@/modules/categories/api/categories";
 import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
 import { DashboardPanel } from "@/modules/dashboard/components/DashboardPanel";
@@ -37,6 +36,7 @@ type Props = { searchParams: Promise<{ month?: string; year?: string }> };
 
 export async function DashboardPage({ searchParams }: Props) {
   const { householdId, memberId } = await getEffectiveMember();
+  const dateFormat = await getDateFormatPref();
   const params = await searchParams;
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -83,7 +83,6 @@ export async function DashboardPage({ searchParams }: Props) {
   const budgetItems = toBudgetItemInputs(budgetItemRows);
 
   const summary = dashboardSummary(incomes, expenses);
-  const vsActual = budgetVsActual(budgetItems, expenses);
 
   // Previous-month budget-vs-actual is deliberately NOT computed here — only
   // dashboardSummary (for the trend lines above). Nothing on this page shows
@@ -146,11 +145,10 @@ export async function DashboardPage({ searchParams }: Props) {
     expenseTrendPct: trendPct(v.expenses, v.prevExpenses),
   }));
 
-  const monthLabel = formatBsMonthYear(`${year}-${String(month).padStart(2, "0")}-01`);
+  const monthLabel = formatMonthYear(`${year}-${String(month).padStart(2, "0")}-01`, dateFormat);
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";
 
   const totalPlanned = budgetItems.reduce((s, b) => s + b.plannedAmount, 0);
-  const totalActual = vsActual.reduce((s, row) => s + row.actual, 0);
   const safeToSpend = safeToSpendToday(totalPlanned, summary.totalExpenses, year, month);
   const daysLeft = daysLeftInMonth(year, month);
 
@@ -164,6 +162,7 @@ export async function DashboardPage({ searchParams }: Props) {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
       <DashboardHeader
+        dateFormat={dateFormat}
         monthLabel={monthLabel}
         name={currentMemberName}
         nextHref={`/dashboard?year=${next.year}&month=${next.month}`}
@@ -174,48 +173,29 @@ export async function DashboardPage({ searchParams }: Props) {
 
       <SummaryCards
         combinedIncome={summary.combinedIncome}
-        expenseTrendPct={trendPct(summary.totalExpenses, prevSummary.totalExpenses)}
-        incomeTrendPct={trendPct(summary.combinedIncome, prevSummary.combinedIncome)}
+        expenseTrendPct={trendPct(
+          summary.totalExpenses,
+          prevSummary.totalExpenses,
+        )}
+        incomeTrendPct={trendPct(
+          summary.combinedIncome,
+          prevSummary.combinedIncome,
+        )}
         monthlySavings={savingsStats.monthlyContribution}
         totalExpenses={summary.totalExpenses}
         unallocated={summary.unallocated}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <DashboardPanel title="Overview">
+        <div className="lg:col-span-2">
+          <DashboardPanel className="min-h-full" title="Overview">
             <OwnerTabs views={ownerViews} />
-          </DashboardPanel>
-
-          <SafeToSpendCard
-            daysLeft={daysLeft}
-            monthLabel={monthLabel}
-            safeToSpend={safeToSpend}
-            totalActual={summary.totalExpenses}
-            totalPlanned={totalPlanned}
-          />
-
-          <DashboardPanel title="Budget">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm text-muted-foreground">
-                {vsActual.length === 0 ? (
-                  "No budget set for this month yet."
-                ) : (
-                  <>
-                    NPR {totalActual.toLocaleString()} spent of NPR {totalPlanned.toLocaleString()} budgeted across{" "}
-                    {vsActual.length} categor{vsActual.length === 1 ? "y" : "ies"}
-                  </>
-                )}
-              </p>
-              <Link className="shrink-0 text-sm text-primary underline" href="/budget">
-                View budget
-              </Link>
-            </div>
           </DashboardPanel>
         </div>
 
         <div className="space-y-6">
           <RecentExpenses
+            dateFormat={dateFormat}
             rows={recentExpenseRows.map((e) => ({
               id: e.id,
               categoryName: categoryName(e.categoryId),
@@ -233,6 +213,14 @@ export async function DashboardPage({ searchParams }: Props) {
           />
         </div>
       </div>
+
+      <SafeToSpendCard
+        daysLeft={daysLeft}
+        monthLabel={monthLabel}
+        safeToSpend={safeToSpend}
+        totalActual={summary.totalExpenses}
+        totalPlanned={totalPlanned}
+      />
     </div>
   );
 }

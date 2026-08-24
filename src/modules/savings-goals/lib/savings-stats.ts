@@ -1,4 +1,5 @@
-import { formatBsMonthShort } from "@/lib/nepali-date";
+import { formatMonthShort } from "@/lib/date-format";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import type { GoalCardData } from "@/modules/savings-goals/components/GoalCard";
 import type { ContributionEntry } from "@/modules/savings-goals/components/RecentContributionsCard";
 
@@ -41,12 +42,17 @@ export function classifyGoal(goal: Goal, saved: number): GoalStatus {
 export function monthlyTotals(
   contributions: Contribution[],
   monthsBack: number,
+  dateFormat: DateFormat,
 ): { cumulative: number; label: string }[] {
   const now = new Date();
   const months: { label: string; month: number; year: number }[] = [];
   for (let i = monthsBack - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({ label: formatBsMonthShort(d.toISOString().slice(0, 10)), month: d.getMonth() + 1, year: d.getFullYear() });
+    months.push({
+      label: formatMonthShort(d.toISOString().slice(0, 10), dateFormat),
+      month: d.getMonth() + 1,
+      year: d.getFullYear(),
+    });
   }
 
   const sorted = [...contributions].sort((a, b) => a.date.localeCompare(b.date));

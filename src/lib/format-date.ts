@@ -1,10 +1,11 @@
-import { formatBsShortDate } from "@/lib/nepali-date";
+import { formatShortDate } from "@/lib/date-format";
+import type { DateFormat } from "@/lib/date-format-cookie";
 
 // `dateStr` is a "YYYY-MM-DD" string from a Postgres `date` column. Parsing
 // it via `new Date("YYYY-MM-DD")` treats it as UTC midnight, which can land
 // on the wrong local day when compared against "today" — so this parses the
 // parts manually into a local-time Date instead.
-export function formatRelativeDate(dateStr: string): string {
+export function formatRelativeDate(dateStr: string, format: DateFormat): string {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const yesterday = new Date(today);
@@ -15,5 +16,5 @@ export function formatRelativeDate(dateStr: string): string {
 
   if (date.getTime() === today.getTime()) return "Today";
   if (date.getTime() === yesterday.getTime()) return "Yesterday";
-  return formatBsShortDate(dateStr);
+  return formatShortDate(dateStr, format);
 }

@@ -8,7 +8,8 @@ import { toast } from "sonner";
 import type { DataTableColumn } from "@/components/DataTable";
 import { RowActionsMenu } from "@/components/RowActionsMenu";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { formatBsShortDate } from "@/lib/nepali-date";
+import { formatShortDate } from "@/lib/date-format";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { deleteExpenseAction } from "@/modules/expenses/api/expenses.actions";
 import { OwnerAvatar } from "@/modules/expenses/components/OwnerAvatar";
@@ -33,7 +34,7 @@ function displayLabel(role: MemberRole, name: string | null): string {
   return name ?? "Partner";
 }
 
-export function useExpenseTableColumns(realMemberId: string): DataTableColumn<ExpenseRow>[] {
+export function useExpenseTableColumns(realMemberId: string, dateFormat: DateFormat): DataTableColumn<ExpenseRow>[] {
   const [pendingId, setPendingId] = useState<null | string>(null);
   const [, startTransition] = useTransition();
 
@@ -52,7 +53,7 @@ export function useExpenseTableColumns(realMemberId: string): DataTableColumn<Ex
   }
 
   return [
-    { header: "Date", key: "date", render: (r) => formatBsShortDate(r.date) },
+    { header: "Date", key: "date", render: (r) => formatShortDate(r.date, dateFormat) },
     {
       className: "whitespace-normal",
       header: "Category",

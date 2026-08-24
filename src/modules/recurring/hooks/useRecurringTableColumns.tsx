@@ -10,6 +10,7 @@ import { RowActionsMenu } from "@/components/RowActionsMenu";
 import { ToneIcon } from "@/components/ToneIcon";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { getCategoryTone } from "@/modules/categories/lib/category-icons";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { OwnerAvatar } from "@/modules/expenses/components/OwnerAvatar";
@@ -62,6 +63,7 @@ function displayLabel(role: MemberRole, name: string | null): string {
 export function useRecurringTableColumns(
   realMemberId: string,
   onEdit: (row: RecurringRow) => void,
+  dateFormat: DateFormat,
 ): DataTableColumn<RecurringRow>[] {
   const [pendingId, setPendingId] = useState<null | string>(null);
   const [, startTransition] = useTransition();
@@ -143,9 +145,9 @@ export function useRecurringTableColumns(
         return (
           <div>
             <span className={days <= 3 ? "font-medium text-destructive" : days <= 7 ? "font-medium text-amber-600" : ""}>
-              {formatDueDate(r.nextDueDate)}
+              {formatDueDate(r.nextDueDate, dateFormat)}
             </span>
-            {r.endDate && <p className="text-xs text-muted-foreground">ends {formatDueDate(r.endDate)}</p>}
+            {r.endDate && <p className="text-xs text-muted-foreground">ends {formatDueDate(r.endDate, dateFormat)}</p>}
           </div>
         );
       },

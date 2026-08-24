@@ -2,7 +2,8 @@ import { CalendarClock, CalendarDays, CheckCircle2, Clock } from "lucide-react";
 
 import { StatAmount } from "@/components/StatAmount";
 import { StatCardGrid } from "@/components/StatCardGrid";
-import { formatBsMonthYear, formatBsShortDate } from "@/lib/nepali-date";
+import { formatMonthYear, formatShortDate } from "@/lib/date-format";
+import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
 import { formatNPR } from "@/modules/dashboard/lib/format";
@@ -30,11 +31,12 @@ export async function RecurringPage() {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
 
-  const [members, categories, recurringItems, monthExpenses] = await Promise.all([
+  const [members, categories, recurringItems, monthExpenses, dateFormat] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
     listRecurringExpenses(householdId),
     listExpensesForMonth(year, month),
+    getDateFormatPref(),
   ]);
 
   const categoryById = new Map(categories.map((c) => [c.id, c]));
@@ -94,8 +96,8 @@ export async function RecurringPage() {
       ownerLabel: displayLabel(roleForOwner(r.ownerMemberId, memberId), r.ownerName),
     }));
 
-  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
-  const nextDueLabel = stats.nextDue ? formatBsShortDate(stats.nextDue.date) : "—";
+  const monthLabel = formatMonthYear(now.toISOString().slice(0, 10), dateFormat);
+  const nextDueLabel = stats.nextDue ? formatShortDate(stats.nextDue.date, dateFormat) : "—";
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
@@ -157,6 +159,7 @@ export async function RecurringPage() {
           <RecurringManager
             categories={categories}
             currentMemberId={memberId}
+            dateFormat={dateFormat}
             members={members.map((m) => ({ id: m.id, name: m.user.name }))}
             realMemberId={memberId}
             rows={rows}

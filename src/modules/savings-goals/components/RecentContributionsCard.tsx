@@ -2,7 +2,8 @@ import { Target } from "lucide-react";
 
 import { ToneIcon } from "@/components/ToneIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatBsShortDate } from "@/lib/nepali-date";
+import { formatShortDate } from "@/lib/date-format";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { type MemberRole, memberTone } from "@/modules/expenses/lib/member-tone";
 
@@ -16,17 +17,17 @@ export type ContributionEntry = {
   role: MemberRole;
 };
 
-function formatRelativeDate(dateStr: string) {
+function formatRelativeDate(dateStr: string, format: DateFormat) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const date = new Date(`${dateStr}T00:00:00`);
   const diffDays = Math.round((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
-  return formatBsShortDate(dateStr);
+  return formatShortDate(dateStr, format);
 }
 
-export function RecentContributionsCard({ items }: { items: ContributionEntry[] }) {
+export function RecentContributionsCard({ dateFormat, items }: { dateFormat: DateFormat; items: ContributionEntry[] }) {
   const recent = items.slice(0, 5);
 
   return (
@@ -49,7 +50,7 @@ export function RecentContributionsCard({ items }: { items: ContributionEntry[] 
                 {formatNPR(item.amount)} · {item.ownerLabel}
               </p>
             </div>
-            <span className="shrink-0 text-xs text-muted-foreground">{formatRelativeDate(item.date)}</span>
+            <span className="shrink-0 text-xs text-muted-foreground">{formatRelativeDate(item.date, dateFormat)}</span>
           </div>
         ))}
       </CardContent>

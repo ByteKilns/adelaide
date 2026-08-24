@@ -81,7 +81,7 @@ export function BudgetGroupTable({ group }: { group: BudgetGroup }) {
       {group.rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">No budget set for this group yet.</p>
       ) : (
-        <DataTable columns={COLUMNS} containerClassName="rounded-xl" rowKey={(r) => r.categoryId} rows={rows} />
+        <DataTable columns={COLUMNS} containerClassName="rounded-xl" paginate={false} rowKey={(r) => r.categoryId} rows={rows} />
       )}
 
       {hasMore && (

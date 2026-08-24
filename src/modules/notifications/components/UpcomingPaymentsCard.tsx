@@ -3,13 +3,14 @@ import Link from "next/link";
 
 import { ToneIcon } from "@/components/ToneIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { getCategoryTone } from "@/modules/categories/lib/category-icons";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { formatDueDate } from "@/modules/recurring/lib/recurring-stats";
 
 export type UpcomingPayment = { amount: number; categoryGroupName: string; id: string; name: string; nextDueDate: string; ownerLabel: string };
 
-export function UpcomingPaymentsCard({ items }: { items: UpcomingPayment[] }) {
+export function UpcomingPaymentsCard({ dateFormat, items }: { dateFormat: DateFormat; items: UpcomingPayment[] }) {
   return (
     <Card>
       <CardHeader className="flex items-center justify-between pb-2">
@@ -27,7 +28,7 @@ export function UpcomingPaymentsCard({ items }: { items: UpcomingPayment[] }) {
                 {formatNPR(item.amount)} · {item.ownerLabel}
               </p>
             </div>
-            <span className="shrink-0 text-xs font-medium text-muted-foreground">{formatDueDate(item.nextDueDate)}</span>
+            <span className="shrink-0 text-xs font-medium text-muted-foreground">{formatDueDate(item.nextDueDate, dateFormat)}</span>
           </div>
         ))}
         <Link className="flex items-center justify-center gap-1 pt-1 text-sm font-medium text-primary" href="/recurring">

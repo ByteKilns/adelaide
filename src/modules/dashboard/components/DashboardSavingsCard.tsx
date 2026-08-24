@@ -8,7 +8,7 @@ type Props = { averageProgress: number; monthlyContribution: number; totalGoals:
 
 export function DashboardSavingsCard({ averageProgress, monthlyContribution, totalGoals }: Props) {
   return (
-    <Card>
+    <Card className="border-0 bg-surface-secondary shadow-[0_2px_12px_rgba(102,45,145,0.06)] ring-0">
       <CardHeader className="flex items-center justify-between pb-2">
         <CardTitle className="text-base font-medium">Savings Goals</CardTitle>
         <Link className="text-sm text-primary underline" href="/savings-goals">

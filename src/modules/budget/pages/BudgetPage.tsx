@@ -1,5 +1,6 @@
+import { formatMonthYear } from "@/lib/date-format";
+import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
-import { formatBsMonthYear } from "@/lib/nepali-date";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth } from "@/modules/budget/api/budget.actions";
 import { AllocationSummaryCard } from "@/modules/budget/components/AllocationSummaryCard";
@@ -28,13 +29,14 @@ export async function BudgetPage({ searchParams }: Props) {
   const prev = previousMonth(year, month);
   const next = nextMonth(year, month);
 
-  const [members, categories, incomes, budgetItems, expenseRows, prevBudgetItems] = await Promise.all([
+  const [members, categories, incomes, budgetItems, expenseRows, prevBudgetItems, dateFormat] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
     getIncomesForMonth(year, month),
     getBudgetItemsForMonth(year, month),
     listExpensesForMonth(year, month),
     getBudgetItemsForMonth(prev.year, prev.month),
+    getDateFormatPref(),
   ]);
 
   if (year === currentYear && month === currentMonth) {
@@ -72,7 +74,7 @@ export async function BudgetPage({ searchParams }: Props) {
     itemsByCategory[b.categoryId][ownerKey] = Number(b.plannedAmount);
   }
 
-  const monthLabel = formatBsMonthYear(`${year}-${String(month).padStart(2, "0")}-01`);
+  const monthLabel = formatMonthYear(`${year}-${String(month).padStart(2, "0")}-01`, dateFormat);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">

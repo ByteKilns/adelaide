@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { TabSwitcher } from "@/components/TabSwitcher";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { ExpenseSummaryCard } from "@/modules/expenses/components/ExpenseSummaryCard";
 import { ExpenseTable } from "@/modules/expenses/components/ExpenseTable";
@@ -27,6 +28,7 @@ type Tab = "expenses" | "income" | "overview" | "savings";
 
 type Props = {
   combinedIncome: number;
+  dateFormat: DateFormat;
   daysLeft: number;
   expenseRows: ExpenseRow[];
   expenseSlices: CategorySlice[];
@@ -71,8 +73,8 @@ export function ReportsTabs(props: Props) {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             <IncomeExpenseTrendCard combinedIncome={props.combinedIncome} points={props.trendPoints} totalExpenses={props.totalExpenses} />
-            <ExpenseBreakdownCard slices={props.expenseSlices} total={props.totalExpenses} />
-            <TransactionsTable realMemberId={props.realMemberId} rows={props.expenseRows} />
+            <ExpenseBreakdownCard slices={props.expenseSlices} total={props.totalExpenses} viewAllHref="/expenses" />
+            <TransactionsTable dateFormat={props.dateFormat} realMemberId={props.realMemberId} rows={props.expenseRows} />
           </div>
           <div className="space-y-6">
             <ExpenseSummaryCard pctOfIncome={props.pctOfIncome} slices={props.ownerSlices} total={props.totalExpenses} />
@@ -92,10 +94,15 @@ export function ReportsTabs(props: Props) {
       {tab === "expenses" && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <ExpenseTable partnerName={props.partnerName} realMemberId={props.realMemberId} rows={props.expenseRows} />
+            <ExpenseTable
+              dateFormat={props.dateFormat}
+              partnerName={props.partnerName}
+              realMemberId={props.realMemberId}
+              rows={props.expenseRows}
+            />
           </div>
           <div className="space-y-6">
-            <ExpenseBreakdownCard slices={props.expenseSlices} total={props.totalExpenses} />
+            <ExpenseBreakdownCard slices={props.expenseSlices} total={props.totalExpenses} viewAllHref="/expenses" />
             <TopCategoriesCard categories={props.topCategories} />
           </div>
         </div>
@@ -131,7 +138,7 @@ export function ReportsTabs(props: Props) {
               vsLastMonthPct={props.savingsVsLastMonthPct}
             />
             <GoalProgressOverviewCard averageProgress={props.savingsAverageProgress} counts={props.goalStatusCounts} />
-            <RecentContributionsCard items={props.recentContributions} />
+            <RecentContributionsCard dateFormat={props.dateFormat} items={props.recentContributions} />
           </div>
         </div>
       )}

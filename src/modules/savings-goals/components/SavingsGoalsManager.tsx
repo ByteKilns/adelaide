@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { DataTable } from "@/components/DataTable";
 import { TabSwitcher } from "@/components/TabSwitcher";
 import { Button } from "@/components/ui/button";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
 import { deleteSavingsGoalAction } from "@/modules/savings-goals/api/savings-goals.actions";
 import { ContributionForm } from "@/modules/savings-goals/components/ContributionForm";
@@ -21,13 +22,14 @@ type Member = { id: string; name: string };
 
 type Props = {
   currentMemberId: string;
+  dateFormat: DateFormat;
   goals: GoalCardData[];
   members: Member[];
   partnerName: null | string;
   realMemberId: string;
 };
 
-export function SavingsGoalsManager({ currentMemberId, goals, members, partnerName, realMemberId }: Props) {
+export function SavingsGoalsManager({ currentMemberId, dateFormat, goals, members, partnerName, realMemberId }: Props) {
   const [tab, setTab] = useState<Tab>("all");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [formOpen, setFormOpen] = useState(false);
@@ -121,6 +123,7 @@ export function SavingsGoalsManager({ currentMemberId, goals, members, partnerNa
         <div className="space-y-3">
           {filtered.map((goal) => (
             <GoalCard
+              dateFormat={dateFormat}
               goal={goal}
               key={goal.id}
               onAddContribution={setContributionGoal}
@@ -131,7 +134,7 @@ export function SavingsGoalsManager({ currentMemberId, goals, members, partnerNa
           ))}
         </div>
       ) : (
-        <DataTable columns={columns} emptyMessage="No goals in this view." rowKey={(g) => g.id} rows={filtered} />
+        <DataTable columns={columns} emptyMessage="No goals in this view." itemLabel="goals" rowKey={(g) => g.id} rows={filtered} />
       )}
 
       <button

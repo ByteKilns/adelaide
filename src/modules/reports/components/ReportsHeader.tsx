@@ -3,24 +3,9 @@
 import { ChevronDown, ChevronLeft, ChevronRight, FileDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { downloadExpensesCsv, type ExpenseExportRow } from "@/lib/csv-export";
 
-export type ExportRow = { amount: number; category: string; date: string; name: string; owner: string };
-
-type Props = { exportRows: ExportRow[]; monthLabel: string };
-
-function downloadCsv(rows: ExportRow[], monthLabel: string) {
-  const header = ["Date", "Description", "Category", "Owner", "Amount"];
-  const lines = [header, ...rows.map((r) => [r.date, r.name, r.category, r.owner, String(r.amount)])];
-  const csv = lines.map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")).join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `expenses-${monthLabel.replace(" ", "-").toLowerCase()}.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
-}
+type Props = { exportRows: ExpenseExportRow[]; monthLabel: string };
 
 export function ReportsHeader({ exportRows, monthLabel }: Props) {
   return (
@@ -47,7 +32,7 @@ export function ReportsHeader({ exportRows, monthLabel }: Props) {
             <ChevronRight className="h-4 w-4" />
           </span>
         </div>
-        <Button onClick={() => downloadCsv(exportRows, monthLabel)} type="button" variant="outline">
+        <Button onClick={() => downloadExpensesCsv(exportRows, monthLabel)} type="button" variant="outline">
           <FileDown className="h-4 w-4" />
           Export
         </Button>

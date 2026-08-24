@@ -5,13 +5,14 @@ import Link from "next/link";
 
 import { ToneIcon } from "@/components/ToneIcon";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import type { NotificationRow } from "@/modules/notifications/components/NotificationsManager";
 import { formatNotificationTime } from "@/modules/notifications/lib/notification-format";
 import { getSeverityIcon, getSeverityTone } from "@/modules/notifications/lib/notification-icons";
 
-type Props = { notifications: NotificationRow[]; unreadCount: number };
+type Props = { dateFormat: DateFormat; notifications: NotificationRow[]; unreadCount: number };
 
-export function NotificationBell({ notifications, unreadCount }: Props) {
+export function NotificationBell({ dateFormat, notifications, unreadCount }: Props) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -52,7 +53,7 @@ export function NotificationBell({ notifications, unreadCount }: Props) {
                   </div>
                   <p className="line-clamp-2 text-xs text-muted-foreground">{n.body}</p>
                 </div>
-                <span className="shrink-0 text-xs text-muted-foreground">{formatNotificationTime(n.createdAt)}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{formatNotificationTime(n.createdAt, dateFormat)}</span>
               </div>
             );
           })}

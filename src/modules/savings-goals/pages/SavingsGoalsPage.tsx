@@ -2,7 +2,8 @@ import { CheckCircle2, Clock, PiggyBank, Target } from "lucide-react";
 
 import { StatAmount } from "@/components/StatAmount";
 import { StatCardGrid } from "@/components/StatCardGrid";
-import { formatBsMonthYear } from "@/lib/nepali-date";
+import { formatMonthYear } from "@/lib/date-format";
+import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
@@ -19,10 +20,11 @@ export async function SavingsGoalsPage() {
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
 
-  const [members, goalRows, contributionRows] = await Promise.all([
+  const [members, goalRows, contributionRows, dateFormat] = await Promise.all([
     getHouseholdMembers(householdId),
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
+    getDateFormatPref(),
   ]);
 
   const memberById = new Map(members.map((m) => [m.id, m]));
@@ -43,10 +45,10 @@ export async function SavingsGoalsPage() {
       ? Math.round(((stats.monthlyContribution - stats.lastMonthContribution) / stats.lastMonthContribution) * 100)
       : null;
 
-  const points = monthlyTotals(contributions, 6);
+  const points = monthlyTotals(contributions, 6, dateFormat);
   const contributionEntries = buildContributionEntries(contributionRows, goalRows, memberById, memberId);
 
-  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
+  const monthLabel = formatMonthYear(now.toISOString().slice(0, 10), dateFormat);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
@@ -105,6 +107,7 @@ export async function SavingsGoalsPage() {
         <div className="space-y-4 lg:col-span-2">
           <SavingsGoalsManager
             currentMemberId={memberId}
+            dateFormat={dateFormat}
             goals={goals}
             members={members.map((m) => ({ id: m.id, name: m.user.name }))}
             partnerName={partner?.user.name ?? null}
@@ -115,7 +118,7 @@ export async function SavingsGoalsPage() {
         <div className="space-y-6">
           <SavingsOverviewCard monthlyContribution={stats.monthlyContribution} points={points} vsLastMonthPct={vsLastMonthPct} />
           <GoalProgressOverviewCard averageProgress={stats.averageProgress} counts={statusCounts} />
-          <RecentContributionsCard items={contributionEntries} />
+          <RecentContributionsCard dateFormat={dateFormat} items={contributionEntries} />
         </div>
       </div>
     </div>

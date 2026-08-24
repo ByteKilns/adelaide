@@ -7,7 +7,8 @@ import { TONE_BADGE_CLASSES, TONE_BAR_CLASSES } from "@/components/ToneIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { formatBsDate } from "@/lib/nepali-date";
+import { formatDate } from "@/lib/date-format";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { type MemberRole, memberTone, roleForOwner } from "@/modules/expenses/lib/member-tone";
 import type { GoalStatus } from "@/modules/savings-goals/lib/savings-stats";
@@ -40,11 +41,12 @@ function displayLabel(role: MemberRole, name: string | null): string {
   return name ?? "Partner";
 }
 
-function formatTargetDate(dateStr: string) {
-  return formatBsDate(dateStr);
+function formatTargetDate(dateStr: string, format: DateFormat) {
+  return formatDate(dateStr, format);
 }
 
 type Props = {
+  dateFormat: DateFormat;
   goal: GoalCardData;
   onAddContribution: (goal: GoalCardData) => void;
   onDelete: (id: string) => void;
@@ -52,7 +54,7 @@ type Props = {
   realMemberId: string;
 };
 
-export function GoalCard({ goal, onAddContribution, onDelete, onEdit, realMemberId }: Props) {
+export function GoalCard({ dateFormat, goal, onAddContribution, onDelete, onEdit, realMemberId }: Props) {
   const role = roleForOwner(goal.ownerMemberId, realMemberId);
   const tone = memberTone(role);
 
@@ -101,7 +103,7 @@ export function GoalCard({ goal, onAddContribution, onDelete, onEdit, realMember
           <div className={`rounded-lg px-3 py-2 text-xs ${STATUS_BOX_CLASSES[goal.status]}`}>
             <p className="flex items-center gap-1 font-medium">
               <Calendar className="h-3.5 w-3.5" />
-              {goal.targetDate ? formatTargetDate(goal.targetDate) : "No target date"}
+              {goal.targetDate ? formatTargetDate(goal.targetDate, dateFormat) : "No target date"}
             </p>
             <p className="mt-0.5">{STATUS_LABEL[goal.status]}</p>
           </div>

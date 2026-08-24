@@ -6,7 +6,8 @@ import { cookies } from "next/headers";
 
 import { db } from "@/db/client";
 import { budgetItems, categories, expenses, monthlyBudgets, notifications, recurringExpenses } from "@/db/schema";
-import { formatBsMonthYear } from "@/lib/nepali-date";
+import { formatMonthYear } from "@/lib/date-format";
+import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { NOTIFICATION_PREFS_COOKIE_NAME, type NotificationPreferences } from "@/lib/notification-preferences-cookie";
 import { getCurrentMember } from "@/lib/session";
 import { formatNPR } from "@/modules/dashboard/lib/format";
@@ -116,6 +117,7 @@ export async function syncDueSoonNotifications(householdId: string) {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const dateFormat = await getDateFormatPref();
 
   for (const item of items) {
     const due = new Date(`${item.nextDueDate}T00:00:00`);
@@ -124,7 +126,7 @@ export async function syncDueSoonNotifications(householdId: string) {
 
     const dueLabel = daysUntil === 0 ? "today" : daysUntil === 1 ? "tomorrow" : `in ${daysUntil} days`;
     await insertNotification({
-      body: `Your recurring payment of ${formatNPR(Number(item.amount))} is scheduled for ${formatDueDate(item.nextDueDate)}.`,
+      body: `Your recurring payment of ${formatNPR(Number(item.amount))} is scheduled for ${formatDueDate(item.nextDueDate, dateFormat)}.`,
       category: "payment",
       dedupeKey: `recurring:${item.id}:${item.nextDueDate}`,
       householdId,
@@ -142,7 +144,8 @@ export async function syncDueSoonNotifications(householdId: string) {
 export async function checkBudgetReminder(householdId: string, year: number, month: number, itemCount: number) {
   if (itemCount > 0) return;
 
-  const monthLabel = formatBsMonthYear(`${year}-${String(month).padStart(2, "0")}-01`);
+  const dateFormat = await getDateFormatPref();
+  const monthLabel = formatMonthYear(`${year}-${String(month).padStart(2, "0")}-01`, dateFormat);
   await insertNotification({
     body: "You haven't planned a budget for this month yet. Head to Budget to set your category amounts.",
     category: "budget",

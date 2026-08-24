@@ -2,17 +2,16 @@
 
 import { useMemo, useState } from "react";
 
-import { Calendar as CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, List, Plus, Search } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronDown, List, Plus, Search } from "lucide-react";
 
 import { DataTable } from "@/components/DataTable";
 import { TabSwitcher } from "@/components/TabSwitcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { RecurringCalendarView } from "@/modules/recurring/components/RecurringCalendarView";
 import { type RecurringExpenseEditing, RecurringForm } from "@/modules/recurring/components/RecurringForm";
 import { type RecurringRow, useRecurringTableColumns } from "@/modules/recurring/hooks/useRecurringTableColumns";
-
-const PAGE_SIZE = 10;
 
 type Tab = "active" | "all" | "completed" | "paused" | "upcoming";
 
@@ -22,16 +21,16 @@ type Member = { id: string; name: string };
 type Props = {
   categories: Category[];
   currentMemberId: string;
+  dateFormat: DateFormat;
   members: Member[];
   realMemberId: string;
   rows: RecurringRow[];
 };
 
-export function RecurringManager({ categories, currentMemberId, members, realMemberId, rows }: Props) {
+export function RecurringManager({ categories, currentMemberId, dateFormat, members, realMemberId, rows }: Props) {
   const [tab, setTab] = useState<Tab>("all");
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"calendar" | "list">("list");
-  const [page, setPage] = useState(1);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<null | RecurringExpenseEditing>(null);
 
@@ -67,20 +66,13 @@ export function RecurringManager({ categories, currentMemberId, members, realMem
     });
   }, [rows, tab, search]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const currentPage = Math.min(page, pageCount);
-  const pageRows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-
-  const columns = useRecurringTableColumns(realMemberId, openEdit);
+  const columns = useRecurringTableColumns(realMemberId, openEdit, dateFormat);
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <TabSwitcher
-          onValueChange={(v) => {
-            setTab(v as Tab);
-            setPage(1);
-          }}
+          onValueChange={(v) => setTab(v as Tab)}
           tabs={[
             { label: "All", value: "all" },
             { label: "Upcoming", value: "upcoming" },
@@ -101,10 +93,7 @@ export function RecurringManager({ categories, currentMemberId, members, realMem
           <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-8"
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search recurring..."
             value={search}
           />
@@ -126,41 +115,13 @@ export function RecurringManager({ categories, currentMemberId, members, realMem
       {view === "calendar" ? (
         <RecurringCalendarView rows={filtered} />
       ) : (
-        <>
-          <DataTable columns={columns} emptyMessage="No recurring expenses in this view." rowKey={(r) => r.id} rows={pageRows} />
-
-          {filtered.length > 0 && (
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <p>
-                Showing {(currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, filtered.length)} of{" "}
-                {filtered.length} recurring items
-              </p>
-              <div className="flex items-center gap-1">
-                <Button
-                  disabled={currentPage <= 1}
-                  onClick={() => setPage((p) => p - 1)}
-                  size="icon"
-                  type="button"
-                  variant="outline"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <span className="px-2">
-                  {currentPage} / {pageCount}
-                </span>
-                <Button
-                  disabled={currentPage >= pageCount}
-                  onClick={() => setPage((p) => p + 1)}
-                  size="icon"
-                  type="button"
-                  variant="outline"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
-        </>
+        <DataTable
+          columns={columns}
+          emptyMessage="No recurring expenses in this view."
+          itemLabel="recurring items"
+          rowKey={(r) => r.id}
+          rows={filtered}
+        />
       )}
 
       <RecurringForm

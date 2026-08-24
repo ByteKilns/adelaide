@@ -1,4 +1,5 @@
-import { formatBsMonthYear } from "@/lib/nepali-date";
+import { formatMonthYear } from "@/lib/date-format";
+import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
@@ -37,6 +38,7 @@ export async function ReportsPage() {
     rangeExpenseRows,
     goalRows,
     contributionRows,
+    dateFormat,
   ] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
@@ -48,6 +50,7 @@ export async function ReportsPage() {
     listExpensesForRange(rangeStart, rangeEnd),
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
+    getDateFormatPref(),
   ]);
 
   const memberById = new Map(members.map((m) => [m.id, m]));
@@ -91,7 +94,7 @@ export async function ReportsPage() {
 
   const rangeExpenses = rangeExpenseRows.map((e) => ({ amount: Number(e.amount), date: e.date }));
   const allIncomes = allIncomeRows.map((i) => ({ amount: Number(i.amount), month: i.month, year: i.year }));
-  const trendPoints = monthlyIncomeExpenseTrend(allIncomes, rangeExpenses, 6);
+  const trendPoints = monthlyIncomeExpenseTrend(allIncomes, rangeExpenses, 6, dateFormat);
 
   const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
   const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month);
@@ -119,10 +122,10 @@ export async function ReportsPage() {
           ((savingsStats.monthlyContribution - savingsStats.lastMonthContribution) / savingsStats.lastMonthContribution) * 100,
         )
       : null;
-  const savingsPoints = monthlyTotals(contributions, 6);
+  const savingsPoints = monthlyTotals(contributions, 6, dateFormat);
   const recentContributions = buildContributionEntries(contributionRows, goalRows, memberById, memberId);
 
-  const monthLabel = formatBsMonthYear(now.toISOString().slice(0, 10));
+  const monthLabel = formatMonthYear(now.toISOString().slice(0, 10), dateFormat);
   const exportRows = expenseRows.map((e) => ({
     amount: Number(e.amount),
     category: categoryName(e.categoryId),
@@ -137,6 +140,7 @@ export async function ReportsPage() {
 
       <ReportsTabs
         combinedIncome={combinedIncome}
+        dateFormat={dateFormat}
         daysLeft={daysLeft}
         expenseRows={expenseTableRows}
         expenseSlices={expenseSlices}

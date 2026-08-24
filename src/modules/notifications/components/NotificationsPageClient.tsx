@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import type { DateFormat } from "@/lib/date-format-cookie";
 import type { NotificationPreferences } from "@/lib/notification-preferences-cookie";
 import { NotificationPreferencesCard } from "@/modules/notifications/components/NotificationPreferencesCard";
 import { type NotificationRow, NotificationsManager, type NotificationTab } from "@/modules/notifications/components/NotificationsManager";
@@ -10,12 +11,13 @@ import { NotificationSummaryCard } from "@/modules/notifications/components/Noti
 import { type UpcomingPayment, UpcomingPaymentsCard } from "@/modules/notifications/components/UpcomingPaymentsCard";
 
 type Props = {
+  dateFormat: DateFormat;
   initialPreferences: NotificationPreferences;
   rows: NotificationRow[];
   upcomingPayments: UpcomingPayment[];
 };
 
-export function NotificationsPageClient({ initialPreferences, rows, upcomingPayments }: Props) {
+export function NotificationsPageClient({ dateFormat, initialPreferences, rows, upcomingPayments }: Props) {
   const [tab, setTab] = useState<NotificationTab>("all");
   const [preferences, setPreferences] = useState(initialPreferences);
 
@@ -25,13 +27,13 @@ export function NotificationsPageClient({ initialPreferences, rows, upcomingPaym
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
-        <NotificationsManager onTabChange={setTab} preferences={preferences} rows={rows} tab={tab} />
+        <NotificationsManager dateFormat={dateFormat} onTabChange={setTab} preferences={preferences} rows={rows} tab={tab} />
         <NotificationsTipCard />
       </div>
 
       <div className="space-y-6">
         <NotificationPreferencesCard initialPreferences={preferences} onChange={setPreferences} />
-        <UpcomingPaymentsCard items={upcomingPayments} />
+        <UpcomingPaymentsCard dateFormat={dateFormat} items={upcomingPayments} />
         <NotificationSummaryCard
           alertCount={alertCount}
           onReviewAlerts={() => setTab("alerts")}

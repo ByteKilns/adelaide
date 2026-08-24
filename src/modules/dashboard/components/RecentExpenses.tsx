@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { ToneIcon } from "@/components/ToneIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { formatRelativeDate } from "@/lib/format-date";
 import { getCategoryIcon, getCategoryTone } from "@/modules/categories/lib/category-icons";
 
@@ -14,9 +15,9 @@ type Row = {
   ownerLabel: string;
 };
 
-export function RecentExpenses({ rows }: { rows: Row[] }) {
+export function RecentExpenses({ dateFormat, rows }: { dateFormat: DateFormat; rows: Row[] }) {
   return (
-    <Card>
+    <Card className="border-0 bg-surface-secondary shadow-[0_2px_12px_rgba(102,45,145,0.06)] ring-0">
       <CardHeader className="flex items-center justify-between pb-2">
         <CardTitle className="text-base font-medium">Recent Expenses</CardTitle>
         <Link className="text-sm text-primary underline" href="/expenses">
@@ -39,7 +40,7 @@ export function RecentExpenses({ rows }: { rows: Row[] }) {
                 <div>
                   <p className="text-sm font-medium">{r.categoryName}</p>
                   <p className="text-xs text-muted-foreground">
-                    {r.ownerLabel} · {formatRelativeDate(r.date)}
+                    {r.ownerLabel} · {formatRelativeDate(r.date, dateFormat)}
                   </p>
                 </div>
               </div>

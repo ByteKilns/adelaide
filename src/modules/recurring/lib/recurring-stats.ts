@@ -1,5 +1,6 @@
 import type { Tone } from "@/components/ToneIcon";
-import { formatBsDate } from "@/lib/nepali-date";
+import { formatDate } from "@/lib/date-format";
+import type { DateFormat } from "@/lib/date-format-cookie";
 import { getCategoryTone } from "@/modules/categories/lib/category-icons";
 
 export type RecurringItem = {
@@ -83,8 +84,8 @@ export function daysUntil(dateStr: string): number {
   return Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-export function formatDueDate(dateStr: string): string {
-  return formatBsDate(dateStr);
+export function formatDueDate(dateStr: string, format: DateFormat): string {
+  return formatDate(dateStr, format);
 }
 
 export type CategoryGroupTotal = { amount: number; groupName: string; tone: Tone };

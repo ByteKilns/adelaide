@@ -1,6 +1,7 @@
-import { formatBsShortDate } from "@/lib/nepali-date";
+import { formatShortDate } from "@/lib/date-format";
+import type { DateFormat } from "@/lib/date-format-cookie";
 
-export function formatNotificationTime(createdAt: Date): string {
+export function formatNotificationTime(createdAt: Date, format: DateFormat): string {
   const now = Date.now();
   const diffMs = now - createdAt.getTime();
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -16,5 +17,5 @@ export function formatNotificationTime(createdAt: Date): string {
   createdDay.setHours(0, 0, 0, 0);
 
   if (createdDay.getTime() === yesterday.getTime()) return "Yesterday";
-  return formatBsShortDate(createdAt.toISOString().slice(0, 10));
+  return formatShortDate(createdAt.toISOString().slice(0, 10), format);
 }

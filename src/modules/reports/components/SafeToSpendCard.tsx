@@ -13,24 +13,24 @@ type Props = {
 type Tone = { amount: string; bg: string; dot: string; icon: string; status: string };
 
 const ON_TRACK: Tone = {
-  amount: "text-green-600 dark:text-green-400",
-  bg: "bg-green-50 dark:bg-green-950/30",
-  dot: "bg-green-500",
-  icon: "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400",
-  status: "text-green-600 dark:text-green-400",
+  amount: "text-green-700 dark:text-green-400",
+  bg: "bg-green-100 dark:bg-green-950/40",
+  dot: "bg-green-600",
+  icon: "bg-green-200 text-green-700 dark:bg-green-900 dark:text-green-400",
+  status: "text-green-700 dark:text-green-400",
 };
 
 const OVER_BUDGET: Tone = {
   amount: "text-destructive",
-  bg: "bg-destructive/5",
+  bg: "bg-destructive/15",
   dot: "bg-destructive",
-  icon: "bg-destructive/10 text-destructive",
+  icon: "bg-destructive/20 text-destructive",
   status: "text-destructive",
 };
 
 const NO_BUDGET: Tone = {
   amount: "text-foreground",
-  bg: "bg-muted/40",
+  bg: "bg-muted/60",
   dot: "bg-muted-foreground",
   icon: "bg-muted text-muted-foreground",
   status: "text-muted-foreground",
