@@ -64,6 +64,7 @@ const EMPTY: SavingsGoalInput = {
 export function GoalForm({ currentMemberId, editing, members, onOpenChange, open }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [imagePending, setImagePending] = useState(false);
+  const [hasTarget, setHasTarget] = useState(editing ? editing.targetAmount !== null : true);
   const {
     control,
     formState: { errors, isSubmitting },
@@ -77,6 +78,14 @@ export function GoalForm({ currentMemberId, editing, members, onOpenChange, open
   });
 
   const image = watch("image");
+
+  function handleTargetToggle(checked: boolean) {
+    setHasTarget(checked);
+    if (!checked) {
+      setValue("targetAmount", null);
+      setValue("targetDate", null);
+    }
+  }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -157,28 +166,45 @@ export function GoalForm({ currentMemberId, editing, members, onOpenChange, open
           )}
         />
 
-        <div className="grid grid-cols-2 gap-3">
-          <TextField
-            error={errors.targetAmount?.message}
-            id="goal-target-amount"
-            label="Target amount"
-            min={0}
-            step="0.01"
-            type="number"
-            {...register("targetAmount", { valueAsNumber: true })}
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            checked={hasTarget}
+            className="h-4 w-4 rounded border-input"
+            onChange={(e) => handleTargetToggle(e.target.checked)}
+            type="checkbox"
           />
-          <Controller
-            control={control}
-            name="targetDate"
-            render={({ field }) => (
-              <NepaliDateField
-                label="Target date (optional)"
-                onChange={(v) => field.onChange(v || null)}
-                value={field.value ?? ""}
-              />
-            )}
-          />
-        </div>
+          This goal has a fixed target amount
+        </label>
+        <p className="-mt-3 text-xs text-muted-foreground">
+          {hasTarget
+            ? "e.g. saving for a car, house, or laptop."
+            : "An ongoing pool with no target — e.g. general monthly savings."}
+        </p>
+
+        {hasTarget && (
+          <div className="grid grid-cols-2 gap-3">
+            <TextField
+              error={errors.targetAmount?.message}
+              id="goal-target-amount"
+              label="Target amount"
+              min={0}
+              step="0.01"
+              type="number"
+              {...register("targetAmount", { valueAsNumber: true })}
+            />
+            <Controller
+              control={control}
+              name="targetDate"
+              render={({ field }) => (
+                <NepaliDateField
+                  label="Target date (optional)"
+                  onChange={(v) => field.onChange(v || null)}
+                  value={field.value ?? ""}
+                />
+              )}
+            />
+          </div>
+        )}
       </form>
     </Modal>
   );

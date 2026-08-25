@@ -15,7 +15,9 @@ export const savingsGoals = pgTable("savings_goals", {
   name: text("name").notNull(),
   description: text("description"),
   image: text("image"),
-  targetAmount: numeric("target_amount", { precision: 12, scale: 2 }).notNull(),
+  // null = an ongoing savings pool with no fixed target (e.g. general
+  // monthly savings), rather than a goal being saved toward.
+  targetAmount: numeric("target_amount", { precision: 12, scale: 2 }),
   targetDate: date("target_date"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

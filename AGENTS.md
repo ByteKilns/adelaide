@@ -26,3 +26,12 @@ Enforced by ESLint (`eslint-plugin-perfectionist`), not just convention — run 
 
 - Imports: grouped `react` → third-party → project (`@/...`), alphabetical (ascending) within each group, with a blank line between groups.
 - Named import specifiers, object type / interface properties, and JSX props: alphabetical (ascending).
+
+## Git hooks
+
+Husky is installed (`npm install` runs the `prepare` script, which wires up `.husky/`). The `pre-commit` hook runs `npx tsc --noEmit` then `npm run build`, in that order, and aborts the commit if either fails (the hook runs with `sh -e`, so the first non-zero exit stops it). This means:
+
+- A commit can't land with a type error or a build failure — both are checked before `git commit` completes, not just in CI.
+- `npm run build` also re-runs TypeScript itself as part of Next's build step, so the explicit `tsc --noEmit` first is mostly for a faster/clearer failure message before paying for a full build.
+- The full build takes ~15–25s locally — expected and by design (the user explicitly wants build correctness checked pre-commit, not just lint/tests). Don't work around this with `--no-verify` — if the hook is failing, fix the underlying type/build error.
+- To change what the hook checks, edit `.husky/pre-commit` directly (plain shell script, one command per line).

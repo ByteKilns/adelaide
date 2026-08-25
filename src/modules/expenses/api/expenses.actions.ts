@@ -69,6 +69,73 @@ export async function createExpenseAction(input: ExpenseInput) {
   revalidatePath("/dashboard");
 }
 
+// Inserts every row in one batch and fires at most one summary notification
+// (only for the shared rows, matching createExpenseAction's own
+// shared-only privacy rule) instead of one per row — a 20-row bulk entry
+// shouldn't flood the household's notification feed.
+export async function createExpensesBulkAction(inputs: ExpenseInput[]) {
+  if (inputs.length === 0) return;
+
+  const { householdId, name: actorName } = await getCurrentMember();
+  const parsedList = inputs.map((input) => expenseSchema.parse(input));
+
+  const categories = await listCategories(householdId);
+  const categoryIds = new Set(categories.map((c) => c.id));
+  const members = await getHouseholdMembers(householdId);
+  const memberIds = new Set(members.map((m) => m.id));
+
+  for (const parsed of parsedList) {
+    if (!categoryIds.has(parsed.categoryId)) throw new Error("Category does not belong to this household");
+    if (!memberIds.has(parsed.paidByMemberId)) throw new Error("Member does not belong to this household");
+    if (parsed.ownerMemberId && !memberIds.has(parsed.ownerMemberId)) {
+      throw new Error("Member does not belong to this household");
+    }
+  }
+
+  const created = await db
+    .insert(expenses)
+    .values(
+      parsedList.map((parsed) => ({
+        amount: String(parsed.amount),
+        categoryId: parsed.categoryId,
+        date: parsed.date,
+        householdId,
+        note: parsed.note,
+        ownerMemberId: parsed.ownerMemberId,
+        paidByMemberId: parsed.paidByMemberId,
+      })),
+    )
+    .returning();
+
+  const sharedRows = parsedList.filter((p) => p.ownerMemberId === null);
+  if (sharedRows.length > 0) {
+    const sharedTotal = sharedRows.reduce((s, p) => s + p.amount, 0);
+    await insertNotification({
+      body: `${actorName} added ${sharedRows.length} shared expense${sharedRows.length === 1 ? "" : "s"} totaling ${formatNPR(sharedTotal)}.`,
+      category: "shared",
+      dedupeKey: `expenses-bulk:${created[0].id}`,
+      householdId,
+      severity: "info",
+      title: "New shared expenses added",
+    });
+  }
+
+  // One threshold check per distinct category+owner+month combo touched by
+  // this batch, rather than one per row — checkBudgetThreshold recomputes
+  // the whole month's spend anyway, so repeating it per row would just be
+  // redundant work for the same dedupeKey.
+  const seenBudgetKeys = new Set<string>();
+  for (const parsed of parsedList) {
+    const key = `${parsed.categoryId}:${parsed.ownerMemberId ?? "shared"}:${parsed.date.slice(0, 7)}`;
+    if (seenBudgetKeys.has(key)) continue;
+    seenBudgetKeys.add(key);
+    await checkBudgetThreshold(householdId, parsed.categoryId, parsed.ownerMemberId, parsed.date);
+  }
+
+  revalidatePath("/expenses");
+  revalidatePath("/dashboard");
+}
+
 export async function updateExpenseAction(id: string, input: ExpenseInput) {
   const { householdId } = await getCurrentMember();
   const parsed = expenseSchema.parse(input);

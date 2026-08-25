@@ -107,7 +107,10 @@ export async function ExpensesPage({ searchParams }: Props) {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
       <ExpenseHeader
+        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+        currentMemberId={memberId}
         exportRows={exportRows}
+        members={members.map((m) => ({ id: m.id, name: m.user.name }))}
         monthLabel={monthLabel}
         nextHref={`/expenses?year=${next.year}&month=${next.month}`}
         prevHref={`/expenses?year=${prev.year}&month=${prev.month}`}

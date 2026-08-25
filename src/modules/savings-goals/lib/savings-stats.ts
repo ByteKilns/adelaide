@@ -8,7 +8,7 @@ export type GoalStatus = "at-risk" | "behind" | "on-track";
 export type Goal = {
   createdAt: Date;
   id: string;
-  targetAmount: number;
+  targetAmount: null | number;
   targetDate: null | string;
 };
 
@@ -19,10 +19,12 @@ export function savedAmountForGoal(goalId: string, contributions: Contribution[]
 }
 
 // Compares how far through the goal's timeline we are against how much of
-// the target has actually been saved. No target date means there's no
-// schedule to fall behind on, so it's always "on-track".
+// the target has actually been saved. No target amount means this is an
+// ongoing pool rather than a goal being saved toward, so it's always
+// "on-track"; likewise no target date means there's no schedule to fall
+// behind on.
 export function classifyGoal(goal: Goal, saved: number): GoalStatus {
-  if (goal.targetAmount <= 0 || saved >= goal.targetAmount) return "on-track";
+  if (goal.targetAmount === null || goal.targetAmount <= 0 || saved >= goal.targetAmount) return "on-track";
   if (!goal.targetDate) return "on-track";
 
   const start = goal.createdAt.getTime();
@@ -96,7 +98,7 @@ export function savingsOverviewStats(
     .reduce((s, c) => s + c.amount, 0);
 
   const progressPcts = goals
-    .filter((g) => g.targetAmount > 0)
+    .filter((g): g is Goal & { targetAmount: number } => g.targetAmount !== null && g.targetAmount > 0)
     .map((g) => Math.min(1, savedAmountForGoal(g.id, contributions) / g.targetAmount));
   const averageProgress =
     progressPcts.length > 0 ? Math.round((progressPcts.reduce((s, p) => s + p, 0) / progressPcts.length) * 100) : 0;
@@ -112,7 +114,7 @@ export type GoalRow = {
   image: null | string;
   name: string;
   ownerMemberId: null | string;
-  targetAmount: string;
+  targetAmount: null | string;
   targetDate: null | string;
 };
 
@@ -126,7 +128,7 @@ export function buildGoalCards(
 ): { goals: GoalCardData[]; statusCounts: Record<GoalStatus, number> } {
   const goals: GoalCardData[] = goalRows.map((g) => {
     const saved = savedAmountForGoal(g.id, contributions);
-    const targetAmount = Number(g.targetAmount);
+    const targetAmount = g.targetAmount === null ? null : Number(g.targetAmount);
     const owner = g.ownerMemberId ? memberById.get(g.ownerMemberId) : null;
     return {
       createdAt: g.createdAt,
@@ -136,7 +138,7 @@ export function buildGoalCards(
       name: g.name,
       ownerMemberId: g.ownerMemberId,
       ownerName: owner?.user.name ?? null,
-      pct: targetAmount > 0 ? Math.round((saved / targetAmount) * 100) : 0,
+      pct: targetAmount !== null && targetAmount > 0 ? Math.round((saved / targetAmount) * 100) : null,
       saved,
       status: classifyGoal({ createdAt: g.createdAt, id: g.id, targetAmount, targetDate: g.targetDate }, saved),
       targetAmount,

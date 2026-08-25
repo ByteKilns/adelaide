@@ -51,7 +51,7 @@ export async function createSavingsGoalAction(input: SavingsGoalInput) {
     image: parsed.image,
     name: parsed.name,
     ownerMemberId: parsed.ownerMemberId,
-    targetAmount: String(parsed.targetAmount),
+    targetAmount: parsed.targetAmount === null ? null : String(parsed.targetAmount),
     targetDate: parsed.targetDate,
   });
 
@@ -72,7 +72,7 @@ export async function updateSavingsGoalAction(id: string, input: SavingsGoalInpu
       image: parsed.image,
       name: parsed.name,
       ownerMemberId: parsed.ownerMemberId,
-      targetAmount: String(parsed.targetAmount),
+      targetAmount: parsed.targetAmount === null ? null : String(parsed.targetAmount),
       targetDate: parsed.targetDate,
     })
     .where(and(eq(savingsGoals.id, id), eq(savingsGoals.householdId, householdId)));

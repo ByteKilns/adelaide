@@ -1,11 +1,11 @@
 "use server";
 
-import { and, desc, eq, gte, isNull, lte } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNotNull, isNull, lte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 import { db } from "@/db/client";
-import { budgetItems, categories, expenses, monthlyBudgets, notifications, recurringExpenses } from "@/db/schema";
+import { budgetItems, categories, expenses, loanPayments, loans, monthlyBudgets, notifications, recurringExpenses } from "@/db/schema";
 import { formatMonthYear } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { NOTIFICATION_PREFS_COOKIE_NAME, type NotificationPreferences } from "@/lib/notification-preferences-cookie";
@@ -132,6 +132,62 @@ export async function syncDueSoonNotifications(householdId: string) {
       householdId,
       severity: daysUntil <= 1 ? "warning" : "info",
       title: `${item.name} is due ${dueLabel}`,
+    });
+  }
+}
+
+// Called (lazily, on Notifications page load) to generate "due soon"
+// notifications for loans with a repayment plan whose next installment date
+// is within the next 3 days — skips loans already settled by payments, and
+// skips loans with no plan at all (nextInstallmentDate/installmentFrequency
+// null). dedupeKey includes the installment date itself, so once a payment
+// rolls it forward a fresh notification is allowed for the new cycle.
+export async function syncLoanInstallmentsDueSoonNotifications(householdId: string) {
+  const items = await db
+    .select()
+    .from(loans)
+    .where(and(eq(loans.householdId, householdId), isNotNull(loans.nextInstallmentDate), isNotNull(loans.installmentFrequency)));
+  if (items.length === 0) return;
+
+  const paymentRows = await db
+    .select()
+    .from(loanPayments)
+    .where(inArray(loanPayments.loanId, items.map((i) => i.id)));
+  const paidByLoan = new Map<string, number>();
+  for (const p of paymentRows) {
+    paidByLoan.set(p.loanId, (paidByLoan.get(p.loanId) ?? 0) + Number(p.amount));
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dateFormat = await getDateFormatPref();
+
+  for (const item of items) {
+    if (!item.nextInstallmentDate) continue;
+    const outstanding = Number(item.principalAmount) - (paidByLoan.get(item.id) ?? 0);
+    if (outstanding <= 0) continue;
+
+    const due = new Date(`${item.nextInstallmentDate}T00:00:00`);
+    const daysUntil = Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysUntil < 0 || daysUntil > 3) continue;
+
+    const dueLabel = daysUntil === 0 ? "today" : daysUntil === 1 ? "tomorrow" : `in ${daysUntil} days`;
+    const installmentAmount = item.installmentAmount ? Number(item.installmentAmount) : outstanding;
+    const body =
+      item.direction === "taken"
+        ? `Your payment of ${formatNPR(installmentAmount)} to ${item.counterpartyName} is due ${dueLabel} (${formatDueDate(item.nextInstallmentDate, dateFormat)}).`
+        : `${item.counterpartyName}'s payment of ${formatNPR(installmentAmount)} to you is expected ${dueLabel} (${formatDueDate(item.nextInstallmentDate, dateFormat)}).`;
+
+    await insertNotification({
+      body,
+      category: "payment",
+      dedupeKey: `loan-installment:${item.id}:${item.nextInstallmentDate}`,
+      householdId,
+      severity: daysUntil <= 1 ? "warning" : "info",
+      title:
+        item.direction === "taken"
+          ? `Payment due to ${item.counterpartyName}`
+          : `Payment expected from ${item.counterpartyName}`,
     });
   }
 }

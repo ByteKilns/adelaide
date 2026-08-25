@@ -23,13 +23,15 @@ export function GoalSummaryRow({ goal, realMemberId }: { goal: GoalCardData; rea
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between text-sm">
           <span className="font-medium">{goal.name}</span>
-          <span className="text-muted-foreground">{goal.pct}%</span>
+          {goal.pct !== null && <span className="text-muted-foreground">{goal.pct}%</span>}
         </div>
-        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div className={`h-full rounded-full ${TONE_BAR_CLASSES[tone]}`} style={{ width: `${Math.min(100, goal.pct)}%` }} />
-        </div>
+        {goal.pct !== null && (
+          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            <div className={`h-full rounded-full ${TONE_BAR_CLASSES[tone]}`} style={{ width: `${Math.min(100, goal.pct)}%` }} />
+          </div>
+        )}
         <p className="mt-1 text-xs text-muted-foreground">
-          {formatNPR(goal.saved)} of {formatNPR(goal.targetAmount)}
+          {goal.targetAmount !== null ? `${formatNPR(goal.saved)} of ${formatNPR(goal.targetAmount)}` : `${formatNPR(goal.saved)} saved — ongoing`}
         </p>
       </div>
     </Link>

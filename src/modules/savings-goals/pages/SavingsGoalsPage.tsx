@@ -35,7 +35,12 @@ export async function SavingsGoalsPage() {
   const { goals, statusCounts } = buildGoalCards(goalRows, contributions, memberById);
 
   const stats = savingsOverviewStats(
-    goalRows.map((g) => ({ createdAt: g.createdAt, id: g.id, targetAmount: Number(g.targetAmount), targetDate: g.targetDate })),
+    goalRows.map((g) => ({
+      createdAt: g.createdAt,
+      id: g.id,
+      targetAmount: g.targetAmount === null ? null : Number(g.targetAmount),
+      targetDate: g.targetDate,
+    })),
     contributions,
     year,
     month,

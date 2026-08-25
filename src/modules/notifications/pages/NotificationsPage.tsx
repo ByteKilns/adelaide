@@ -9,7 +9,11 @@ import { NOTIFICATION_PREFS_COOKIE_NAME, parseNotificationPreferences } from "@/
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
-import { listNotifications, syncDueSoonNotifications } from "@/modules/notifications/api/notifications.actions";
+import {
+  listNotifications,
+  syncDueSoonNotifications,
+  syncLoanInstallmentsDueSoonNotifications,
+} from "@/modules/notifications/api/notifications.actions";
 import { NotificationsHeader } from "@/modules/notifications/components/NotificationsHeader";
 import { NotificationsPageClient } from "@/modules/notifications/components/NotificationsPageClient";
 import { listRecurringExpenses } from "@/modules/recurring/api/recurring.actions";
@@ -24,7 +28,7 @@ function displayLabel(role: "me" | "partner" | "shared", name: string): string {
 export async function NotificationsPage() {
   const { householdId, memberId } = await getCurrentMember();
 
-  await syncDueSoonNotifications(householdId);
+  await Promise.all([syncDueSoonNotifications(householdId), syncLoanInstallmentsDueSoonNotifications(householdId)]);
 
   const [members, categories, notificationRows, recurringItems, cookieStore, dateFormat] = await Promise.all([
     getHouseholdMembers(householdId),

@@ -52,6 +52,7 @@ export function useGoalTableColumns(
       header: "Progress",
       key: "progress",
       render: (g) => {
+        if (g.pct === null) return <p className="text-xs text-muted-foreground">Ongoing — no target</p>;
         const tone = memberTone(roleForOwner(g.ownerMemberId, realMemberId));
         return (
           <div className="space-y-1">
@@ -69,7 +70,8 @@ export function useGoalTableColumns(
       key: "amounts",
       render: (g) => (
         <span>
-          {formatNPR(g.saved)} <span className="text-muted-foreground">/ {formatNPR(g.targetAmount)}</span>
+          {formatNPR(g.saved)}
+          {g.targetAmount !== null && <span className="text-muted-foreground"> / {formatNPR(g.targetAmount)}</span>}
         </span>
       ),
     },

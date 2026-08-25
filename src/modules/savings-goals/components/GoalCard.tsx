@@ -21,10 +21,10 @@ export type GoalCardData = {
   name: string;
   ownerMemberId: null | string;
   ownerName: null | string;
-  pct: number;
+  pct: null | number;
   saved: number;
   status: GoalStatus;
-  targetAmount: number;
+  targetAmount: null | number;
   targetDate: null | string;
 };
 
@@ -85,17 +85,23 @@ export function GoalCard({ dateFormat, goal, onAddContribution, onDelete, onEdit
             </div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-semibold">{formatNPR(goal.saved)}</span>
-              <span className="text-sm text-muted-foreground">{goal.pct}%</span>
+              {goal.pct !== null && <span className="text-sm text-muted-foreground">{goal.pct}%</span>}
             </div>
           </div>
 
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div className={`h-full rounded-full ${TONE_BAR_CLASSES[tone]}`} style={{ width: `${Math.min(100, goal.pct)}%` }} />
-          </div>
+          {goal.pct !== null && (
+            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div className={`h-full rounded-full ${TONE_BAR_CLASSES[tone]}`} style={{ width: `${Math.min(100, goal.pct)}%` }} />
+            </div>
+          )}
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>{formatNPR(goal.saved)} saved</span>
-            <span>{formatNPR(goal.targetAmount)} target</span>
+            {goal.targetAmount !== null ? (
+              <span>{formatNPR(goal.targetAmount)} target</span>
+            ) : (
+              <span>Ongoing — no target</span>
+            )}
           </div>
         </div>
 
