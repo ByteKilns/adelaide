@@ -18,6 +18,7 @@ import {
   Receipt,
   Repeat,
   Settings,
+  Users,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
@@ -42,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/recurring", label: "Recurring", icon: Repeat, enabled: true },
   { href: "/savings-goals", label: "Savings Goals", icon: PiggyBank, enabled: true },
   { href: "/loans", label: "Loans", icon: HandCoins, enabled: true },
+  { href: "/dhuku", label: "Dhuku", icon: Users, enabled: true },
   { href: "/reports", label: "Reports", icon: BarChart3, enabled: true },
   { href: "/categories", label: "Categories", icon: List, enabled: true },
   { href: "/notifications", label: "Notifications", icon: Bell, enabled: true },
