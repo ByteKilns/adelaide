@@ -5,12 +5,24 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 import { db } from "@/db/client";
-import { budgetItems, categories, expenses, loanPayments, loans, monthlyBudgets, notifications, recurringExpenses } from "@/db/schema";
+import {
+  budgetItems,
+  categories,
+  dhukuEntries,
+  dhukus,
+  expenses,
+  loanPayments,
+  loans,
+  monthlyBudgets,
+  notifications,
+  recurringExpenses,
+} from "@/db/schema";
 import { formatMonthYear } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { NOTIFICATION_PREFS_COOKIE_NAME, type NotificationPreferences } from "@/lib/notification-preferences-cookie";
 import { getCurrentMember } from "@/lib/session";
 import { formatNPR } from "@/modules/dashboard/lib/format";
+import { cycleStatus, expectedNextAmount, nextEntryDueDate } from "@/modules/dhuku/lib/dhuku-stats";
 import { formatDueDate } from "@/modules/recurring/lib/recurring-stats";
 
 type NotificationInput = {
@@ -188,6 +200,48 @@ export async function syncLoanInstallmentsDueSoonNotifications(householdId: stri
         item.direction === "taken"
           ? `Payment due to ${item.counterpartyName}`
           : `Payment expected from ${item.counterpartyName}`,
+    });
+  }
+}
+
+// Called (lazily, on Notifications page load) to generate "due soon"
+// notifications for active dhukus whose next unlogged month is within the
+// next 3 days — reuses the same due-date/status math the Dhuku page uses
+// for its cards, so the two never disagree. dedupeKey includes the due
+// date itself, so once that month's entry is logged and the due date
+// advances, a fresh notification is allowed for the next cycle.
+export async function syncDhukuDueSoonNotifications(householdId: string) {
+  const items = await db.select().from(dhukus).where(eq(dhukus.householdId, householdId));
+  if (items.length === 0) return;
+
+  const entryRows = await db
+    .select()
+    .from(dhukuEntries)
+    .where(inArray(dhukuEntries.dhukuId, items.map((i) => i.id)));
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dateFormat = await getDateFormatPref();
+
+  for (const item of items) {
+    const entries = entryRows.filter((e) => e.dhukuId === item.id);
+    if (cycleStatus(item.totalMembers, entries) === "completed") continue;
+
+    const dueDate = nextEntryDueDate(item.startDate, entries);
+    const due = new Date(`${dueDate}T00:00:00`);
+    const daysUntil = Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysUntil < 0 || daysUntil > 3) continue;
+
+    const amount = expectedNextAmount(Number(item.monthlyContribution), item.interestPerMonth ? Number(item.interestPerMonth) : null, entries);
+    const dueLabel = daysUntil === 0 ? "today" : daysUntil === 1 ? "tomorrow" : `in ${daysUntil} days`;
+
+    await insertNotification({
+      body: `Your ${formatNPR(amount)} contribution to ${item.name} is due ${dueLabel} (${formatDueDate(dueDate, dateFormat)}).`,
+      category: "payment",
+      dedupeKey: `dhuku:${item.id}:${dueDate}`,
+      householdId,
+      severity: daysUntil <= 1 ? "warning" : "info",
+      title: `${item.name} contribution due ${dueLabel}`,
     });
   }
 }

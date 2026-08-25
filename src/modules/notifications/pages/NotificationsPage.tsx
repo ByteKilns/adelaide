@@ -11,6 +11,7 @@ import { listCategories } from "@/modules/categories/api/categories";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
 import {
   listNotifications,
+  syncDhukuDueSoonNotifications,
   syncDueSoonNotifications,
   syncLoanInstallmentsDueSoonNotifications,
 } from "@/modules/notifications/api/notifications.actions";
@@ -28,7 +29,11 @@ function displayLabel(role: "me" | "partner" | "shared", name: string): string {
 export async function NotificationsPage() {
   const { householdId, memberId } = await getCurrentMember();
 
-  await Promise.all([syncDueSoonNotifications(householdId), syncLoanInstallmentsDueSoonNotifications(householdId)]);
+  await Promise.all([
+    syncDueSoonNotifications(householdId),
+    syncLoanInstallmentsDueSoonNotifications(householdId),
+    syncDhukuDueSoonNotifications(householdId),
+  ]);
 
   const [members, categories, notificationRows, recurringItems, cookieStore, dateFormat] = await Promise.all([
     getHouseholdMembers(householdId),
