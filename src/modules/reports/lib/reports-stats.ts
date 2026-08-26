@@ -1,6 +1,7 @@
 import type { Tone } from "@/components/ToneIcon";
-import { formatMonthShort } from "@/lib/date-format";
 import type { DateFormat } from "@/lib/date-format-cookie";
+import { previousMonth } from "@/lib/month-nav";
+import { currentPeriodYearMonth, dayNumberInPeriod, daysElapsedInPeriod, formatPeriodShortLabel, resolvePeriod } from "@/lib/month-period";
 import { getCategoryTone } from "@/modules/categories/lib/category-icons";
 
 export function trendPct(current: number, previous: number): null | number {
@@ -47,37 +48,37 @@ export function monthlyIncomeExpenseTrend(
   monthsBack: number,
   dateFormat: DateFormat,
 ): MonthPoint[] {
-  const now = new Date();
-  const months: { label: string; month: number; year: number }[] = [];
-  for (let i = monthsBack - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({
-      label: formatMonthShort(d.toISOString().slice(0, 10), dateFormat),
-      month: d.getMonth() + 1,
-      year: d.getFullYear(),
-    });
+  const current = currentPeriodYearMonth(dateFormat);
+  const months: { month: number; year: number }[] = [{ month: current.month, year: current.year }];
+  for (let i = 1; i < monthsBack; i++) {
+    months.unshift(previousMonth(months[0].year, months[0].month));
   }
 
-  return months.map(({ label, month, year }) => {
+  return months.map(({ month, year }) => {
     const income = incomeRows.filter((i) => i.year === year && i.month === month).reduce((s, i) => s + i.amount, 0);
     const expenseTotal = expenseRows
-      .filter((e) => {
-        const [y, m] = e.date.split("-").map(Number);
-        return y === year && m === month;
-      })
+      .filter((e) => dayNumberInPeriod(e.date, year, month, dateFormat) !== null)
       .reduce((s, e) => s + e.amount, 0);
-    return { expenses: expenseTotal, income, label };
+    return { expenses: expenseTotal, income, label: formatPeriodShortLabel(year, month, dateFormat) };
   });
 }
 
 // (Remaining budget for the month) / (days left, inclusive of today) — a
 // simple daily spending allowance, not a forecast. Clamped at 0 so an
 // already-overspent month shows "NPR 0" instead of a negative number.
-export function safeToSpendToday(totalPlanned: number, totalActual: number, year: number, month: number): number {
-  const now = new Date();
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const isCurrentMonth = now.getFullYear() === year && now.getMonth() + 1 === month;
-  const daysLeft = isCurrentMonth ? Math.max(1, daysInMonth - now.getDate() + 1) : daysInMonth;
+export function safeToSpendToday(
+  totalPlanned: number,
+  totalActual: number,
+  year: number,
+  month: number,
+  dateFormat: DateFormat,
+): number {
+  const period = resolvePeriod(year, month, dateFormat);
+  const current = currentPeriodYearMonth(dateFormat);
+  const isCurrent = year === current.year && month === current.month;
+  const daysLeft = isCurrent
+    ? Math.max(1, period.daysInPeriod - daysElapsedInPeriod(period) + 1)
+    : period.daysInPeriod;
   const remaining = totalPlanned - totalActual;
   return Math.max(0, Math.round(remaining / daysLeft));
 }
@@ -95,37 +96,39 @@ export function dailySpendingPace(
   year: number,
   month: number,
   totalPlanned: number,
+  dateFormat: DateFormat,
 ): PacePoint[] {
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const now = new Date();
-  const isCurrentMonth = now.getFullYear() === year && now.getMonth() + 1 === month;
-  const lastActualDay = isCurrentMonth ? now.getDate() : daysInMonth;
+  const period = resolvePeriod(year, month, dateFormat);
+  const current = currentPeriodYearMonth(dateFormat);
+  const isCurrent = year === current.year && month === current.month;
+  const lastActualDay = isCurrent ? daysElapsedInPeriod(period) : period.daysInPeriod;
 
   const spentByDay = new Map<number, number>();
   for (const e of expenses) {
-    const day = Number(e.date.split("-")[2]);
+    const day = dayNumberInPeriod(e.date, year, month, dateFormat);
+    if (day === null) continue;
     spentByDay.set(day, (spentByDay.get(day) ?? 0) + e.amount);
   }
 
   const points: PacePoint[] = [];
   let cumulative = 0;
-  for (let day = 1; day <= daysInMonth; day++) {
+  for (let day = 1; day <= period.daysInPeriod; day++) {
     const withinActualRange = day <= lastActualDay;
     if (withinActualRange) cumulative += spentByDay.get(day) ?? 0;
     points.push({
       actual: withinActualRange ? Math.round(cumulative) : null,
       day,
-      pace: Math.round((totalPlanned * day) / daysInMonth),
+      pace: Math.round((totalPlanned * day) / period.daysInPeriod),
     });
   }
   return points;
 }
 
-export function daysLeftInMonth(year: number, month: number): number {
-  const now = new Date();
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const isCurrentMonth = now.getFullYear() === year && now.getMonth() + 1 === month;
-  return isCurrentMonth ? Math.max(0, daysInMonth - now.getDate() + 1) : daysInMonth;
+export function daysLeftInMonth(year: number, month: number, dateFormat: DateFormat): number {
+  const period = resolvePeriod(year, month, dateFormat);
+  const current = currentPeriodYearMonth(dateFormat);
+  if (year !== current.year || month !== current.month) return period.daysInPeriod;
+  return Math.max(0, period.daysInPeriod - daysElapsedInPeriod(period) + 1);
 }
 
 export function spendingInsight(currentExpenses: number, previousExpenses: number): string {
