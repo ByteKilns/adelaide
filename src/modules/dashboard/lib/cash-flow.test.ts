@@ -60,7 +60,7 @@ describe("dailyCashFlowPoints", () => {
       { amount: 999, date: "2026-03-01", direction: "out" }, // different month, excluded
     ];
 
-    const points = dailyCashFlowPoints(expenseRows, incomeRows, events, 2026, 2);
+    const points = dailyCashFlowPoints(expenseRows, incomeRows, events, 2026, 2, "english");
 
     expect(points).toHaveLength(28); // Feb 2026 is not a leap year
     expect(points[0]).toEqual({ date: "2026-02-01", day: 1, in: 60000, out: 0 });
@@ -70,7 +70,7 @@ describe("dailyCashFlowPoints", () => {
   });
 
   it("returns a zeroed point for every day even with no data", () => {
-    const points = dailyCashFlowPoints([], [], [], 2026, 4);
+    const points = dailyCashFlowPoints([], [], [], 2026, 4, "english");
     expect(points).toHaveLength(30);
     expect(points.every((p) => p.in === 0 && p.out === 0)).toBe(true);
   });
@@ -85,10 +85,10 @@ describe("netMonthlyOutflow", () => {
       { amount: 999, date: "2026-03-01", direction: "out" },
     ];
 
-    expect(netMonthlyOutflow(events, 2026, 2)).toBe(1000 + 500 - 13000);
+    expect(netMonthlyOutflow(events, 2026, 2, "english")).toBe(1000 + 500 - 13000);
   });
 
   it("returns 0 for a month with no events", () => {
-    expect(netMonthlyOutflow([], 2026, 2)).toBe(0);
+    expect(netMonthlyOutflow([], 2026, 2, "english")).toBe(0);
   });
 });

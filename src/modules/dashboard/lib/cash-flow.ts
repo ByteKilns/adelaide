@@ -1,4 +1,7 @@
 // src/modules/dashboard/lib/cash-flow.ts
+import type { DateFormat } from "@/lib/date-format-cookie";
+import { dayNumberInPeriod, resolvePeriod } from "@/lib/month-period";
+
 export type CashFlowDirection = "in" | "out";
 export type CashFlowEvent = { amount: number; date: string; direction: CashFlowDirection };
 
@@ -26,11 +29,6 @@ export function loanPaymentCashFlow(payments: LoanPaymentRow[], loans: LoanDirec
     }));
 }
 
-function isInMonth(dateStr: string, year: number, month: number): boolean {
-  const [y, m] = dateStr.split("-").map(Number);
-  return y === year && m === month;
-}
-
 export type ExpenseRow = { amount: string; date: string };
 export type IncomeRow = { amount: string };
 export type DayPoint = { date: string; day: number; in: number; out: number };
@@ -48,27 +46,33 @@ export function dailyCashFlowPoints(
   events: CashFlowEvent[],
   year: number,
   month: number,
+  dateFormat: DateFormat,
 ): DayPoint[] {
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const points: DayPoint[] = Array.from({ length: daysInMonth }, (_, i) => ({
-    date: `${year}-${String(month).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`,
-    day: i + 1,
-    in: 0,
-    out: 0,
-  }));
+  const period = resolvePeriod(year, month, dateFormat);
+  const points: DayPoint[] = [];
+  for (let i = 0; i < period.daysInPeriod; i++) {
+    const [sy, sm, sd] = period.startDate.split("-").map(Number);
+    const d = new Date(sy, sm - 1, sd + i);
+    points.push({
+      date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+      day: i + 1,
+      in: 0,
+      out: 0,
+    });
+  }
 
   const incomeTotal = incomeRows.reduce((sum, i) => sum + Number(i.amount), 0);
   if (incomeTotal > 0) points[0].in += incomeTotal;
 
   for (const e of expenseRows) {
-    if (!isInMonth(e.date, year, month)) continue;
-    const day = Number(e.date.split("-")[2]);
+    const day = dayNumberInPeriod(e.date, year, month, dateFormat);
+    if (day === null) continue;
     points[day - 1].out += Number(e.amount);
   }
 
   for (const ev of events) {
-    if (!isInMonth(ev.date, year, month)) continue;
-    const day = Number(ev.date.split("-")[2]);
+    const day = dayNumberInPeriod(ev.date, year, month, dateFormat);
+    if (day === null) continue;
     if (ev.direction === "in") {
       points[day - 1].in += ev.amount;
     } else {
@@ -84,8 +88,8 @@ export function dailyCashFlowPoints(
 // category expenses, since it's real money the household doesn't have
 // available to spend (or does, in the case of a payout), even though it
 // isn't a budgeted category.
-export function netMonthlyOutflow(events: CashFlowEvent[], year: number, month: number): number {
+export function netMonthlyOutflow(events: CashFlowEvent[], year: number, month: number, dateFormat: DateFormat): number {
   return events
-    .filter((e) => isInMonth(e.date, year, month))
+    .filter((e) => dayNumberInPeriod(e.date, year, month, dateFormat) !== null)
     .reduce((sum, e) => sum + (e.direction === "out" ? e.amount : -e.amount), 0);
 }

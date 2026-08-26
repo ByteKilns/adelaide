@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/db/client";
 import { expenses } from "@/db/schema";
+import type { DateFormat } from "@/lib/date-format-cookie";
+import { resolvePeriod } from "@/lib/month-period";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
 import { formatNPR } from "@/modules/dashboard/lib/format";
@@ -172,17 +174,15 @@ export async function deleteExpenseAction(id: string) {
   revalidatePath("/dashboard");
 }
 
-export async function listExpensesForMonth(year: number, month: number) {
+export async function listExpensesForMonth(year: number, month: number, dateFormat: DateFormat) {
   const { householdId } = await getCurrentMember();
-  const start = `${year}-${String(month).padStart(2, "0")}-01`;
-  const endDate = new Date(year, month, 0).getDate();
-  const end = `${year}-${String(month).padStart(2, "0")}-${String(endDate).padStart(2, "0")}`;
+  const period = resolvePeriod(year, month, dateFormat);
 
   return db
     .select()
     .from(expenses)
     .where(
-      and(eq(expenses.householdId, householdId), gte(expenses.date, start), lte(expenses.date, end)),
+      and(eq(expenses.householdId, householdId), gte(expenses.date, period.startDate), lte(expenses.date, period.endDate)),
     )
     .orderBy(desc(expenses.date), desc(expenses.createdAt));
 }
