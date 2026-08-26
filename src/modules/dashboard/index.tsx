@@ -239,7 +239,7 @@ export async function DashboardPage({ searchParams }: Props) {
         daysLeft={daysLeft}
         monthLabel={monthLabel}
         safeToSpend={safeToSpend}
-        totalActual={summary.totalExpenses}
+        totalActual={summary.totalExpenses + netOutflow}
         totalPlanned={totalPlanned}
       />
     </div>
