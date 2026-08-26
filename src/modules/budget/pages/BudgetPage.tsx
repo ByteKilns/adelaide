@@ -36,7 +36,7 @@ export async function BudgetPage({ searchParams }: Props) {
     getBudgetItemsForMonth(year, month),
     listExpensesForMonth(year, month),
     getBudgetItemsForMonth(prev.year, prev.month),
-    getDateFormatPref(),
+    getDateFormatPref(householdId),
   ]);
 
   if (year === currentYear && month === currentMonth) {

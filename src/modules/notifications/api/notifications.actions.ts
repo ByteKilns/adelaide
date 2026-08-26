@@ -129,7 +129,7 @@ export async function syncDueSoonNotifications(householdId: string) {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const dateFormat = await getDateFormatPref();
+  const dateFormat = await getDateFormatPref(householdId);
 
   for (const item of items) {
     const due = new Date(`${item.nextDueDate}T00:00:00`);
@@ -172,7 +172,7 @@ export async function syncLoanInstallmentsDueSoonNotifications(householdId: stri
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const dateFormat = await getDateFormatPref();
+  const dateFormat = await getDateFormatPref(householdId);
 
   for (const item of items) {
     if (!item.nextInstallmentDate) continue;
@@ -221,7 +221,7 @@ export async function syncDhukuDueSoonNotifications(householdId: string) {
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const dateFormat = await getDateFormatPref();
+  const dateFormat = await getDateFormatPref(householdId);
 
   for (const item of items) {
     const entries = entryRows.filter((e) => e.dhukuId === item.id);
@@ -254,7 +254,7 @@ export async function syncDhukuDueSoonNotifications(householdId: string) {
 export async function checkBudgetReminder(householdId: string, year: number, month: number, itemCount: number) {
   if (itemCount > 0) return;
 
-  const dateFormat = await getDateFormatPref();
+  const dateFormat = await getDateFormatPref(householdId);
   const monthLabel = formatMonthRangeLabel(year, month, dateFormat);
   await insertNotification({
     body: "You haven't planned a budget for this month yet. Head to Budget to set your category amounts.",

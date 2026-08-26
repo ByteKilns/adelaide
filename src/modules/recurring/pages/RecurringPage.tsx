@@ -36,7 +36,7 @@ export async function RecurringPage() {
     listCategories(householdId),
     listRecurringExpenses(householdId),
     listExpensesForMonth(year, month),
-    getDateFormatPref(),
+    getDateFormatPref(householdId),
   ]);
 
   const categoryById = new Map(categories.map((c) => [c.id, c]));

@@ -40,7 +40,7 @@ type Props = { searchParams: Promise<{ month?: string; year?: string }> };
 
 export async function DashboardPage({ searchParams }: Props) {
   const { householdId, memberId } = await getEffectiveMember();
-  const dateFormat = await getDateFormatPref();
+  const dateFormat = await getDateFormatPref(householdId);
   const params = await searchParams;
   const now = new Date();
   const currentYear = now.getFullYear();

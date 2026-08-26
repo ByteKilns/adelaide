@@ -24,7 +24,7 @@ export async function SavingsGoalsPage() {
     getHouseholdMembers(householdId),
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
-    getDateFormatPref(),
+    getDateFormatPref(householdId),
   ]);
 
   const memberById = new Map(members.map((m) => [m.id, m]));

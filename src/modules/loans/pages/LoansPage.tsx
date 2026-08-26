@@ -17,7 +17,7 @@ export async function LoansPage() {
     getHouseholdMembers(householdId),
     listLoans(householdId),
     listLoanPayments(householdId),
-    getDateFormatPref(),
+    getDateFormatPref(householdId),
   ]);
 
   const memberById = new Map(members.map((m) => [m.id, m]));

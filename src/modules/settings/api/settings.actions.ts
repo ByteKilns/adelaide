@@ -6,9 +6,9 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
 import { db } from "@/db/client";
-import { users } from "@/db/schema";
+import { households, users } from "@/db/schema";
 import { ACCENT_COLOR_COOKIE_NAME, isAccentColor } from "@/lib/accent-color-cookie";
-import { DATE_FORMAT_COOKIE_NAME, isDateFormat } from "@/lib/date-format-cookie";
+import { isDateFormat } from "@/lib/date-format-cookie";
 import { getCurrentMember } from "@/lib/session";
 
 import { type ChangePasswordInput, changePasswordSchema } from "../schemas/password.schema";
@@ -53,13 +53,7 @@ export async function setAccentColorAction(color: string) {
 export async function setDateFormatAction(format: string) {
   if (!isDateFormat(format)) throw new Error("Invalid date format");
 
-  const cookieStore = await cookies();
-  cookieStore.set(DATE_FORMAT_COOKIE_NAME, format, {
-    httpOnly: true,
-    maxAge: 60 * 60 * 24 * 365,
-    path: "/",
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-  });
+  const { householdId } = await getCurrentMember();
+  await db.update(households).set({ dateFormat: format }).where(eq(households.id, householdId));
   revalidatePath("/", "layout");
 }

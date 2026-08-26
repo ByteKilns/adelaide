@@ -17,7 +17,7 @@ export async function DhukuPage() {
     getHouseholdMembers(householdId),
     listDhukus(householdId),
     listDhukuEntries(householdId),
-    getDateFormatPref(),
+    getDateFormatPref(householdId),
   ]);
 
   const memberById = new Map(members.map((m) => [m.id, m]));

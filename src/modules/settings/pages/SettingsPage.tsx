@@ -15,11 +15,11 @@ import { ProfilePictureSection } from "@/modules/settings/components/ProfilePict
 import { ThemeSection } from "@/modules/settings/components/ThemeSection";
 
 export async function SettingsPage() {
-  const { userId } = await getCurrentMember();
+  const { householdId, userId } = await getCurrentMember();
   const [[user], cookieStore, dateFormat] = await Promise.all([
     db.select().from(users).where(eq(users.id, userId)),
     cookies(),
-    getDateFormatPref(),
+    getDateFormatPref(householdId),
   ]);
 
   const accentCookie = cookieStore.get(ACCENT_COLOR_COOKIE_NAME)?.value ?? "";

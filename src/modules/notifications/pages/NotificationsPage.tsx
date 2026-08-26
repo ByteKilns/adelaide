@@ -41,7 +41,7 @@ export async function NotificationsPage() {
     listNotifications(householdId),
     listRecurringExpenses(householdId),
     cookies(),
-    getDateFormatPref(),
+    getDateFormatPref(householdId),
   ]);
 
   const preferences = parseNotificationPreferences(cookieStore.get(NOTIFICATION_PREFS_COOKIE_NAME)?.value);

@@ -50,7 +50,7 @@ export async function ReportsPage() {
     listExpensesForRange(rangeStart, rangeEnd),
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
-    getDateFormatPref(),
+    getDateFormatPref(householdId),
   ]);
 
   const memberById = new Map(members.map((m) => [m.id, m]));

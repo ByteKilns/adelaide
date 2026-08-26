@@ -44,7 +44,7 @@ export async function ExpensesPage({ searchParams }: Props) {
       getBudgetItemsForMonth(year, month),
       listAllIncomes(),
       listExpensesForRange(rangeStart, rangeEnd),
-      getDateFormatPref(),
+      getDateFormatPref(householdId),
     ]);
 
   const category = (id: string) => categories.find((c) => c.id === id);
