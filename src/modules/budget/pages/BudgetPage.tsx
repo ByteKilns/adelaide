@@ -1,6 +1,6 @@
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
-import { currentPeriodYearMonth, formatPeriodLabel } from "@/lib/month-period";
+import { currentPeriodYearMonth, formatPeriodLabel, MAX_NAVIGABLE_YEAR, MIN_NAVIGABLE_YEAR } from "@/lib/month-period";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth } from "@/modules/budget/api/budget.actions";
 import { AllocationSummaryCard } from "@/modules/budget/components/AllocationSummaryCard";
@@ -23,7 +23,7 @@ export async function BudgetPage({ searchParams }: Props) {
   const dateFormat = await getDateFormatPref(householdId);
   const params = await searchParams;
   const { year: currentYear, month: currentMonth } = currentPeriodYearMonth(dateFormat);
-  const year = parseMonthParam(params.year, currentYear, 9999);
+  const year = parseMonthParam(params.year, currentYear, MAX_NAVIGABLE_YEAR[dateFormat], MIN_NAVIGABLE_YEAR[dateFormat]);
   const month = parseMonthParam(params.month, currentMonth, 12);
   const prev = previousMonth(year, month);
   const next = nextMonth(year, month);

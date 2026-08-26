@@ -6,6 +6,8 @@ import {
   daysElapsedInPeriod,
   formatPeriodLabel,
   isCurrentPeriod,
+  MAX_NAVIGABLE_YEAR,
+  MIN_NAVIGABLE_YEAR,
   resolvePeriod,
 } from "./month-period";
 
@@ -40,6 +42,28 @@ describe("resolvePeriod", () => {
       startDate: "2026-03-15",
       year: 2082,
     });
+  });
+});
+
+describe("MAX_NAVIGABLE_YEAR / MIN_NAVIGABLE_YEAR bounds", () => {
+  // Regression test: bikram-sambat-js throws a RangeError outside BS
+  // 1970-2100 / AD 1913-2043. Before these bounds existed, an old cached
+  // URL with an out-of-range ?year= could crash the page instead of
+  // gracefully falling back to the current period — this happened for
+  // real during development (BS year 2100's Chaitra rolls into an AD
+  // year the library doesn't support). These bounds must resolve without
+  // throwing, at every corner.
+  it("resolves without throwing at the nepali max year, December (the boundary that crashed)", () => {
+    expect(() => resolvePeriod(MAX_NAVIGABLE_YEAR.nepali, 12, "nepali")).not.toThrow();
+  });
+
+  it("resolves without throwing at the nepali min year, January", () => {
+    expect(() => resolvePeriod(MIN_NAVIGABLE_YEAR.nepali, 1, "nepali")).not.toThrow();
+  });
+
+  it("resolves without throwing at the english max/min year boundaries", () => {
+    expect(() => resolvePeriod(MAX_NAVIGABLE_YEAR.english, 12, "english")).not.toThrow();
+    expect(() => resolvePeriod(MIN_NAVIGABLE_YEAR.english, 1, "english")).not.toThrow();
   });
 });
 

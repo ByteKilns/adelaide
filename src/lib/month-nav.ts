@@ -9,7 +9,7 @@ export function nextMonth(year: number, month: number) {
   return month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 };
 }
 
-export function parseMonthParam(value: string | string[] | undefined, fallback: number, max: number) {
+export function parseMonthParam(value: string | string[] | undefined, fallback: number, max: number, min = 1) {
   const num = Number(Array.isArray(value) ? value[0] : value);
-  return Number.isInteger(num) && num >= 1 && num <= max ? num : fallback;
+  return Number.isInteger(num) && num >= min && num <= max ? num : fallback;
 }

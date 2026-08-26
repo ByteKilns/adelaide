@@ -6,6 +6,14 @@ import { adToBs, NEPALI_MONTHS } from "@/lib/nepali-date";
 
 export type MonthPeriod = { daysInPeriod: number; endDate: string; month: number; startDate: string; year: number };
 
+// bikram-sambat-js's hard-coded supported range is BS 1970-2100 / AD
+// 1913-2043 — outside it, BSToAD/ADToBS throw a RangeError instead of
+// returning a date. Kept one year inside the BS ceiling since
+// resolvePeriod converts (year + 1, month 1) internally at a period's
+// December boundary, so year=2100 itself must stay reachable internally.
+export const MIN_NAVIGABLE_YEAR = { english: 1913, nepali: 1970 } as const;
+export const MAX_NAVIGABLE_YEAR = { english: 2043, nepali: 2099 } as const;
+
 function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
