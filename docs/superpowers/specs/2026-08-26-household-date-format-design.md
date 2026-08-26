@@ -43,13 +43,18 @@ Default `"nepali"` matches the app's current `DEFAULT_DATE_FORMAT`
 fallback, so existing households get the same behavior they have today
 until someone changes it in Settings.
 
-## Core module rename + signature change
+## Core module signature change (no file rename)
 
-`src/lib/date-format-cookie.ts` → `src/lib/date-format-pref.ts`. Keeps
+`src/lib/date-format-cookie.ts` keeps its path — 40 files import `type
+DateFormat` from it for prop typing alone and don't care how the value is
+sourced; renaming the file would mean touching all 40 for zero functional
+benefit. Only the 11 call sites that actually *call*
+`getDateFormatPref()` change (listed below). The file keeps
 `DateFormat`, `DATE_FORMATS`, `isDateFormat`, `DEFAULT_DATE_FORMAT`
-(still useful as the schema-level default and as a fallback if a caller
-somehow gets an unrecognized value). Drops `DATE_FORMAT_COOKIE_NAME` (no
-longer a cookie) and changes:
+(still useful as the schema-level default and as a fallback). Drops
+`DATE_FORMAT_COOKIE_NAME` (no longer a cookie — confirmed only used in
+this file and `settings.actions.ts`, both already being changed) and
+changes:
 
 ```ts
 // before
