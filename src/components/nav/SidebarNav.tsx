@@ -32,7 +32,6 @@ import { SIDEBAR_COLLAPSED_COOKIE_NAME } from "@/lib/sidebar-cookie";
 import { cn } from "@/lib/utils";
 import { AddExpenseModal } from "@/modules/expenses/components/AddExpenseModal";
 
-import { ViewingAsSwitcher } from "./ViewingAsSwitcher";
 
 type NavItem = { enabled: boolean; href: string; icon: LucideIcon; label: string; };
 
@@ -93,12 +92,24 @@ export function SidebarNav({
         collapsed ? "w-[76px]" : "w-64",
       )}
     >
-      <div className={cn("mb-6 flex items-center gap-2", collapsed ? "flex-col" : "justify-between")}>
-        <div className={cn("flex min-w-0 items-center gap-2", collapsed && "flex-col")}>
+      <div
+        className={cn(
+          "mb-6 flex items-center gap-2",
+          collapsed ? "flex-col" : "justify-between",
+        )}
+      >
+        <div
+          className={cn(
+            "flex min-w-0 items-center gap-2",
+            collapsed && "flex-col",
+          )}
+        >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/60" />
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate text-base leading-tight font-semibold">Adelaide</p>
+              <p className="truncate text-base leading-tight font-semibold">
+                Adelaide
+              </p>
               <p className="truncate text-xs text-muted-foreground">
                 Plan together, grow together
               </p>
@@ -111,7 +122,11 @@ export function SidebarNav({
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           type="button"
         >
-          {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          {collapsed ? (
+            <PanelLeftOpen className="h-4 w-4" />
+          ) : (
+            <PanelLeftClose className="h-4 w-4" />
+          )}
         </button>
       </div>
 
@@ -163,7 +178,9 @@ export function SidebarNav({
                 <span
                   className={cn(
                     "rounded-full bg-destructive font-medium text-white",
-                    collapsed ? "absolute top-1 right-4 h-2 w-2" : "ml-auto px-1.5 py-0.5 text-xs",
+                    collapsed
+                      ? "absolute top-1 right-4 h-2 w-2"
+                      : "ml-auto px-1.5 py-0.5 text-xs",
                   )}
                 >
                   {!collapsed && unreadNotifications}
@@ -196,7 +213,9 @@ export function SidebarNav({
               {!collapsed && (
                 <>
                   <div className="min-w-0 flex-1 text-left">
-                    <p className="truncate text-sm font-medium">{realMemberName}</p>
+                    <p className="truncate text-sm font-medium">
+                      {realMemberName}
+                    </p>
                     <p className="text-xs text-muted-foreground">Account</p>
                   </div>
                   <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -205,26 +224,15 @@ export function SidebarNav({
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem asChild>
-              <Link href="/settings">
-                <Settings className="h-4 w-4" />
-                Settings
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => logoutAction()} variant="destructive">
+            <DropdownMenuItem
+              onClick={() => logoutAction()}
+              variant="destructive"
+            >
               <LogOut className="h-4 w-4" />
               Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {!collapsed && (
-          <ViewingAsSwitcher
-            members={members}
-            realMemberId={realMemberId}
-            viewingAsMemberId={viewingAsMemberId}
-          />
-        )}
       </div>
 
       <AddExpenseModal
