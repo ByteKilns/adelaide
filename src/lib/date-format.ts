@@ -1,7 +1,7 @@
 import type { DateFormat } from "@/lib/date-format-cookie";
 import { adToBs, NEPALI_MONTHS } from "@/lib/nepali-date";
 
-const ENGLISH_MONTHS = [
+export const ENGLISH_MONTHS = [
   "January",
   "February",
   "March",
