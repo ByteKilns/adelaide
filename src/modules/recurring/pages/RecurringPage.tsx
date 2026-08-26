@@ -2,8 +2,9 @@ import { CalendarClock, CalendarDays, CheckCircle2, Clock } from "lucide-react";
 
 import { StatAmount } from "@/components/StatAmount";
 import { StatCardGrid } from "@/components/StatCardGrid";
-import { formatMonthYear, formatShortDate } from "@/lib/date-format";
+import { formatShortDate } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
+import { currentPeriodYearMonth, formatPeriodLabel } from "@/lib/month-period";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
 import { formatNPR } from "@/modules/dashboard/lib/format";
@@ -27,16 +28,14 @@ function displayLabel(role: "me" | "partner" | "shared", name: string | null): s
 
 export async function RecurringPage() {
   const { householdId, memberId } = await getCurrentMember();
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  const dateFormat = await getDateFormatPref(householdId);
+  const { year, month } = currentPeriodYearMonth(dateFormat);
 
-  const [members, categories, recurringItems, monthExpenses, dateFormat] = await Promise.all([
+  const [members, categories, recurringItems, monthExpenses] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
     listRecurringExpenses(householdId),
-    listExpensesForMonth(year, month),
-    getDateFormatPref(householdId),
+    listExpensesForMonth(year, month, dateFormat),
   ]);
 
   const categoryById = new Map(categories.map((c) => [c.id, c]));
@@ -96,7 +95,7 @@ export async function RecurringPage() {
       ownerLabel: displayLabel(roleForOwner(r.ownerMemberId, memberId), r.ownerName),
     }));
 
-  const monthLabel = formatMonthYear(now.toISOString().slice(0, 10), dateFormat);
+  const monthLabel = formatPeriodLabel(year, month, dateFormat);
   const nextDueLabel = stats.nextDue ? formatShortDate(stats.nextDue.date, dateFormat) : "—";
 
   return (

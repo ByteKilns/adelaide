@@ -113,7 +113,7 @@ export function RecurringManager({ categories, currentMemberId, dateFormat, memb
       </div>
 
       {view === "calendar" ? (
-        <RecurringCalendarView rows={filtered} />
+        <RecurringCalendarView dateFormat={dateFormat} rows={filtered} />
       ) : (
         <DataTable
           columns={columns}
