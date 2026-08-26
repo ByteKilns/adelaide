@@ -1,6 +1,6 @@
-import { formatMonthRangeLabel } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
+import { currentPeriodYearMonth, formatPeriodLabel, resolvePeriod } from "@/lib/month-period";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
@@ -23,28 +23,28 @@ type Props = { searchParams: Promise<{ month?: string; year?: string }> };
 
 export async function ExpensesPage({ searchParams }: Props) {
   const { householdId, memberId } = await getEffectiveMember();
+  const dateFormat = await getDateFormatPref(householdId);
   const params = await searchParams;
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1;
+  const { year: currentYear, month: currentMonth } = currentPeriodYearMonth(dateFormat);
   const year = parseMonthParam(params.year, currentYear, 9999);
   const month = parseMonthParam(params.month, currentMonth, 12);
   const prev = previousMonth(year, month);
   const next = nextMonth(year, month);
 
-  const rangeStart = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().slice(0, 10);
-  const rangeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+  let rangeStartYm = { month, year };
+  for (let i = 0; i < 5; i++) rangeStartYm = previousMonth(rangeStartYm.year, rangeStartYm.month);
+  const rangeStart = resolvePeriod(rangeStartYm.year, rangeStartYm.month, dateFormat).startDate;
+  const rangeEnd = resolvePeriod(year, month, dateFormat).endDate;
 
-  const [members, categories, expenseRows, incomeRows, budgetItemRows, allIncomeRows, rangeExpenseRows, dateFormat] =
+  const [members, categories, expenseRows, incomeRows, budgetItemRows, allIncomeRows, rangeExpenseRows] =
     await Promise.all([
       getHouseholdMembers(householdId),
       listCategories(householdId),
-      listExpensesForMonth(year, month),
+      listExpensesForMonth(year, month, dateFormat),
       getIncomesForMonth(year, month),
       getBudgetItemsForMonth(year, month),
       listAllIncomes(),
       listExpensesForRange(rangeStart, rangeEnd),
-      getDateFormatPref(householdId),
     ]);
 
   const category = (id: string) => categories.find((c) => c.id === id);
@@ -93,15 +93,16 @@ export async function ExpensesPage({ searchParams }: Props) {
   const rangeExpenses = rangeExpenseRows.map((e) => ({ amount: Number(e.amount), date: e.date }));
   const trendPoints = monthlyIncomeExpenseTrend(allIncomes, rangeExpenses, 6, dateFormat);
 
-  const monthLabel = formatMonthRangeLabel(year, month, dateFormat);
+  const monthLabel = formatPeriodLabel(year, month, dateFormat);
   const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
-  const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month);
-  const daysLeft = daysLeftInMonth(year, month);
+  const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month, dateFormat);
+  const daysLeft = daysLeftInMonth(year, month, dateFormat);
   const pacePoints = dailySpendingPace(
     expenseRows.map((e) => ({ amount: Number(e.amount), date: e.date })),
     year,
     month,
     totalPlanned,
+    dateFormat,
   );
 
   return (

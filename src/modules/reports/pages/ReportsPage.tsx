@@ -1,5 +1,6 @@
-import { formatMonthYear } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
+import { previousMonth } from "@/lib/month-nav";
+import { currentPeriodYearMonth, formatPeriodLabel, resolvePeriod } from "@/lib/month-period";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
@@ -13,19 +14,16 @@ import { categoryBreakdown, daysLeftInMonth, monthlyIncomeExpenseTrend, safeToSp
 import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
 import { buildContributionEntries, buildGoalCards, monthlyTotals, savingsOverviewStats } from "@/modules/savings-goals/lib/savings-stats";
 
-function previousMonth(year: number, month: number) {
-  return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
-}
-
 export async function ReportsPage() {
   const { householdId, memberId } = await getCurrentMember();
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
+  const dateFormat = await getDateFormatPref(householdId);
+  const { year, month } = currentPeriodYearMonth(dateFormat);
   const prev = previousMonth(year, month);
 
-  const rangeStart = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString().slice(0, 10);
-  const rangeEnd = new Date(year, month, 0).toISOString().slice(0, 10);
+  let rangeStartYm = { month, year };
+  for (let i = 0; i < 5; i++) rangeStartYm = previousMonth(rangeStartYm.year, rangeStartYm.month);
+  const rangeStart = resolvePeriod(rangeStartYm.year, rangeStartYm.month, dateFormat).startDate;
+  const rangeEnd = resolvePeriod(year, month, dateFormat).endDate;
 
   const [
     members,
@@ -38,19 +36,17 @@ export async function ReportsPage() {
     rangeExpenseRows,
     goalRows,
     contributionRows,
-    dateFormat,
   ] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
     getIncomesForMonth(year, month),
     listAllIncomes(),
     getBudgetItemsForMonth(year, month),
-    listExpensesForMonth(year, month),
-    listExpensesForMonth(prev.year, prev.month),
+    listExpensesForMonth(year, month, dateFormat),
+    listExpensesForMonth(prev.year, prev.month, dateFormat),
     listExpensesForRange(rangeStart, rangeEnd),
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
-    getDateFormatPref(householdId),
   ]);
 
   const memberById = new Map(members.map((m) => [m.id, m]));
@@ -97,8 +93,8 @@ export async function ReportsPage() {
   const trendPoints = monthlyIncomeExpenseTrend(allIncomes, rangeExpenses, 6, dateFormat);
 
   const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
-  const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month);
-  const daysLeft = daysLeftInMonth(year, month);
+  const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month, dateFormat);
+  const daysLeft = daysLeftInMonth(year, month, dateFormat);
   const insightMessage = spendingInsight(totalExpenses, prevTotalExpenses);
 
   const incomeSlices = members.map((m) => ({
@@ -130,7 +126,7 @@ export async function ReportsPage() {
   const savingsPoints = monthlyTotals(contributions, 6, dateFormat);
   const recentContributions = buildContributionEntries(contributionRows, goalRows, memberById, memberId);
 
-  const monthLabel = formatMonthYear(now.toISOString().slice(0, 10), dateFormat);
+  const monthLabel = formatPeriodLabel(year, month, dateFormat);
   const exportRows = expenseRows.map((e) => ({
     amount: Number(e.amount),
     category: categoryName(e.categoryId),
