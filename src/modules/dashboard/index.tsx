@@ -8,15 +8,19 @@ import {
 } from "@/modules/budget/api/budget.actions";
 import { dashboardSummary } from "@/modules/budget/lib/calculations";
 import { listCategories } from "@/modules/categories/api/categories";
+import { DailyCashFlowChart } from "@/modules/dashboard/components/DailyCashFlowChart";
 import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
 import { DashboardPanel } from "@/modules/dashboard/components/DashboardPanel";
 import { DashboardSavingsCard } from "@/modules/dashboard/components/DashboardSavingsCard";
 import { OwnerTabs } from "@/modules/dashboard/components/OwnerTabs";
 import { RecentExpenses } from "@/modules/dashboard/components/RecentExpenses";
 import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
+import { dailyCashFlowPoints, dhukuCashFlow, loanPaymentCashFlow, netMonthlyOutflow } from "@/modules/dashboard/lib/cash-flow";
 import { toBudgetItemInputs, toExpenseInputs, toIncomeInputs } from "@/modules/dashboard/lib/map-rows";
 import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
+import { listDhukuEntries } from "@/modules/dhuku/api/dhuku.actions";
 import { listExpensesForMonth, listRecentExpenses } from "@/modules/expenses/api/expenses.actions";
+import { listLoanPayments, listLoans } from "@/modules/loans/api/loans.actions";
 import {
   checkBudgetReminder,
   countUnreadNotifications,
@@ -59,6 +63,9 @@ export async function DashboardPage({ searchParams }: Props) {
     contributionRows,
     unreadNotifications,
     recentNotifications,
+    dhukuEntryRows,
+    loanRows,
+    loanPaymentRows,
   ] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
@@ -72,6 +79,9 @@ export async function DashboardPage({ searchParams }: Props) {
     listSavingsContributions(householdId),
     countUnreadNotifications(householdId),
     listRecentNotifications(householdId, 5),
+    listDhukuEntries(householdId),
+    listLoans(householdId),
+    listLoanPayments(householdId),
   ]);
 
   if (year === currentYear && month === currentMonth) {
@@ -148,9 +158,13 @@ export async function DashboardPage({ searchParams }: Props) {
   const monthLabel = formatMonthYear(`${year}-${String(month).padStart(2, "0")}-01`, dateFormat);
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";
 
+  const cashFlowEvents = [...dhukuCashFlow(dhukuEntryRows), ...loanPaymentCashFlow(loanPaymentRows, loanRows)];
+  const netOutflow = netMonthlyOutflow(cashFlowEvents, year, month);
+
   const totalPlanned = budgetItems.reduce((s, b) => s + b.plannedAmount, 0);
-  const safeToSpend = safeToSpendToday(totalPlanned, summary.totalExpenses, year, month);
+  const safeToSpend = safeToSpendToday(totalPlanned, summary.totalExpenses + netOutflow, year, month);
   const daysLeft = daysLeftInMonth(year, month);
+  const dailyPoints = dailyCashFlowPoints(expenseRows, incomeRows, cashFlowEvents, year, month);
 
   const savingsStats = savingsOverviewStats(
     goalRows.map((g) => ({
@@ -190,6 +204,8 @@ export async function DashboardPage({ searchParams }: Props) {
         totalExpenses={summary.totalExpenses}
         unallocated={summary.unallocated}
       />
+
+      <DailyCashFlowChart monthLabel={monthLabel} points={dailyPoints} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
