@@ -33,12 +33,15 @@ function isInMonth(dateStr: string, year: number, month: number): boolean {
 
 export type ExpenseRow = { amount: string; date: string };
 export type IncomeRow = { amount: string };
-export type DayPoint = { day: number; in: number; out: number };
+export type DayPoint = { date: string; day: number; in: number; out: number };
 
-// One point per calendar day of the given month. Expenses and events are
-// bucketed by their own date; income rows only carry month/year (no day),
-// so the month's total income is placed on day 1 by convention rather than
-// spread out or estimated.
+// One point per calendar day of the given AD month. Expenses and events
+// are bucketed by their own date; income rows only carry month/year (no
+// day), so the month's total income is placed on day 1 by convention
+// rather than spread out or estimated. Each point carries its full AD
+// `date` (not just the bare day-of-month number) so callers can render it
+// in the user's preferred calendar — an AD month's days don't correspond
+// to a single BS month, so a bare day number is ambiguous without it.
 export function dailyCashFlowPoints(
   expenseRows: ExpenseRow[],
   incomeRows: IncomeRow[],
@@ -47,7 +50,12 @@ export function dailyCashFlowPoints(
   month: number,
 ): DayPoint[] {
   const daysInMonth = new Date(year, month, 0).getDate();
-  const points: DayPoint[] = Array.from({ length: daysInMonth }, (_, i) => ({ day: i + 1, in: 0, out: 0 }));
+  const points: DayPoint[] = Array.from({ length: daysInMonth }, (_, i) => ({
+    date: `${year}-${String(month).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`,
+    day: i + 1,
+    in: 0,
+    out: 0,
+  }));
 
   const incomeTotal = incomeRows.reduce((sum, i) => sum + Number(i.amount), 0);
   if (incomeTotal > 0) points[0].in += incomeTotal;

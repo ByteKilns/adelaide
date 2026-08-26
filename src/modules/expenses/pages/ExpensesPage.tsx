@@ -1,4 +1,4 @@
-import { formatMonthYear } from "@/lib/date-format";
+import { formatMonthRangeLabel } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
@@ -93,7 +93,7 @@ export async function ExpensesPage({ searchParams }: Props) {
   const rangeExpenses = rangeExpenseRows.map((e) => ({ amount: Number(e.amount), date: e.date }));
   const trendPoints = monthlyIncomeExpenseTrend(allIncomes, rangeExpenses, 6, dateFormat);
 
-  const monthLabel = formatMonthYear(`${year}-${String(month).padStart(2, "0")}-01`, dateFormat);
+  const monthLabel = formatMonthRangeLabel(year, month, dateFormat);
   const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
   const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month);
   const daysLeft = daysLeftInMonth(year, month);

@@ -63,10 +63,10 @@ describe("dailyCashFlowPoints", () => {
     const points = dailyCashFlowPoints(expenseRows, incomeRows, events, 2026, 2);
 
     expect(points).toHaveLength(28); // Feb 2026 is not a leap year
-    expect(points[0]).toEqual({ day: 1, in: 60000, out: 0 });
-    expect(points[2]).toEqual({ day: 3, in: 0, out: 350 });
-    expect(points[4]).toEqual({ day: 5, in: 0, out: 1000 });
-    expect(points[19]).toEqual({ day: 20, in: 13000, out: 0 });
+    expect(points[0]).toEqual({ date: "2026-02-01", day: 1, in: 60000, out: 0 });
+    expect(points[2]).toEqual({ date: "2026-02-03", day: 3, in: 0, out: 350 });
+    expect(points[4]).toEqual({ date: "2026-02-05", day: 5, in: 0, out: 1000 });
+    expect(points[19]).toEqual({ date: "2026-02-20", day: 20, in: 13000, out: 0 });
   });
 
   it("returns a zeroed point for every day even with no data", () => {

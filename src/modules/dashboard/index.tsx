@@ -1,4 +1,4 @@
-import { formatMonthYear } from "@/lib/date-format";
+import { formatMonthRangeLabel } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
@@ -155,7 +155,7 @@ export async function DashboardPage({ searchParams }: Props) {
     expenseTrendPct: trendPct(v.expenses, v.prevExpenses),
   }));
 
-  const monthLabel = formatMonthYear(`${year}-${String(month).padStart(2, "0")}-01`, dateFormat);
+  const monthLabel = formatMonthRangeLabel(year, month, dateFormat);
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";
 
   const cashFlowEvents = [...dhukuCashFlow(dhukuEntryRows), ...loanPaymentCashFlow(loanPaymentRows, loanRows)];
@@ -205,7 +205,7 @@ export async function DashboardPage({ searchParams }: Props) {
         unallocated={summary.unallocated}
       />
 
-      <DailyCashFlowChart monthLabel={monthLabel} points={dailyPoints} />
+      <DailyCashFlowChart dateFormat={dateFormat} monthLabel={monthLabel} points={dailyPoints} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">

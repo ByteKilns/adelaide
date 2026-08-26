@@ -1,4 +1,4 @@
-import { formatMonthYear } from "@/lib/date-format";
+import { formatMonthRangeLabel } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
@@ -74,7 +74,7 @@ export async function BudgetPage({ searchParams }: Props) {
     itemsByCategory[b.categoryId][ownerKey] = Number(b.plannedAmount);
   }
 
-  const monthLabel = formatMonthYear(`${year}-${String(month).padStart(2, "0")}-01`, dateFormat);
+  const monthLabel = formatMonthRangeLabel(year, month, dateFormat);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
