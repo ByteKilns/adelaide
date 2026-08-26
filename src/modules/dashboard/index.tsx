@@ -1,6 +1,6 @@
-import { formatMonthRangeLabel } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
+import { currentPeriodYearMonth, formatPeriodLabel } from "@/lib/month-period";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import {
   getBudgetItemsForMonth,
@@ -42,9 +42,7 @@ export async function DashboardPage({ searchParams }: Props) {
   const { householdId, memberId } = await getEffectiveMember();
   const dateFormat = await getDateFormatPref(householdId);
   const params = await searchParams;
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1;
+  const { year: currentYear, month: currentMonth } = currentPeriodYearMonth(dateFormat);
   const year = parseMonthParam(params.year, currentYear, 9999);
   const month = parseMonthParam(params.month, currentMonth, 12);
   const prev = previousMonth(year, month);
@@ -71,9 +69,9 @@ export async function DashboardPage({ searchParams }: Props) {
     listCategories(householdId),
     getIncomesForMonth(year, month),
     getBudgetItemsForMonth(year, month),
-    listExpensesForMonth(year, month),
+    listExpensesForMonth(year, month, dateFormat),
     getIncomesForMonth(prev.year, prev.month),
-    listExpensesForMonth(prev.year, prev.month),
+    listExpensesForMonth(prev.year, prev.month, dateFormat),
     listRecentExpenses(5),
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
@@ -155,16 +153,16 @@ export async function DashboardPage({ searchParams }: Props) {
     expenseTrendPct: trendPct(v.expenses, v.prevExpenses),
   }));
 
-  const monthLabel = formatMonthRangeLabel(year, month, dateFormat);
+  const monthLabel = formatPeriodLabel(year, month, dateFormat);
   const currentMemberName = members.find((m) => m.id === memberId)?.user.name ?? "there";
 
   const cashFlowEvents = [...dhukuCashFlow(dhukuEntryRows), ...loanPaymentCashFlow(loanPaymentRows, loanRows)];
-  const netOutflow = netMonthlyOutflow(cashFlowEvents, year, month);
+  const netOutflow = netMonthlyOutflow(cashFlowEvents, year, month, dateFormat);
 
   const totalPlanned = budgetItems.reduce((s, b) => s + b.plannedAmount, 0);
-  const safeToSpend = safeToSpendToday(totalPlanned, summary.totalExpenses + netOutflow, year, month);
-  const daysLeft = daysLeftInMonth(year, month);
-  const dailyPoints = dailyCashFlowPoints(expenseRows, incomeRows, cashFlowEvents, year, month);
+  const safeToSpend = safeToSpendToday(totalPlanned, summary.totalExpenses + netOutflow, year, month, dateFormat);
+  const daysLeft = daysLeftInMonth(year, month, dateFormat);
+  const dailyPoints = dailyCashFlowPoints(expenseRows, incomeRows, cashFlowEvents, year, month, dateFormat);
 
   const savingsStats = savingsOverviewStats(
     goalRows.map((g) => ({

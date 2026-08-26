@@ -1,6 +1,6 @@
-import { formatMonthRangeLabel } from "@/lib/date-format";
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
+import { currentPeriodYearMonth, formatPeriodLabel } from "@/lib/month-period";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth } from "@/modules/budget/api/budget.actions";
 import { AllocationSummaryCard } from "@/modules/budget/components/AllocationSummaryCard";
@@ -20,23 +20,21 @@ type Props = { searchParams: Promise<{ month?: string; year?: string }> };
 
 export async function BudgetPage({ searchParams }: Props) {
   const { householdId, memberId } = await getCurrentMember();
+  const dateFormat = await getDateFormatPref(householdId);
   const params = await searchParams;
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1;
+  const { year: currentYear, month: currentMonth } = currentPeriodYearMonth(dateFormat);
   const year = parseMonthParam(params.year, currentYear, 9999);
   const month = parseMonthParam(params.month, currentMonth, 12);
   const prev = previousMonth(year, month);
   const next = nextMonth(year, month);
 
-  const [members, categories, incomes, budgetItems, expenseRows, prevBudgetItems, dateFormat] = await Promise.all([
+  const [members, categories, incomes, budgetItems, expenseRows, prevBudgetItems] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
     getIncomesForMonth(year, month),
     getBudgetItemsForMonth(year, month),
-    listExpensesForMonth(year, month),
+    listExpensesForMonth(year, month, dateFormat),
     getBudgetItemsForMonth(prev.year, prev.month),
-    getDateFormatPref(householdId),
   ]);
 
   if (year === currentYear && month === currentMonth) {
@@ -74,7 +72,7 @@ export async function BudgetPage({ searchParams }: Props) {
     itemsByCategory[b.categoryId][ownerKey] = Number(b.plannedAmount);
   }
 
-  const monthLabel = formatMonthRangeLabel(year, month, dateFormat);
+  const monthLabel = formatPeriodLabel(year, month, dateFormat);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
