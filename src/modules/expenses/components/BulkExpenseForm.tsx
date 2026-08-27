@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -7,6 +9,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { CategoryComboboxField } from "@/components/CategoryComboboxField";
 import { NepaliDateField } from "@/components/NepaliDateField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +19,7 @@ import { createExpensesBulkAction } from "@/modules/expenses/api/expenses.action
 import { expenseSchema } from "@/modules/expenses/schemas/expense.schema";
 
 type Member = { id: string; name: string };
-type Category = { id: string; name: string };
+type Category = { groupName: string; id: string; name: string };
 
 const bulkExpenseSchema = z.object({ rows: z.array(expenseSchema).min(1) });
 type BulkExpenseInput = z.infer<typeof bulkExpenseSchema>;
@@ -63,6 +66,7 @@ export function BulkExpenseForm({ categories, currentMemberId, members, onSucces
     resolver: zodResolver(bulkExpenseSchema),
   });
   const { append, fields, remove } = useFieldArray({ control, name: "rows" });
+  const [categoryOptions, setCategoryOptions] = useState(categories);
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -116,21 +120,17 @@ export function BulkExpenseForm({ categories, currentMemberId, members, onSucces
                     control={control}
                     name={`rows.${index}.categoryId`}
                     render={({ field: f }) => (
-                      <Select onValueChange={f.onChange} value={f.value}>
-                        <SelectTrigger
-                          aria-invalid={Boolean(errors.rows?.[index]?.categoryId)}
-                          className="w-full"
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                              {c.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <CategoryComboboxField
+                        categories={categoryOptions}
+                        containerClassName="w-full [&>label]:sr-only"
+                        error={errors.rows?.[index]?.categoryId?.message}
+                        label="Category"
+                        onCategoriesChange={(category) =>
+                          setCategoryOptions((prev) => (prev.some((c) => c.id === category.id) ? prev : [...prev, category]))
+                        }
+                        onValueChange={f.onChange}
+                        value={f.value}
+                      />
                     )}
                   />
                 </TableCell>

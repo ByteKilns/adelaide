@@ -10,7 +10,7 @@ import { downloadExpensesCsv, type ExpenseExportRow } from "@/lib/csv-export";
 import { BulkAddExpenseModal } from "@/modules/expenses/components/BulkAddExpenseModal";
 
 type Props = {
-  categories: { id: string; name: string }[];
+  categories: { groupName: string; id: string; name: string }[];
   currentMemberId: string;
   exportRows: ExpenseExportRow[];
   members: { id: string; name: string }[];
