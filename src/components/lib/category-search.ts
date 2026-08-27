@@ -8,6 +8,8 @@ const FUSE_OPTIONS = {
     { name: "name", weight: 1 },
     { name: "groupName", weight: 0.3 },
   ],
+  // Tuned against typo ("pertrol"→Petrol), substring ("grocery"→Groceries),
+  // and negative ("food"→no match) cases — loosen cautiously.
   threshold: 0.4,
 };
 

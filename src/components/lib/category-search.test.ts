@@ -32,6 +32,11 @@ describe("searchCategories", () => {
     expect(results[0]?.name).toBe("Groceries");
   });
 
+  it("matches via group name when the name itself doesn't match", () => {
+    const results = searchCategories(CATEGORIES, "Household");
+    expect(results[0]?.name).toBe("Groceries");
+  });
+
   it("returns no results for a query unrelated to any category", () => {
     expect(searchCategories(CATEGORIES, "xyz123")).toEqual([]);
   });
