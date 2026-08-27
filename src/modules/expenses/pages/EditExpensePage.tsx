@@ -12,7 +12,7 @@ export async function EditExpensePage({ params }: { params: Promise<{ id: string
   const { householdId, memberId } = await getEffectiveMember();
   const [members, categories] = await Promise.all([
     getHouseholdMembers(householdId),
-    listCategories(householdId),
+    listCategories(householdId, { includeArchived: true }),
   ]);
 
   const [expense] = await db
