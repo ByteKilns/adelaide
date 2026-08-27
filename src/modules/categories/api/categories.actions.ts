@@ -20,14 +20,19 @@ export async function createCategoryAction(input: CategoryInput) {
   const { householdId } = await getCurrentMember();
   const parsed = categorySchema.parse(input);
 
-  await db.insert(categories).values({
-    budgetType: parsed.budgetType,
-    groupName: parsed.groupName,
-    householdId,
-    name: parsed.name,
-  });
+  const [category] = await db
+    .insert(categories)
+    .values({
+      budgetType: parsed.budgetType,
+      groupName: parsed.groupName,
+      householdId,
+      name: parsed.name,
+    })
+    .returning();
 
   revalidateCategoryPaths();
+
+  return category;
 }
 
 export async function updateCategoryAction(id: string, input: CategoryInput) {

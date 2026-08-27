@@ -16,28 +16,35 @@ import { type CategoryInput, categorySchema } from "@/modules/categories/schemas
 
 type Props = {
   category: Category | null;
+  defaultName?: string;
+  onCreated?: (category: Category) => void;
   onOpenChange: (open: boolean) => void;
   open: boolean;
 };
 
 const EMPTY: CategoryInput = { budgetType: "flexible", groupName: CATEGORY_GROUPS[0], name: "" };
 
-export function CategoryFormModal({ category, onOpenChange, open }: Props) {
+export function CategoryFormModal({ category, defaultName, onCreated, onOpenChange, open }: Props) {
   const {
     control,
     formState: { errors, isSubmitting },
     handleSubmit,
     register,
-  } = useForm<CategoryInput>({ defaultValues: category ?? EMPTY, resolver: zodResolver(categorySchema) });
+  } = useForm<CategoryInput>({
+    defaultValues: category ?? { ...EMPTY, name: defaultName ?? "" },
+    resolver: zodResolver(categorySchema),
+  });
 
   const onSubmit = handleSubmit(async (values) => {
     try {
       if (category) {
         await updateCategoryAction(category.id, values);
+        toast.success("Category updated");
       } else {
-        await createCategoryAction(values);
+        const created = await createCategoryAction(values);
+        toast.success("Category added");
+        if (created) onCreated?.(created);
       }
-      toast.success(category ? "Category updated" : "Category added");
       onOpenChange(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save category");
