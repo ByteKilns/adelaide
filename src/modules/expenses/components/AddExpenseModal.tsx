@@ -7,7 +7,7 @@ import { Modal } from "@/components/Modal";
 import { ExpenseForm } from "@/modules/expenses/components/ExpenseForm";
 
 type Props = {
-  categories: { id: string; name: string }[];
+  categories: { groupName: string; id: string; name: string }[];
   currentMemberId: string;
   members: { id: string; name: string }[];
   onOpenChange: (open: boolean) => void;

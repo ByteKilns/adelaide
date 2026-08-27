@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { CategoryComboboxField } from "@/components/CategoryComboboxField";
 import { NepaliDateField } from "@/components/NepaliDateField";
 import { SelectField } from "@/components/SelectField";
 import { TextField } from "@/components/TextField";
@@ -13,7 +16,7 @@ import { createExpenseAction, updateExpenseAction } from "@/modules/expenses/api
 import { type ExpenseInput, expenseSchema } from "@/modules/expenses/schemas/expense.schema";
 
 type Member = { id: string; name: string };
-type Category = { id: string; name: string };
+type Category = { groupName: string; id: string; name: string };
 
 type Props = {
   categories: Category[];
@@ -57,6 +60,8 @@ export function ExpenseForm({ categories, currentMemberId, expenseId, initial, m
     },
     resolver: zodResolver(expenseSchema),
   });
+
+  const [categoryOptions, setCategoryOptions] = useState(categories);
 
   const owner = watch("ownerMemberId");
 
@@ -103,11 +108,14 @@ export function ExpenseForm({ categories, currentMemberId, expenseId, initial, m
         control={control}
         name="categoryId"
         render={({ field }) => (
-          <SelectField
+          <CategoryComboboxField
+            categories={categoryOptions}
             error={errors.categoryId?.message}
             label="Category"
+            onCategoriesChange={(category) =>
+              setCategoryOptions((prev) => (prev.some((c) => c.id === category.id) ? prev : [...prev, category]))
+            }
             onValueChange={field.onChange}
-            options={categories.map((c) => ({ label: c.name, value: c.id }))}
             value={field.value}
           />
         )}

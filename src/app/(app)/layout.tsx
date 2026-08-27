@@ -17,7 +17,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     cookies(),
   ]);
 
-  const expenseCategories = categories.map((c) => ({ id: c.id, name: c.name }));
+  const expenseCategories = categories.map((c) => ({ groupName: c.groupName, id: c.id, name: c.name }));
   const expenseMembers = members.map((m) => ({ id: m.id, name: m.user.name }));
   const initialCollapsed = cookieStore.get(SIDEBAR_COLLAPSED_COOKIE_NAME)?.value === "true";
 

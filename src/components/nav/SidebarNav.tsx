@@ -50,7 +50,7 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 type Member = { id: string; image: null | string; name: string };
-type Category = { id: string; name: string };
+type Category = { groupName: string; id: string; name: string };
 
 type Props = {
   categories: Category[];

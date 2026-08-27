@@ -16,7 +16,7 @@ const ITEMS = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-type Category = { id: string; name: string };
+type Category = { groupName: string; id: string; name: string };
 type Member = { id: string; name: string };
 
 type Props = {

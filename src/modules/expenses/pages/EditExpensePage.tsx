@@ -25,7 +25,7 @@ export async function EditExpensePage({ params }: { params: Promise<{ id: string
   return (
     <div className="mx-auto max-w-sm p-4">
       <ExpenseForm
-        categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+        categories={categories.map((c) => ({ groupName: c.groupName, id: c.id, name: c.name }))}
         currentMemberId={memberId}
         expenseId={expense.id}
         initial={{
