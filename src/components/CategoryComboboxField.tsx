@@ -19,7 +19,7 @@ type Props = {
   error?: string;
   id?: string;
   label: string;
-  onCategoriesChange?: (categories: Category[]) => void;
+  onCategoriesChange?: (category: Category) => void;
   onValueChange: (value: string) => void;
   value: string;
 };
@@ -36,6 +36,8 @@ export function CategoryComboboxField({
 }: Props) {
   const generatedId = useId();
   const fieldId = id ?? generatedId;
+  const listboxId = `${fieldId}-listbox`;
+  const optionId = (index: number) => `${fieldId}-option-${index}`;
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -51,6 +53,13 @@ export function CategoryComboboxField({
     // eslint-disable-next-line react-hooks/set-state-in-effect -- resets highlight when query changes or popover opens (including external close via Radix's onOpenChange), not derivable inline from a single event handler
     setHighlighted(0);
   }, [query, open]);
+
+  useEffect(() => {
+    if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clears stale typed query on close (including external close via Radix's outside-click/Escape handling), not derivable inline from a single event handler
+      setQuery("");
+    }
+  }, [open]);
 
   function selectCategory(category: Category) {
     onValueChange(category.id);
@@ -86,7 +95,7 @@ export function CategoryComboboxField({
   }
 
   function handleCreated(category: Category) {
-    onCategoriesChange?.([...categories, category]);
+    onCategoriesChange?.(category);
     onValueChange(category.id);
     setCreateOpen(false);
     setQuery("");
@@ -99,6 +108,10 @@ export function CategoryComboboxField({
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverAnchor asChild>
           <Input
+            aria-activedescendant={open && highlighted < rowCount ? optionId(highlighted) : undefined}
+            aria-autocomplete="list"
+            aria-controls={listboxId}
+            aria-expanded={open}
             aria-invalid={Boolean(error)}
             autoComplete="off"
             id={fieldId}
@@ -109,23 +122,29 @@ export function CategoryComboboxField({
             onFocus={() => setOpen(true)}
             onKeyDown={handleKeyDown}
             placeholder="Search categories..."
+            role="combobox"
             value={open ? query : (selected?.name ?? "")}
           />
         </PopoverAnchor>
         <PopoverContent
           align="start"
           className="max-h-64 w-(--radix-popover-trigger-width) overflow-y-auto p-1"
+          id={listboxId}
           onOpenAutoFocus={(e) => e.preventDefault()}
+          role="listbox"
         >
           {results.map((category, index) => (
             <button
+              aria-selected={index === highlighted}
               className={cn(
                 "flex w-full items-center justify-between gap-1.5 rounded-md px-1.5 py-1 text-left text-sm",
                 index === highlighted ? "bg-accent text-accent-foreground" : "hover:bg-accent",
               )}
+              id={optionId(index)}
               key={category.id}
               onClick={() => selectCategory(category)}
               onMouseEnter={() => setHighlighted(index)}
+              role="option"
               type="button"
             >
               <span>
@@ -142,12 +161,15 @@ export function CategoryComboboxField({
 
           {showAddRow && (
             <button
+              aria-selected={highlighted === results.length}
               className={cn(
                 "flex w-full items-center gap-1.5 rounded-md px-1.5 py-1 text-left text-sm text-primary",
                 highlighted === results.length ? "bg-accent" : "hover:bg-accent",
               )}
+              id={optionId(results.length)}
               onClick={() => setCreateOpen(true)}
               onMouseEnter={() => setHighlighted(results.length)}
+              role="option"
               type="button"
             >
               <Plus className="h-4 w-4" />
