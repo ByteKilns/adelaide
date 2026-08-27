@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Check, Plus } from "lucide-react";
 
@@ -38,6 +38,7 @@ export function CategoryComboboxField({
   const fieldId = id ?? generatedId;
   const listboxId = `${fieldId}-listbox`;
   const optionId = (index: number) => `${fieldId}-option-${index}`;
+  const anchorRef = useRef<HTMLInputElement>(null);
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -122,6 +123,7 @@ export function CategoryComboboxField({
             onFocus={() => setOpen(true)}
             onKeyDown={handleKeyDown}
             placeholder="Search categories..."
+            ref={anchorRef}
             role="combobox"
             value={open ? query : (selected?.name ?? "")}
           />
@@ -130,6 +132,18 @@ export function CategoryComboboxField({
           align="start"
           className="max-h-64 w-(--radix-popover-trigger-width) overflow-y-auto p-1"
           id={listboxId}
+          // Radix's non-modal Popover only exempts PopoverTrigger from its
+          // outside-interaction detection, not PopoverAnchor — so without
+          // this, both the pointerdown/focus that OPENS the field and any
+          // later click back into it while open get misread as "outside"
+          // and immediately close the popover. Exempting our own anchor
+          // input here is the fix; every other outside interaction still
+          // dismisses normally.
+          onInteractOutside={(e) => {
+            if (anchorRef.current && e.target instanceof Node && anchorRef.current.contains(e.target)) {
+              e.preventDefault();
+            }
+          }}
           onOpenAutoFocus={(e) => e.preventDefault()}
           role="listbox"
         >
