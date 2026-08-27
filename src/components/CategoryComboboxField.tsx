@@ -18,7 +18,7 @@ type Props = {
   containerClassName?: string;
   error?: string;
   id?: string;
-  label: string;
+  label?: string;
   onCategoriesChange?: (category: Category) => void;
   onValueChange: (value: string) => void;
   value: string;
@@ -104,7 +104,7 @@ export function CategoryComboboxField({
 
   return (
     <div className={cn("space-y-1", containerClassName)}>
-      <Label htmlFor={fieldId}>{label}</Label>
+      {label && <Label htmlFor={fieldId}>{label}</Label>}
       <Popover onOpenChange={setOpen} open={open}>
         <PopoverAnchor asChild>
           <Input

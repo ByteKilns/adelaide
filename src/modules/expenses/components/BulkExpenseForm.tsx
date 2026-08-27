@@ -122,9 +122,8 @@ export function BulkExpenseForm({ categories, currentMemberId, members, onSucces
                     render={({ field: f }) => (
                       <CategoryComboboxField
                         categories={categoryOptions}
-                        containerClassName="w-full [&>label]:sr-only"
+                        containerClassName="w-full"
                         error={errors.rows?.[index]?.categoryId?.message}
-                        label="Category"
                         onCategoriesChange={(category) =>
                           setCategoryOptions((prev) => (prev.some((c) => c.id === category.id) ? prev : [...prev, category]))
                         }
