@@ -28,7 +28,13 @@ export async function createCategoryAction(input: CategoryInput) {
       householdId,
       name: parsed.name,
     })
-    .returning();
+    .returning({
+      archived: categories.archived,
+      budgetType: categories.budgetType,
+      groupName: categories.groupName,
+      id: categories.id,
+      name: categories.name,
+    });
 
   revalidateCategoryPaths();
 
