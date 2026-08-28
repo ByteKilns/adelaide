@@ -43,3 +43,6 @@ next-env.d.ts
 
 # graphify
 /graphify-out/
+
+# playwright (ad-hoc screenshots/inspection, includes a logged-in session)
+/.playwright/
