@@ -1,5 +1,5 @@
-import { Loader2 } from "lucide-react";
+import { WanderingEyes } from "@/components/WanderingEyes";
 
 export function LoadingState() {
-  return <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />;
+  return <WanderingEyes className="w-16 text-muted-foreground" />;
 }
