@@ -1,6 +1,6 @@
 // src/modules/dashboard/lib/cash-flow.ts
 import type { DateFormat } from "@/lib/date-format-cookie";
-import { dayNumberInPeriod, resolvePeriod } from "@/lib/month-period";
+import { currentPeriodYearMonth, dayNumberInPeriod, daysElapsedInPeriod, resolvePeriod } from "@/lib/month-period";
 
 export type CashFlowDirection = "in" | "out";
 export type CashFlowEvent = { amount: number; date: string; direction: CashFlowDirection };
@@ -92,4 +92,31 @@ export function netMonthlyOutflow(events: CashFlowEvent[], year: number, month: 
   return events
     .filter((e) => dayNumberInPeriod(e.date, year, month, dateFormat) !== null)
     .reduce((sum, e) => sum + (e.direction === "out" ? e.amount : -e.amount), 0);
+}
+
+// (Remaining budget for the month) / (days left, inclusive of today) — a
+// simple daily spending allowance, not a forecast. Clamped at 0 so an
+// already-overspent month shows "NPR 0" instead of a negative number.
+export function safeToSpendToday(
+  totalPlanned: number,
+  totalActual: number,
+  year: number,
+  month: number,
+  dateFormat: DateFormat,
+): number {
+  const period = resolvePeriod(year, month, dateFormat);
+  const current = currentPeriodYearMonth(dateFormat);
+  const isCurrent = year === current.year && month === current.month;
+  const daysLeft = isCurrent
+    ? Math.max(1, period.daysInPeriod - daysElapsedInPeriod(period) + 1)
+    : period.daysInPeriod;
+  const remaining = totalPlanned - totalActual;
+  return Math.max(0, Math.round(remaining / daysLeft));
+}
+
+export function daysLeftInMonth(year: number, month: number, dateFormat: DateFormat): number {
+  const period = resolvePeriod(year, month, dateFormat);
+  const current = currentPeriodYearMonth(dateFormat);
+  if (year !== current.year || month !== current.month) return period.daysInPeriod;
+  return Math.max(0, period.daysInPeriod - daysElapsedInPeriod(period) + 1);
 }

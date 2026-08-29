@@ -4,6 +4,7 @@ import { currentPeriodYearMonth, formatPeriodLabel, MAX_NAVIGABLE_YEAR, MIN_NAVI
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
+import { daysLeftInMonth, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
 import { pctOfIncome } from "@/modules/dashboard/lib/format";
 import { listExpensesForMonth, listExpensesForRange } from "@/modules/expenses/api/expenses.actions";
 import { ExpenseHeader } from "@/modules/expenses/components/ExpenseHeader";
@@ -11,13 +12,7 @@ import { ExpensesPageTabs } from "@/modules/expenses/components/ExpensesPageTabs
 import { ownerBreakdown } from "@/modules/expenses/lib/expense-breakdown";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
 import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
-import {
-  categoryBreakdown,
-  dailySpendingPace,
-  daysLeftInMonth,
-  monthlyIncomeExpenseTrend,
-  safeToSpendToday,
-} from "@/modules/reports/lib/reports-stats";
+import { categoryBreakdown, dailySpendingPace, monthlyIncomeExpenseTrend } from "@/modules/reports/lib/reports-stats";
 
 type Props = { searchParams: Promise<{ month?: string; year?: string }> };
 

@@ -15,7 +15,7 @@ import { DashboardSavingsCard } from "@/modules/dashboard/components/DashboardSa
 import { OwnerTabs } from "@/modules/dashboard/components/OwnerTabs";
 import { RecentExpenses } from "@/modules/dashboard/components/RecentExpenses";
 import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
-import { dailyCashFlowPoints, dhukuCashFlow, loanPaymentCashFlow, netMonthlyOutflow } from "@/modules/dashboard/lib/cash-flow";
+import { dailyCashFlowPoints, daysLeftInMonth, dhukuCashFlow, loanPaymentCashFlow, netMonthlyOutflow, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
 import { toBudgetItemInputs, toExpenseInputs, toIncomeInputs } from "@/modules/dashboard/lib/map-rows";
 import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
 import { listDhukuEntries } from "@/modules/dhuku/api/dhuku.actions";
@@ -27,7 +27,6 @@ import {
   listRecentNotifications,
 } from "@/modules/notifications/api/notifications.actions";
 import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
-import { daysLeftInMonth, safeToSpendToday } from "@/modules/reports/lib/reports-stats";
 import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
 import { savingsOverviewStats } from "@/modules/savings-goals/lib/savings-stats";
 

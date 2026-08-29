@@ -4,9 +4,11 @@ import { describe, expect, it } from "vitest";
 import {
   type CashFlowEvent,
   dailyCashFlowPoints,
+  daysLeftInMonth,
   dhukuCashFlow,
   loanPaymentCashFlow,
   netMonthlyOutflow,
+  safeToSpendToday,
 } from "./cash-flow";
 
 describe("dhukuCashFlow", () => {
@@ -90,5 +92,25 @@ describe("netMonthlyOutflow", () => {
 
   it("returns 0 for a month with no events", () => {
     expect(netMonthlyOutflow([], 2026, 2, "english")).toBe(0);
+  });
+});
+
+describe("daysLeftInMonth", () => {
+  it("returns the full day count for a month that isn't the current one", () => {
+    expect(daysLeftInMonth(2020, 2, "english")).toBe(29); // Feb 2020 is a leap year
+  });
+
+  it("returns the full day count for a 30-day past month", () => {
+    expect(daysLeftInMonth(2020, 4, "english")).toBe(30);
+  });
+});
+
+describe("safeToSpendToday", () => {
+  it("divides remaining budget by the full day count for a past month", () => {
+    expect(safeToSpendToday(3000, 1000, 2020, 4, "english")).toBe(Math.round(2000 / 30));
+  });
+
+  it("clamps to 0 when already over budget", () => {
+    expect(safeToSpendToday(1000, 5000, 2020, 4, "english")).toBe(0);
   });
 });

@@ -4,13 +4,14 @@ import { currentPeriodYearMonth, formatPeriodLabel, resolvePeriod } from "@/lib/
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
+import { daysLeftInMonth, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
 import { pctOfIncome } from "@/modules/dashboard/lib/format";
 import { listExpensesForMonth, listExpensesForRange } from "@/modules/expenses/api/expenses.actions";
 import { ownerBreakdown, topCategories } from "@/modules/expenses/lib/expense-breakdown";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
 import { ReportsHeader } from "@/modules/reports/components/ReportsHeader";
 import { ReportsTabs } from "@/modules/reports/components/ReportsTabs";
-import { categoryBreakdown, daysLeftInMonth, monthlyIncomeExpenseTrend, safeToSpendToday, spendingInsight } from "@/modules/reports/lib/reports-stats";
+import { categoryBreakdown, monthlyIncomeExpenseTrend, spendingInsight } from "@/modules/reports/lib/reports-stats";
 import { listSavingsContributions, listSavingsGoals } from "@/modules/savings-goals/api/savings-goals.actions";
 import { buildContributionEntries, buildGoalCards, monthlyTotals, savingsOverviewStats } from "@/modules/savings-goals/lib/savings-stats";
 

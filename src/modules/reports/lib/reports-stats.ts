@@ -63,26 +63,6 @@ export function monthlyIncomeExpenseTrend(
   });
 }
 
-// (Remaining budget for the month) / (days left, inclusive of today) — a
-// simple daily spending allowance, not a forecast. Clamped at 0 so an
-// already-overspent month shows "NPR 0" instead of a negative number.
-export function safeToSpendToday(
-  totalPlanned: number,
-  totalActual: number,
-  year: number,
-  month: number,
-  dateFormat: DateFormat,
-): number {
-  const period = resolvePeriod(year, month, dateFormat);
-  const current = currentPeriodYearMonth(dateFormat);
-  const isCurrent = year === current.year && month === current.month;
-  const daysLeft = isCurrent
-    ? Math.max(1, period.daysInPeriod - daysElapsedInPeriod(period) + 1)
-    : period.daysInPeriod;
-  const remaining = totalPlanned - totalActual;
-  return Math.max(0, Math.round(remaining / daysLeft));
-}
-
 export type PacePoint = { actual: null | number; day: number; pace: number };
 
 // Cumulative actual spend vs. an even daily-pace line (budget spread evenly
@@ -122,13 +102,6 @@ export function dailySpendingPace(
     });
   }
   return points;
-}
-
-export function daysLeftInMonth(year: number, month: number, dateFormat: DateFormat): number {
-  const period = resolvePeriod(year, month, dateFormat);
-  const current = currentPeriodYearMonth(dateFormat);
-  if (year !== current.year || month !== current.month) return period.daysInPeriod;
-  return Math.max(0, period.daysInPeriod - daysElapsedInPeriod(period) + 1);
 }
 
 export function spendingInsight(currentExpenses: number, previousExpenses: number): string {
