@@ -29,10 +29,10 @@ const TRIGGER_CLASS = {
     "rounded-md border border-transparent px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-none transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-foreground data-[state=active]:shadow-none",
 };
 
-// The tab switcher used across the app (Dashboard's OwnerTabs, Expenses/
-// Budget's owner tabs, Categories' Active/Archived tabs, the page-level
-// Expenses/Charts switcher) — every one of those was hand-rolling this same
-// TabsList/TabsTrigger markup with an identical className. Works both
+// The tab switcher used across the app (Expenses/Budget's owner tabs,
+// Categories' Active/Archived tabs, the page-level Expenses/Charts switcher)
+// — every one of those was hand-rolling this same TabsList/TabsTrigger
+// markup with an identical className. Works both
 // controlled (value/onValueChange, filtering content rendered by the parent
 // outside this component) and uncontrolled (defaultValue, with TabsContent
 // passed as children).
