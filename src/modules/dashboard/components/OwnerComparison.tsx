@@ -16,15 +16,17 @@ type OwnerView = {
 };
 
 export function OwnerComparison({ views }: { views: OwnerView[] }) {
+  const gridColsClass = views.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2";
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className={`grid grid-cols-1 gap-4 ${gridColsClass}`}>
       {views.map((v) => {
         const percent = pctOfIncome(v.expenses, v.income) ?? 0;
         const remainingPercent = Math.max(0, 100 - percent);
 
         return (
           <div className="space-y-4 rounded-xl border p-4" key={v.key}>
-            <p className="text-sm font-medium">{v.label}</p>
+            <h3 className="text-sm font-medium">{v.label}</h3>
 
             <div className="space-y-3">
               <div className="flex items-center gap-3">
