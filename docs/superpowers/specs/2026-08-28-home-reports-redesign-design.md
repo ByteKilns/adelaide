@@ -25,7 +25,12 @@ breakdown is tabbed, showing one-third of the household by default when a
 - **Home** becomes the single source of truth for Safe-to-Spend (the
   cash-flow-inclusive formula), moved to the hero position at the top.
   Reports drops its own Safe-to-Spend entirely — no more possible
-  disagreement between the two pages.
+  disagreement between the two pages. **Amendment (discovered during
+  plan-writing):** `src/modules/expenses/pages/ExpensesPage.tsx` also
+  renders its own `SafeToSpendCard` with the same simple, non-cash-flow-
+  inclusive formula Reports had — a third divergent copy missed during the
+  original Home-vs-Reports review. This is removed too, for the same
+  reason: Home is the only place this number appears anywhere in the app.
 - **Home** drops `DailyCashFlowChart` — it moves to Reports' Expenses tab.
   Home keeps fetching dhuku/loan data (still needed for the safe-to-spend
   calculation) even though it no longer renders the chart.
