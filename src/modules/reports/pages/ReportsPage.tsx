@@ -2,13 +2,15 @@ import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { previousMonth } from "@/lib/month-nav";
 import { currentPeriodYearMonth, formatPeriodLabel, resolvePeriod } from "@/lib/month-period";
 import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
-import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
+import { getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
-import { daysLeftInMonth, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
+import { dailyCashFlowPoints, dhukuCashFlow, loanPaymentCashFlow } from "@/modules/dashboard/lib/cash-flow";
 import { pctOfIncome } from "@/modules/dashboard/lib/format";
+import { listDhukuEntries } from "@/modules/dhuku/api/dhuku.actions";
 import { listExpensesForMonth, listExpensesForRange } from "@/modules/expenses/api/expenses.actions";
 import { ownerBreakdown } from "@/modules/expenses/lib/expense-breakdown";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
+import { listLoanPayments, listLoans } from "@/modules/loans/api/loans.actions";
 import { ReportsHeader } from "@/modules/reports/components/ReportsHeader";
 import { ReportsTabs } from "@/modules/reports/components/ReportsTabs";
 import { categoryBreakdown, monthlyIncomeExpenseTrend, spendingInsight } from "@/modules/reports/lib/reports-stats";
@@ -31,23 +33,27 @@ export async function ReportsPage() {
     categories,
     incomeRows,
     allIncomeRows,
-    budgetItemRows,
     expenseRows,
     prevExpenseRows,
     rangeExpenseRows,
     goalRows,
     contributionRows,
+    dhukuEntryRows,
+    loanRows,
+    loanPaymentRows,
   ] = await Promise.all([
     getHouseholdMembers(householdId),
     listCategories(householdId),
     getIncomesForMonth(year, month),
     listAllIncomes(),
-    getBudgetItemsForMonth(year, month),
     listExpensesForMonth(year, month, dateFormat),
     listExpensesForMonth(prev.year, prev.month, dateFormat),
     listExpensesForRange(rangeStart, rangeEnd),
     listSavingsGoals(householdId),
     listSavingsContributions(householdId),
+    listDhukuEntries(householdId),
+    listLoans(householdId),
+    listLoanPayments(householdId),
   ]);
 
   const memberById = new Map(members.map((m) => [m.id, m]));
@@ -89,10 +95,9 @@ export async function ReportsPage() {
   const allIncomes = allIncomeRows.map((i) => ({ amount: Number(i.amount), month: i.month, year: i.year }));
   const trendPoints = monthlyIncomeExpenseTrend(allIncomes, rangeExpenses, 6, dateFormat);
 
-  const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
-  const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month, dateFormat);
-  const daysLeft = daysLeftInMonth(year, month, dateFormat);
   const insightMessage = spendingInsight(totalExpenses, prevTotalExpenses);
+  const cashFlowEvents = [...dhukuCashFlow(dhukuEntryRows), ...loanPaymentCashFlow(loanPaymentRows, loanRows)];
+  const dailyPoints = dailyCashFlowPoints(expenseRows, incomeRows, cashFlowEvents, year, month, dateFormat);
 
   const incomeSlices = members.map((m) => ({
     amount: incomeRows.filter((i) => i.memberId === m.id).reduce((s, i) => s + Number(i.amount), 0),
@@ -138,8 +143,8 @@ export async function ReportsPage() {
 
       <ReportsTabs
         combinedIncome={combinedIncome}
+        dailyPoints={dailyPoints}
         dateFormat={dateFormat}
-        daysLeft={daysLeft}
         expenseRows={expenseTableRows}
         expenseSlices={expenseSlices}
         goals={goals}
@@ -152,13 +157,11 @@ export async function ReportsPage() {
         pctOfIncome={pctOfIncome(totalExpenses, combinedIncome)}
         realMemberId={memberId}
         recentContributions={recentContributions}
-        safeToSpend={safeToSpend}
         savingsAverageProgress={savingsStats.averageProgress}
         savingsMonthlyContribution={savingsStats.monthlyContribution}
         savingsPoints={savingsPoints}
         savingsVsLastMonthPct={savingsVsLastMonthPct}
         totalExpenses={totalExpenses}
-        totalPlanned={totalPlanned}
         trendPoints={trendPoints}
       />
     </div>
