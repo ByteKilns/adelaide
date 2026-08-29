@@ -7,7 +7,7 @@ import { listCategories } from "@/modules/categories/api/categories";
 import { daysLeftInMonth, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
 import { pctOfIncome } from "@/modules/dashboard/lib/format";
 import { listExpensesForMonth, listExpensesForRange } from "@/modules/expenses/api/expenses.actions";
-import { ownerBreakdown, topCategories } from "@/modules/expenses/lib/expense-breakdown";
+import { ownerBreakdown } from "@/modules/expenses/lib/expense-breakdown";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
 import { ReportsHeader } from "@/modules/reports/components/ReportsHeader";
 import { ReportsTabs } from "@/modules/reports/components/ReportsTabs";
@@ -83,10 +83,6 @@ export async function ReportsPage() {
     members.map((m) => ({ id: m.id, name: m.user.name })),
     memberId,
   );
-  const topCats = topCategories(expenses, categories, 5).map((c) => ({
-    ...c,
-    groupName: category(c.categoryId)?.groupName ?? "",
-  }));
   const expenseSlices = categoryBreakdown(expenses, categories, 5);
 
   const rangeExpenses = rangeExpenseRows.map((e) => ({ amount: Number(e.amount), date: e.date }));
@@ -161,7 +157,6 @@ export async function ReportsPage() {
         savingsMonthlyContribution={savingsStats.monthlyContribution}
         savingsPoints={savingsPoints}
         savingsVsLastMonthPct={savingsVsLastMonthPct}
-        topCategories={topCats}
         totalExpenses={totalExpenses}
         totalPlanned={totalPlanned}
         trendPoints={trendPoints}

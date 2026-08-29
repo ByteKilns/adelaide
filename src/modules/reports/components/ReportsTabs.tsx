@@ -7,9 +7,8 @@ import type { DateFormat } from "@/lib/date-format-cookie";
 import { formatNPR } from "@/modules/dashboard/lib/format";
 import { ExpenseSummaryCard } from "@/modules/expenses/components/ExpenseSummaryCard";
 import { ExpenseTable } from "@/modules/expenses/components/ExpenseTable";
-import { TopCategoriesCard } from "@/modules/expenses/components/TopCategoriesCard";
 import type { ExpenseRow } from "@/modules/expenses/hooks/useExpenseTableColumns";
-import type { OwnerSlice, TopCategory } from "@/modules/expenses/lib/expense-breakdown";
+import type { OwnerSlice } from "@/modules/expenses/lib/expense-breakdown";
 import { ExpenseBreakdownCard } from "@/modules/reports/components/ExpenseBreakdownCard";
 import { GoalSummaryRow } from "@/modules/reports/components/GoalSummaryRow";
 import { IncomeBreakdownCard } from "@/modules/reports/components/IncomeBreakdownCard";
@@ -47,7 +46,6 @@ type Props = {
   savingsMonthlyContribution: number;
   savingsPoints: { cumulative: number; label: string }[];
   savingsVsLastMonthPct: null | number;
-  topCategories: (TopCategory & { groupName: string })[];
   totalExpenses: number;
   totalPlanned: number;
   trendPoints: MonthPoint[];
@@ -78,7 +76,6 @@ export function ReportsTabs(props: Props) {
           </div>
           <div className="space-y-6">
             <ExpenseSummaryCard pctOfIncome={props.pctOfIncome} slices={props.ownerSlices} total={props.totalExpenses} />
-            <TopCategoriesCard categories={props.topCategories} />
             <SafeToSpendCard
               daysLeft={props.daysLeft}
               monthLabel={props.monthLabel}
@@ -103,7 +100,6 @@ export function ReportsTabs(props: Props) {
           </div>
           <div className="space-y-6">
             <ExpenseBreakdownCard slices={props.expenseSlices} total={props.totalExpenses} viewAllHref="/expenses" />
-            <TopCategoriesCard categories={props.topCategories} />
           </div>
         </div>
       )}

@@ -28,30 +28,3 @@ export function ownerBreakdown(
 
   return slices;
 }
-
-export type TopCategory = { amount: number; barPct: number; categoryId: string; name: string };
-
-export function topCategories(
-  expenses: { amount: number; categoryId: string }[],
-  categories: { id: string; name: string }[],
-  limit: number,
-): TopCategory[] {
-  const totals = new Map<string, number>();
-  for (const e of expenses) {
-    totals.set(e.categoryId, (totals.get(e.categoryId) ?? 0) + e.amount);
-  }
-
-  const categoryName = (id: string) => categories.find((c) => c.id === id)?.name ?? "Unknown";
-
-  const sorted = [...totals.entries()]
-    .map(([categoryId, amount]) => ({ amount, categoryId, name: categoryName(categoryId) }))
-    .sort((a, b) => b.amount - a.amount)
-    .slice(0, limit);
-
-  const max = sorted[0]?.amount ?? 0;
-
-  return sorted.map((c) => ({
-    ...c,
-    barPct: max > 0 ? Math.round((c.amount / max) * 100) : 0,
-  }));
-}
