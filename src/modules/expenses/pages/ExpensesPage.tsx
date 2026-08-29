@@ -4,14 +4,12 @@ import { currentPeriodYearMonth, formatPeriodLabel, MAX_NAVIGABLE_YEAR, MIN_NAVI
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
 import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
-import { daysLeftInMonth, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
 import { pctOfIncome } from "@/modules/dashboard/lib/format";
 import { listExpensesForMonth, listExpensesForRange } from "@/modules/expenses/api/expenses.actions";
 import { ExpenseHeader } from "@/modules/expenses/components/ExpenseHeader";
 import { ExpensesPageTabs } from "@/modules/expenses/components/ExpensesPageTabs";
 import { ownerBreakdown } from "@/modules/expenses/lib/expense-breakdown";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
-import { SafeToSpendCard } from "@/modules/reports/components/SafeToSpendCard";
 import { categoryBreakdown, dailySpendingPace, monthlyIncomeExpenseTrend } from "@/modules/reports/lib/reports-stats";
 
 type Props = { searchParams: Promise<{ month?: string; year?: string }> };
@@ -90,8 +88,6 @@ export async function ExpensesPage({ searchParams }: Props) {
 
   const monthLabel = formatPeriodLabel(year, month, dateFormat);
   const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
-  const safeToSpend = safeToSpendToday(totalPlanned, totalExpenses, year, month, dateFormat);
-  const daysLeft = daysLeftInMonth(year, month, dateFormat);
   const pacePoints = dailySpendingPace(
     expenseRows.map((e) => ({ amount: Number(e.amount), date: e.date })),
     year,
@@ -110,14 +106,6 @@ export async function ExpensesPage({ searchParams }: Props) {
         monthLabel={monthLabel}
         nextHref={`/expenses?year=${next.year}&month=${next.month}`}
         prevHref={`/expenses?year=${prev.year}&month=${prev.month}`}
-      />
-
-      <SafeToSpendCard
-        daysLeft={daysLeft}
-        monthLabel={monthLabel}
-        safeToSpend={safeToSpend}
-        totalActual={totalExpenses}
-        totalPlanned={totalPlanned}
       />
 
       <ExpensesPageTabs
