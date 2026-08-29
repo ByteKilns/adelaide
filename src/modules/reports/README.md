@@ -1,6 +1,6 @@
 # Reports module
 
-Not yet built — sidebar entry is disabled. When implemented, follows the
-standard module shape: `components/`, `lib/`, `constants/`, `schemas/`,
-`hooks/`, `api/`, plus an `index.tsx` entry wired from
-`src/app/(app)/reports/page.tsx`.
+Tabbed drill-down view (Expenses/Income/Savings) complementing Home's
+at-a-glance summary. Standard module shape: `components/`, `lib/`,
+`pages/`, plus `src/modules/reports/index.tsx` re-exporting the page,
+wired from `src/app/(app)/reports/page.tsx`.
