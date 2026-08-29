@@ -8,14 +8,13 @@ import {
 } from "@/modules/budget/api/budget.actions";
 import { dashboardSummary } from "@/modules/budget/lib/calculations";
 import { listCategories } from "@/modules/categories/api/categories";
-import { DailyCashFlowChart } from "@/modules/dashboard/components/DailyCashFlowChart";
 import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
 import { DashboardPanel } from "@/modules/dashboard/components/DashboardPanel";
 import { DashboardSavingsCard } from "@/modules/dashboard/components/DashboardSavingsCard";
 import { OwnerTabs } from "@/modules/dashboard/components/OwnerTabs";
 import { RecentExpenses } from "@/modules/dashboard/components/RecentExpenses";
 import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
-import { dailyCashFlowPoints, daysLeftInMonth, dhukuCashFlow, loanPaymentCashFlow, netMonthlyOutflow, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
+import { daysLeftInMonth, dhukuCashFlow, loanPaymentCashFlow, netMonthlyOutflow, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
 import { toBudgetItemInputs, toExpenseInputs, toIncomeInputs } from "@/modules/dashboard/lib/map-rows";
 import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
 import { listDhukuEntries } from "@/modules/dhuku/api/dhuku.actions";
@@ -161,7 +160,6 @@ export async function DashboardPage({ searchParams }: Props) {
   const totalPlanned = budgetItems.reduce((s, b) => s + b.plannedAmount, 0);
   const safeToSpend = safeToSpendToday(totalPlanned, summary.totalExpenses + netOutflow, year, month, dateFormat);
   const daysLeft = daysLeftInMonth(year, month, dateFormat);
-  const dailyPoints = dailyCashFlowPoints(expenseRows, incomeRows, cashFlowEvents, year, month, dateFormat);
 
   const savingsStats = savingsOverviewStats(
     goalRows.map((g) => ({
@@ -187,6 +185,14 @@ export async function DashboardPage({ searchParams }: Props) {
         unreadNotifications={unreadNotifications}
       />
 
+      <SafeToSpendCard
+        daysLeft={daysLeft}
+        monthLabel={monthLabel}
+        safeToSpend={safeToSpend}
+        totalActual={summary.totalExpenses + netOutflow}
+        totalPlanned={totalPlanned}
+      />
+
       <SummaryCards
         combinedIncome={summary.combinedIncome}
         expenseTrendPct={trendPct(
@@ -201,8 +207,6 @@ export async function DashboardPage({ searchParams }: Props) {
         totalExpenses={summary.totalExpenses}
         unallocated={summary.unallocated}
       />
-
-      <DailyCashFlowChart dateFormat={dateFormat} monthLabel={monthLabel} points={dailyPoints} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -231,14 +235,6 @@ export async function DashboardPage({ searchParams }: Props) {
           />
         </div>
       </div>
-
-      <SafeToSpendCard
-        daysLeft={daysLeft}
-        monthLabel={monthLabel}
-        safeToSpend={safeToSpend}
-        totalActual={summary.totalExpenses + netOutflow}
-        totalPlanned={totalPlanned}
-      />
     </div>
   );
 }

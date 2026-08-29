@@ -60,7 +60,7 @@ export function SafeToSpendCard({ daysLeft, monthLabel, safeToSpend, totalActual
       </div>
 
       <div className="flex items-center gap-3">
-        <p className={`text-lg font-extrabold ${tone.amount}`}>{formatNPR(safeToSpend)}</p>
+        <p className={`text-3xl font-extrabold ${tone.amount}`}>{formatNPR(safeToSpend)}</p>
         <span className={`flex items-center gap-1.5 text-sm font-medium ${tone.status}`}>
           <span className={`h-1.5 w-1.5 rounded-full ${tone.dot}`} />
           {status}
