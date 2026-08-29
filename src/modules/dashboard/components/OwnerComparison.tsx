@@ -1,12 +1,8 @@
-"use client";
-
 import { ArrowDownLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
 
 import { StatAmount } from "@/components/StatAmount";
-import { TabSwitcher } from "@/components/TabSwitcher";
 import { ToneIcon } from "@/components/ToneIcon";
 import { TrendLine } from "@/components/TrendLine";
-import { TabsContent } from "@/components/ui/tabs";
 import { formatNPR, pctOfIncome } from "@/modules/dashboard/lib/format";
 
 type OwnerView = {
@@ -19,16 +15,18 @@ type OwnerView = {
   remaining: number;
 };
 
-export function OwnerTabs({ views }: { views: OwnerView[] }) {
+export function OwnerComparison({ views }: { views: OwnerView[] }) {
   return (
-    <TabSwitcher className="w-full" defaultValue={views[0]?.key} tabs={views.map((v) => ({ label: v.label, value: v.key }))}>
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       {views.map((v) => {
         const percent = pctOfIncome(v.expenses, v.income) ?? 0;
         const remainingPercent = Math.max(0, 100 - percent);
 
         return (
-          <TabsContent className="space-y-4 pt-4" key={v.key} value={v.key}>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="space-y-4 rounded-xl border p-4" key={v.key}>
+            <p className="text-sm font-medium">{v.label}</p>
+
+            <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <ToneIcon icon={ArrowDownLeft} tone="green" />
                 <div className="min-w-0">
@@ -76,9 +74,9 @@ export function OwnerTabs({ views }: { views: OwnerView[] }) {
                     : "Your spending is within the monthly plan."}
               </p>
             </div>
-          </TabsContent>
+          </div>
         );
       })}
-    </TabSwitcher>
+    </div>
   );
 }

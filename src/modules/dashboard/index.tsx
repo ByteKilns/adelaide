@@ -11,7 +11,7 @@ import { listCategories } from "@/modules/categories/api/categories";
 import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
 import { DashboardPanel } from "@/modules/dashboard/components/DashboardPanel";
 import { DashboardSavingsCard } from "@/modules/dashboard/components/DashboardSavingsCard";
-import { OwnerTabs } from "@/modules/dashboard/components/OwnerTabs";
+import { OwnerComparison } from "@/modules/dashboard/components/OwnerComparison";
 import { RecentExpenses } from "@/modules/dashboard/components/RecentExpenses";
 import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
 import { daysLeftInMonth, dhukuCashFlow, loanPaymentCashFlow, netMonthlyOutflow, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
@@ -211,7 +211,7 @@ export async function DashboardPage({ searchParams }: Props) {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <DashboardPanel className="min-h-full" title="Overview">
-            <OwnerTabs views={ownerViews} />
+            <OwnerComparison views={ownerViews} />
           </DashboardPanel>
         </div>
 
