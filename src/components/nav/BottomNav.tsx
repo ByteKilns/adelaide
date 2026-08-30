@@ -24,6 +24,7 @@ import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { AddExpenseModal } from "@/modules/expenses/components/AddExpenseModal";
+import { VoiceEntryButton } from "@/modules/voice-entry/components/VoiceEntryButton";
 
 const ITEMS = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -69,6 +70,12 @@ export function BottomNav({ categories, currentMemberId, members, unreadNotifica
       >
         <Plus className="h-6 w-6" />
       </button>
+      <VoiceEntryButton
+        categories={categories}
+        className="fixed right-4 bottom-36 z-10 flex h-11 w-11 items-center justify-center rounded-full border bg-background text-foreground shadow-lg md:hidden"
+        currentMemberId={currentMemberId}
+        members={members}
+      />
 
       <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t bg-background md:hidden">
         {ITEMS.map((item) => {

@@ -31,6 +31,7 @@ import { logoutAction } from "@/lib/actions/auth";
 import { SIDEBAR_COLLAPSED_COOKIE_NAME } from "@/lib/sidebar-cookie";
 import { cn } from "@/lib/utils";
 import { AddExpenseModal } from "@/modules/expenses/components/AddExpenseModal";
+import { VoiceEntryButton } from "@/modules/voice-entry/components/VoiceEntryButton";
 
 
 type NavItem = { enabled: boolean; href: string; icon: LucideIcon; label: string; };
@@ -131,13 +132,22 @@ export function SidebarNav({
       </div>
 
       <Button
-        className="mb-4"
+        className="mb-2"
         onClick={() => setAddExpenseOpen(true)}
         size={collapsed ? "icon" : "lg"}
         title={collapsed ? "Add Expense" : undefined}
       >
         {collapsed ? <Plus className="h-4 w-4" /> : "+ Add Expense"}
       </Button>
+      <VoiceEntryButton
+        categories={categories}
+        className={cn(
+          "mb-4 flex h-9 items-center justify-center gap-2 rounded-lg border border-input text-sm text-muted-foreground hover:bg-accent",
+          collapsed ? "w-9" : "w-full",
+        )}
+        currentMemberId={currentMemberId}
+        members={members.map((m) => ({ id: m.id, name: m.name }))}
+      />
 
       <nav className="flex flex-1 flex-col gap-1">
         {NAV_ITEMS.map((item) => {
