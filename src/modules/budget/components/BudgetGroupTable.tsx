@@ -41,7 +41,9 @@ const COLUMNS: DataTableColumn<BudgetRow>[] = [
                   ? "bg-destructive"
                   : status.variant === "secondary"
                     ? "bg-amber-500"
-                    : "bg-green-500"
+                    : status.variant === "outline"
+                      ? "bg-muted-foreground"
+                      : "bg-green-500"
               }`}
               style={{ width: `${Math.min(status.pct, 100)}%` }}
             />
