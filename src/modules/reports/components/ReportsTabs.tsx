@@ -16,7 +16,8 @@ import { GoalSummaryRow } from "@/modules/reports/components/GoalSummaryRow";
 import { IncomeBreakdownCard } from "@/modules/reports/components/IncomeBreakdownCard";
 import { IncomeExpenseTrendCard } from "@/modules/reports/components/IncomeExpenseTrendCard";
 import { SmartInsightCard } from "@/modules/reports/components/SmartInsightCard";
-import type { CategorySlice, MonthPoint } from "@/modules/reports/lib/reports-stats";
+import { SpendingPaceCard } from "@/modules/reports/components/SpendingPaceCard";
+import type { CategorySlice, MonthPoint, PacePoint } from "@/modules/reports/lib/reports-stats";
 import type { GoalCardData } from "@/modules/savings-goals/components/GoalCard";
 import { GoalProgressOverviewCard } from "@/modules/savings-goals/components/GoalProgressOverviewCard";
 import { type ContributionEntry, RecentContributionsCard } from "@/modules/savings-goals/components/RecentContributionsCard";
@@ -37,6 +38,7 @@ type Props = {
   insightMessage: string;
   monthLabel: string;
   ownerSlices: OwnerSlice[];
+  pacePoints: PacePoint[];
   partnerName: null | string;
   pctOfIncome: null | number;
   realMemberId: string;
@@ -46,6 +48,7 @@ type Props = {
   savingsPoints: { cumulative: number; label: string }[];
   savingsVsLastMonthPct: null | number;
   totalExpenses: number;
+  totalPlanned: number;
   trendPoints: MonthPoint[];
 };
 
@@ -66,6 +69,8 @@ export function ReportsTabs(props: Props) {
 
       {tab === "expenses" && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <SpendingPaceCard points={props.pacePoints} totalPlanned={props.totalPlanned} />
+
           <div className="space-y-6 lg:col-span-2">
             <ExpenseTable
               dateFormat={props.dateFormat}
