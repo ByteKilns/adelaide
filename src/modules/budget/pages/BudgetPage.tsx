@@ -8,7 +8,6 @@ import { BudgetGroups } from "@/modules/budget/components/BudgetGroups";
 import { BudgetHeader } from "@/modules/budget/components/BudgetHeader";
 import { BudgetHealthCard } from "@/modules/budget/components/BudgetHealthCard";
 import { BudgetSummaryCards } from "@/modules/budget/components/BudgetSummaryCards";
-import { RecommendationsCard } from "@/modules/budget/components/RecommendationsCard";
 import { TopBudgetCategoriesCard } from "@/modules/budget/components/TopBudgetCategoriesCard";
 import { budgetGroups, topBudgetCategories } from "@/modules/budget/lib/budget-groups";
 import { budgetVsActual } from "@/modules/budget/lib/calculations";
@@ -110,7 +109,6 @@ export async function BudgetPage({ searchParams }: Props) {
           <BudgetHealthCard allocated={allocated} combinedIncome={combinedIncome} unallocated={unallocated} />
           <AllocationSummaryCard groups={groups} />
           <TopBudgetCategoriesCard categories={topCategories} />
-          <RecommendationsCard />
         </div>
       </div>
     </div>
