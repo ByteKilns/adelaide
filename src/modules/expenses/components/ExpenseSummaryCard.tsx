@@ -21,7 +21,7 @@ type ContentProps = {
   total: number;
 };
 
-export function ExpenseSummaryContent({ pctOfIncome, slices, total }: ContentProps) {
+function ExpenseSummaryContent({ pctOfIncome, slices, total }: ContentProps) {
   const chartData = slices.filter((s) => s.amount > 0);
 
   return (

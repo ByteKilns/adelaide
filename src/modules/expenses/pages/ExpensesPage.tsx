@@ -1,16 +1,12 @@
 import { getDateFormatPref } from "@/lib/date-format-cookie";
 import { nextMonth, parseMonthParam, previousMonth } from "@/lib/month-nav";
-import { currentPeriodYearMonth, formatPeriodLabel, MAX_NAVIGABLE_YEAR, MIN_NAVIGABLE_YEAR, resolvePeriod } from "@/lib/month-period";
+import { currentPeriodYearMonth, formatPeriodLabel, MAX_NAVIGABLE_YEAR, MIN_NAVIGABLE_YEAR } from "@/lib/month-period";
 import { getEffectiveMember, getHouseholdMembers } from "@/lib/session";
-import { getBudgetItemsForMonth, getIncomesForMonth, listAllIncomes } from "@/modules/budget/api/budget.actions";
 import { listCategories } from "@/modules/categories/api/categories";
-import { pctOfIncome } from "@/modules/dashboard/lib/format";
-import { listExpensesForMonth, listExpensesForRange } from "@/modules/expenses/api/expenses.actions";
+import { listExpensesForMonth } from "@/modules/expenses/api/expenses.actions";
 import { ExpenseHeader } from "@/modules/expenses/components/ExpenseHeader";
-import { ExpensesPageTabs } from "@/modules/expenses/components/ExpensesPageTabs";
-import { ownerBreakdown } from "@/modules/expenses/lib/expense-breakdown";
+import { ExpenseTable } from "@/modules/expenses/components/ExpenseTable";
 import { roleForOwner } from "@/modules/expenses/lib/member-tone";
-import { categoryBreakdown, dailySpendingPace, monthlyIncomeExpenseTrend } from "@/modules/reports/lib/reports-stats";
 
 type Props = { searchParams: Promise<{ month?: string; year?: string }> };
 
@@ -24,35 +20,16 @@ export async function ExpensesPage({ searchParams }: Props) {
   const prev = previousMonth(year, month);
   const next = nextMonth(year, month);
 
-  let rangeStartYm = { month, year };
-  for (let i = 0; i < 5; i++) rangeStartYm = previousMonth(rangeStartYm.year, rangeStartYm.month);
-  const rangeStart = resolvePeriod(rangeStartYm.year, rangeStartYm.month, dateFormat).startDate;
-  const rangeEnd = resolvePeriod(year, month, dateFormat).endDate;
-
-  const [members, categories, expenseRows, incomeRows, budgetItemRows, allIncomeRows, rangeExpenseRows] =
-    await Promise.all([
-      getHouseholdMembers(householdId),
-      listCategories(householdId),
-      listExpensesForMonth(year, month, dateFormat),
-      getIncomesForMonth(year, month),
-      getBudgetItemsForMonth(year, month),
-      listAllIncomes(),
-      listExpensesForRange(rangeStart, rangeEnd),
-    ]);
+  const [members, categories, expenseRows] = await Promise.all([
+    getHouseholdMembers(householdId),
+    listCategories(householdId),
+    listExpensesForMonth(year, month, dateFormat),
+  ]);
 
   const category = (id: string) => categories.find((c) => c.id === id);
   const categoryName = (id: string) => category(id)?.name ?? "Unknown";
   const memberName = (id: string) => members.find((m) => m.id === id)?.user.name ?? "Unknown";
   const partner = members.find((m) => m.id !== memberId) ?? null;
-
-  const expenses = expenseRows.map((e) => ({
-    amount: Number(e.amount),
-    categoryId: e.categoryId,
-    ownerMemberId: e.ownerMemberId,
-  }));
-
-  const combinedIncome = incomeRows.reduce((s, i) => s + Number(i.amount), 0);
-  const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
 
   const rows = expenseRows.map((e) => ({
     amount: Number(e.amount),
@@ -75,26 +52,7 @@ export async function ExpensesPage({ searchParams }: Props) {
     owner: e.ownerMemberId ? roleForOwner(e.ownerMemberId, memberId) : "shared",
   }));
 
-  const slices = ownerBreakdown(
-    expenses,
-    members.map((m) => ({ id: m.id, name: m.user.name })),
-    memberId,
-  );
-  const expenseSlices = categoryBreakdown(expenses, categories, 5);
-
-  const allIncomes = allIncomeRows.map((i) => ({ amount: Number(i.amount), month: i.month, year: i.year }));
-  const rangeExpenses = rangeExpenseRows.map((e) => ({ amount: Number(e.amount), date: e.date }));
-  const trendPoints = monthlyIncomeExpenseTrend(allIncomes, rangeExpenses, 6, dateFormat);
-
   const monthLabel = formatPeriodLabel(year, month, dateFormat);
-  const totalPlanned = budgetItemRows.reduce((s, b) => s + Number(b.plannedAmount), 0);
-  const pacePoints = dailySpendingPace(
-    expenseRows.map((e) => ({ amount: Number(e.amount), date: e.date })),
-    year,
-    month,
-    totalPlanned,
-    dateFormat,
-  );
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4">
@@ -108,20 +66,7 @@ export async function ExpensesPage({ searchParams }: Props) {
         prevHref={`/expenses?year=${prev.year}&month=${prev.month}`}
       />
 
-      <ExpensesPageTabs
-        categorySlices={expenseSlices}
-        combinedIncome={combinedIncome}
-        dateFormat={dateFormat}
-        ownerSlices={slices}
-        pacePoints={pacePoints}
-        partnerName={partner?.user.name ?? null}
-        pctOfIncome={pctOfIncome(totalExpenses, combinedIncome)}
-        realMemberId={memberId}
-        rows={rows}
-        totalExpenses={totalExpenses}
-        totalPlanned={totalPlanned}
-        trendPoints={trendPoints}
-      />
+      <ExpenseTable dateFormat={dateFormat} partnerName={partner?.user.name ?? null} realMemberId={memberId} rows={rows} />
     </div>
   );
 }
