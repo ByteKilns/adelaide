@@ -38,9 +38,9 @@ type Props<T> = {
 };
 
 // The Table/TableHeader/TableBody/TableRow/TableCell scaffolding was
-// identical across every table in the app (BudgetGroupTable,
-// BudgetVsActualTable, ExpenseTable, CategoriesManager) — only the column
-// definitions and per-row rendering differed. This is that shared shell.
+// identical across every table in the app (BudgetGroupTable, ExpenseTable,
+// CategoriesManager) — only the column definitions and per-row rendering
+// differed. This is that shared shell.
 // Pagination lives here too, since every list table (ExpenseTable,
 // RecurringManager, ...) was hand-rolling the same page/slice/prev-next logic.
 export function DataTable<T>({

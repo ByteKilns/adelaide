@@ -6,8 +6,8 @@ export type BudgetStatus = {
   variant: BudgetStatusVariant;
 };
 
-// Shared by BudgetCard and BudgetVsActualTable so the two views can never
-// disagree on what counts as "over budget" vs "approaching limit."
+// Used by BudgetGroupTable so every category row in the Budget page agrees
+// on what counts as "over budget" vs "approaching limit."
 export function computeBudgetStatus(planned: number, actual: number): BudgetStatus {
   // planned can be 0 for a category with untracked/uncovered spend (no
   // budget item set for it this month). Any actual spend against a 0-planned
