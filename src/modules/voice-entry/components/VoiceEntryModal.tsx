@@ -31,10 +31,14 @@ export function VoiceEntryModal({ onClose, onManualAdd, onParsed, open }: Props)
   const [stage, setStage] = useState<Stage>({ type: "listening" });
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      speech.stop();
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets stale error/parsing stage so reopening doesn't flash last session's leftover UI before this effect re-runs
+      setStage({ type: "listening" });
+      return;
+    }
 
     if (!isSpeechRecognitionSupported()) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- reports lack of browser support only once the modal opens, not derivable inline from a single event handler
       setStage({ message: NOT_SUPPORTED_MESSAGE, transcript: "", type: "error" });
       return;
     }
@@ -51,31 +55,35 @@ export function VoiceEntryModal({ onClose, onManualAdd, onParsed, open }: Props)
     }
   }, [speech.error]);
 
+  async function parseAndAdvance(transcript: string) {
+    setStage({ type: "parsing" });
+    try {
+      const result = await parseVoiceEntryAction(transcript);
+      if (result.ok) {
+        onParsed(result.draft);
+      } else {
+        setStage({ message: NOT_UNDERSTOOD_MESSAGE, transcript, type: "error" });
+      }
+    } catch {
+      setStage({ message: NOT_UNDERSTOOD_MESSAGE, transcript, type: "error" });
+    }
+  }
+
   async function handleStop() {
     speech.stop();
-    const transcript = speech.transcript.trim();
+    // speech.transcript only holds finalized text; fall back to / append the still-interim
+    // text so whatever was mid-utterance when Stop was pressed isn't silently dropped.
+    const transcript = [speech.transcript, speech.interimTranscript].filter(Boolean).join(" ").trim();
     if (!transcript) {
       setStage({ message: "Didn't catch anything — try again.", transcript: "", type: "error" });
       return;
     }
 
-    setStage({ type: "parsing" });
-    const result = await parseVoiceEntryAction(transcript);
-    if (result.ok) {
-      onParsed(result.draft);
-    } else {
-      setStage({ message: NOT_UNDERSTOOD_MESSAGE, transcript, type: "error" });
-    }
+    await parseAndAdvance(transcript);
   }
 
   async function handleRetryParse(transcript: string) {
-    setStage({ type: "parsing" });
-    const result = await parseVoiceEntryAction(transcript);
-    if (result.ok) {
-      onParsed(result.draft);
-    } else {
-      setStage({ message: NOT_UNDERSTOOD_MESSAGE, transcript, type: "error" });
-    }
+    await parseAndAdvance(transcript);
   }
 
   function handleRestart() {
