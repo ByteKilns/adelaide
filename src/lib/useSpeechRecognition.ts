@@ -32,6 +32,8 @@ export function useSpeechRecognition() {
   const [state, setState] = useState<State>(INITIAL_STATE);
 
   const start = useCallback(() => {
+    if (recognitionRef.current) return;
+
     const Ctor = getSpeechRecognitionCtor();
     if (!Ctor) {
       setState({ ...INITIAL_STATE, error: "other" });
@@ -65,6 +67,7 @@ export function useSpeechRecognition() {
     };
 
     recognition.onend = () => {
+      recognitionRef.current = null;
       setState((s) => ({ ...s, isListening: false }));
     };
 
@@ -74,12 +77,25 @@ export function useSpeechRecognition() {
   }, []);
 
   const stop = useCallback(() => {
-    recognitionRef.current?.stop();
+    const recognition = recognitionRef.current;
+    if (!recognition) return;
+    recognition.onresult = null;
+    recognition.onerror = null;
+    recognition.onend = null;
+    recognitionRef.current = null;
+    recognition.stop();
+    setState((s) => ({ ...s, isListening: false }));
   }, []);
 
   useEffect(() => {
     return () => {
-      recognitionRef.current?.stop();
+      const recognition = recognitionRef.current;
+      if (!recognition) return;
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
+      recognitionRef.current = null;
+      recognition.stop();
     };
   }, []);
 
