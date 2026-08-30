@@ -76,6 +76,7 @@ export async function ReportsPage() {
   const expenseTableRows = expenseRows.map((e) => ({
     amount: Number(e.amount),
     categoryGroupName: category(e.categoryId)?.groupName ?? "",
+    categoryId: e.categoryId,
     categoryName: categoryName(e.categoryId),
     date: e.date,
     id: e.id,
@@ -152,6 +153,7 @@ export async function ReportsPage() {
       <ReportsHeader exportRows={exportRows} monthLabel={monthLabel} />
 
       <ReportsTabs
+        categories={categories.map((c) => ({ groupName: c.groupName, id: c.id, name: c.name }))}
         combinedIncome={combinedIncome}
         dailyPoints={dailyPoints}
         dateFormat={dateFormat}
@@ -161,6 +163,7 @@ export async function ReportsPage() {
         goalStatusCounts={statusCounts}
         incomeSlices={incomeSlices}
         insightMessage={insightMessage}
+        members={members.map((m) => ({ id: m.id, name: m.user.name }))}
         monthLabel={monthLabel}
         ownerSlices={ownerSlices}
         pacePoints={pacePoints}

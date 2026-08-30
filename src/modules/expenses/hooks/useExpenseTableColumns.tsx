@@ -18,6 +18,7 @@ import { type MemberRole, roleForOwner } from "@/modules/expenses/lib/member-ton
 export type ExpenseRow = {
   amount: number;
   categoryGroupName: string;
+  categoryId: string;
   categoryName: string;
   date: string;
   id: string;

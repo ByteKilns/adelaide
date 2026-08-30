@@ -34,6 +34,7 @@ export async function ExpensesPage({ searchParams }: Props) {
   const rows = expenseRows.map((e) => ({
     amount: Number(e.amount),
     categoryGroupName: category(e.categoryId)?.groupName ?? "",
+    categoryId: e.categoryId,
     categoryName: categoryName(e.categoryId),
     date: e.date,
     id: e.id,
@@ -66,7 +67,14 @@ export async function ExpensesPage({ searchParams }: Props) {
         prevHref={`/expenses?year=${prev.year}&month=${prev.month}`}
       />
 
-      <ExpenseTable dateFormat={dateFormat} partnerName={partner?.user.name ?? null} realMemberId={memberId} rows={rows} />
+      <ExpenseTable
+        categories={categories.map((c) => ({ groupName: c.groupName, id: c.id, name: c.name }))}
+        dateFormat={dateFormat}
+        members={members.map((m) => ({ id: m.id, name: m.user.name }))}
+        partnerName={partner?.user.name ?? null}
+        realMemberId={memberId}
+        rows={rows}
+      />
     </div>
   );
 }

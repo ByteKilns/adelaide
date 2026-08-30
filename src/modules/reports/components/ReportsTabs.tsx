@@ -27,6 +27,7 @@ import type { GoalStatus } from "@/modules/savings-goals/lib/savings-stats";
 type Tab = "expenses" | "income" | "savings";
 
 type Props = {
+  categories: { groupName: string; id: string; name: string }[];
   combinedIncome: number;
   dailyPoints: DayPoint[];
   dateFormat: DateFormat;
@@ -36,6 +37,7 @@ type Props = {
   goalStatusCounts: Record<GoalStatus, number>;
   incomeSlices: OwnerSlice[];
   insightMessage: string;
+  members: { id: string; name: string }[];
   monthLabel: string;
   ownerSlices: OwnerSlice[];
   pacePoints: PacePoint[];
@@ -73,7 +75,9 @@ export function ReportsTabs(props: Props) {
 
           <div className="space-y-6 lg:col-span-2">
             <ExpenseTable
+              categories={props.categories}
               dateFormat={props.dateFormat}
+              members={props.members}
               partnerName={props.partnerName}
               realMemberId={props.realMemberId}
               rows={props.expenseRows}
