@@ -48,7 +48,7 @@ const COLUMNS: DataTableColumn<BudgetRow>[] = [
               style={{ width: `${Math.min(status.pct, 100)}%` }}
             />
           </div>
-          <span className="text-xs text-muted-foreground">{status.pct}%</span>
+          <span className="text-xs text-muted-foreground">{status.variant === "outline" ? "—" : `${status.pct}%`}</span>
         </div>
       );
     },

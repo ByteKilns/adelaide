@@ -15,8 +15,16 @@ describe("computeBudgetStatus", () => {
     expect(computeBudgetStatus(1000, 1200)).toEqual({ label: "Over budget", pct: 120, variant: "destructive" });
   });
 
+  it("returns 'Over budget' at exactly 100% of a real planned amount", () => {
+    expect(computeBudgetStatus(1000, 1000)).toEqual({ label: "Over budget", pct: 100, variant: "destructive" });
+  });
+
   it("returns 'Approaching limit' between 80% and 99% of a real planned amount", () => {
     expect(computeBudgetStatus(1000, 850)).toEqual({ label: "Approaching limit", pct: 85, variant: "secondary" });
+  });
+
+  it("returns 'Approaching limit' at exactly 80% of a real planned amount", () => {
+    expect(computeBudgetStatus(1000, 800)).toEqual({ label: "Approaching limit", pct: 80, variant: "secondary" });
   });
 
   it("returns 'On track' below 80% of a real planned amount", () => {

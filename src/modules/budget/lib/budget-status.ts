@@ -7,7 +7,7 @@ export type BudgetStatus = {
 };
 
 // Used by BudgetGroupTable so every category row in the Budget page agrees
-// on what counts as "over budget" vs "approaching limit."
+// on what counts as "no budget set" vs "over budget" vs "approaching limit."
 export function computeBudgetStatus(planned: number, actual: number): BudgetStatus {
   // planned can be 0 for a category with untracked/uncovered spend (no
   // budget item set for it this month). That's a distinct situation from a
