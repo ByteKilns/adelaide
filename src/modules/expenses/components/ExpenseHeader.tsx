@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ChevronDown, ChevronLeft, ChevronRight, FileDown, ListPlus } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, FileDown, ListPlus } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,10 @@ export function ExpenseHeader({ categories, currentMemberId, exportRows, members
         <p className="text-sm text-muted-foreground">Track where your money goes</p>
       </div>
       <div className="flex items-center gap-3">
+        <Link className="flex items-center gap-1 text-sm font-medium text-primary" href="/reports">
+          View full report
+          <ArrowUpRight className="h-3.5 w-3.5" />
+        </Link>
         <Button
           className="border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
           onClick={() => setBulkOpen(true)}
