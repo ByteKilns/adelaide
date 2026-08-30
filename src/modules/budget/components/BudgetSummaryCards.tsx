@@ -68,7 +68,7 @@ export function BudgetSummaryCards({ allocated, combinedIncome, totalBudget, una
         </>
       ),
       icon: PiggyBank,
-      title: "Unallocated",
+      title: "Unbudgeted",
       tone: "amber",
     },
   ];
