@@ -203,6 +203,12 @@
   html {
     @apply font-sans;
   }
+  /* Tailwind's Preflight resets button cursor to the browser default
+     (arrow) rather than pointer — every Button and TabsTrigger in the app
+     renders as a native <button>, so this one rule covers both. */
+  button:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 /* Re-theme + widen the vendored nepali-datepicker-reactjs calendar popup

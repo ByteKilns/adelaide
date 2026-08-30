@@ -33,7 +33,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         viewingAsMemberId={effective.memberId}
       />
       <main className="flex-1 pb-16 md:pb-0">{children}</main>
-      <BottomNav categories={expenseCategories} currentMemberId={current.memberId} members={expenseMembers} />
+      <BottomNav
+        categories={expenseCategories}
+        currentMemberId={current.memberId}
+        members={expenseMembers}
+        unreadNotifications={unreadNotifications}
+      />
     </div>
   );
 }

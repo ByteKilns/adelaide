@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { DateFormat } from "@/lib/date-format-cookie";
+import { EditExpenseModal } from "@/modules/expenses/components/EditExpenseModal";
 import { type ExpenseRow, useExpenseTableColumns } from "@/modules/expenses/hooks/useExpenseTableColumns";
 import { defaultExpenseFilters, type ExpenseTab, filterExpenseRows } from "@/modules/expenses/lib/expense-filters";
 
@@ -31,7 +32,8 @@ export function ExpenseTable({
   rows,
 }: Props) {
   const [filters, setFilters] = useState(() => defaultExpenseFilters(realMemberId));
-  const columns = useExpenseTableColumns(realMemberId, dateFormat);
+  const [editingExpense, setEditingExpense] = useState<ExpenseRow | null>(null);
+  const columns = useExpenseTableColumns(realMemberId, dateFormat, setEditingExpense);
 
   const hasActiveFilters =
     filters.query.trim() !== "" ||
@@ -167,6 +169,14 @@ export function ExpenseTable({
         itemLabel="expenses"
         rowKey={(r) => r.id}
         rows={filtered}
+      />
+
+      <EditExpenseModal
+        categories={categories}
+        currentMemberId={realMemberId}
+        expense={editingExpense}
+        members={members}
+        onOpenChange={(open) => !open && setEditingExpense(null)}
       />
     </div>
   );

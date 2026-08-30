@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 
-import Link from "next/link";
 import { toast } from "sonner";
 
 import type { DataTableColumn } from "@/components/DataTable";
@@ -35,7 +34,11 @@ function displayLabel(role: MemberRole, name: string | null): string {
   return name ?? "Partner";
 }
 
-export function useExpenseTableColumns(realMemberId: string, dateFormat: DateFormat): DataTableColumn<ExpenseRow>[] {
+export function useExpenseTableColumns(
+  realMemberId: string,
+  dateFormat: DateFormat,
+  onEdit: (row: ExpenseRow) => void,
+): DataTableColumn<ExpenseRow>[] {
   const [pendingId, setPendingId] = useState<null | string>(null);
   const [, startTransition] = useTransition();
 
@@ -105,9 +108,7 @@ export function useExpenseTableColumns(realMemberId: string, dateFormat: DateFor
       key: "actions",
       render: (r) => (
         <RowActionsMenu>
-          <DropdownMenuItem asChild>
-            <Link href={`/expenses/${r.id}/edit`}>Edit</Link>
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onEdit(r)}>Edit</DropdownMenuItem>
           <DropdownMenuItem disabled={pendingId === r.id} onClick={() => handleDelete(r.id)} variant="destructive">
             Delete
           </DropdownMenuItem>
