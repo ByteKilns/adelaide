@@ -74,7 +74,7 @@ export async function BudgetPage({ searchParams }: Props) {
   const monthLabel = formatPeriodLabel(year, month, dateFormat);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4">
+    <>
       <BudgetHeader
         canCopyPreviousMonth={prevBudgetItems.length > 0}
         month={month}
@@ -111,6 +111,6 @@ export async function BudgetPage({ searchParams }: Props) {
           <TopBudgetCategoriesCard categories={topCategories} />
         </div>
       </div>
-    </div>
+    </>
   );
 }

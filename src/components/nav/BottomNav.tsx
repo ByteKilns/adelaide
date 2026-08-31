@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   BarChart3,
@@ -59,12 +59,44 @@ export function BottomNav({ categories, currentMemberId, members, unreadNotifica
   const pathname = usePathname();
   const [addExpenseOpen, setAddExpenseOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [fabsHidden, setFabsHidden] = useState(false);
+  const lastScrollY = useRef(0);
+  // Accumulated upward movement since the last downward tick — requiring a
+  // deliberate scroll-up (not just settling after a downward flick) before
+  // the buttons reappear over list content avoids them popping back in on
+  // every tiny wobble and immediately covering whatever is underneath.
+  const upDistance = useRef(0);
+
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
+    function onScroll() {
+      const y = window.scrollY;
+      const delta = y - lastScrollY.current;
+      if (delta > 0) {
+        upDistance.current = 0;
+        if (y > 80) setFabsHidden(true);
+      } else {
+        upDistance.current += -delta;
+        // Near the top there's nothing left for the buttons to cover, so
+        // show them immediately rather than waiting for the distance check.
+        if (y <= 80 || upDistance.current > 60) setFabsHidden(false);
+      }
+      lastScrollY.current = y;
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const fabHiddenClass = fabsHidden ? "pointer-events-none translate-y-16 opacity-0" : "";
 
   return (
     <>
       <button
         aria-label="Add Expense"
-        className="fixed right-4 bottom-20 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg md:hidden"
+        className={cn(
+          "fixed right-4 bottom-20 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-[transform,opacity] duration-200 md:hidden",
+          fabHiddenClass,
+        )}
         onClick={() => setAddExpenseOpen(true)}
         type="button"
       >
@@ -72,7 +104,10 @@ export function BottomNav({ categories, currentMemberId, members, unreadNotifica
       </button>
       <VoiceEntryButton
         categories={categories}
-        className="fixed right-4 bottom-36 z-10 flex h-11 w-11 items-center justify-center rounded-full border bg-background text-foreground shadow-lg md:hidden"
+        className={cn(
+          "fixed right-4 bottom-36 z-10 flex h-11 w-11 items-center justify-center rounded-full border bg-background text-foreground shadow-lg transition-[transform,opacity] duration-200 md:hidden",
+          fabHiddenClass,
+        )}
         currentMemberId={currentMemberId}
         members={members}
       />

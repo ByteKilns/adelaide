@@ -174,7 +174,7 @@ export async function DashboardPage({ searchParams }: Props) {
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4">
+    <>
       <DashboardHeader
         dateFormat={dateFormat}
         monthLabel={monthLabel}
@@ -235,6 +235,6 @@ export async function DashboardPage({ searchParams }: Props) {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 }

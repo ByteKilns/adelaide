@@ -26,7 +26,7 @@ export async function LoansPage() {
   const stats = loanOverviewStats(loans);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4">
+    <>
       <LoansHeader />
 
       <StatCardGrid
@@ -85,6 +85,6 @@ export async function LoansPage() {
         members={members.map((m) => ({ id: m.id, name: m.user.name }))}
         realMemberId={memberId}
       />
-    </div>
+    </>
   );
 }

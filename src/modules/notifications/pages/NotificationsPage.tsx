@@ -94,7 +94,7 @@ export async function NotificationsPage() {
   const monthLabel = formatMonthYear(now.toISOString().slice(0, 10), dateFormat);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4">
+    <>
       <NotificationsHeader monthLabel={monthLabel} />
 
       <StatCardGrid
@@ -154,6 +154,6 @@ export async function NotificationsPage() {
         rows={rows}
         upcomingPayments={upcomingPayments}
       />
-    </div>
+    </>
   );
 }

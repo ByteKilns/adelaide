@@ -149,7 +149,7 @@ export async function ReportsPage() {
   }));
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4">
+    <>
       <ReportsHeader exportRows={exportRows} monthLabel={monthLabel} />
 
       <ReportsTabs
@@ -179,6 +179,6 @@ export async function ReportsPage() {
         totalPlanned={totalPlanned}
         trendPoints={trendPoints}
       />
-    </div>
+    </>
   );
 }

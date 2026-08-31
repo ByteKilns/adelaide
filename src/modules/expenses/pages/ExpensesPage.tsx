@@ -56,7 +56,7 @@ export async function ExpensesPage({ searchParams }: Props) {
   const monthLabel = formatPeriodLabel(year, month, dateFormat);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4">
+    <>
       <ExpenseHeader
         categories={categories.map((c) => ({ groupName: c.groupName, id: c.id, name: c.name }))}
         currentMemberId={memberId}
@@ -75,6 +75,6 @@ export async function ExpensesPage({ searchParams }: Props) {
         realMemberId={memberId}
         rows={rows}
       />
-    </div>
+    </>
   );
 }

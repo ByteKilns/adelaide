@@ -25,7 +25,7 @@ export async function DhukuPage() {
   const stats = dhukuOverviewStats(dhukus);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4">
+    <>
       <DhukuHeader />
 
       <StatCardGrid
@@ -84,6 +84,6 @@ export async function DhukuPage() {
         members={members.map((m) => ({ id: m.id, name: m.user.name }))}
         realMemberId={memberId}
       />
-    </div>
+    </>
   );
 }

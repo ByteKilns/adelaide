@@ -56,7 +56,7 @@ export async function SavingsGoalsPage() {
   const monthLabel = formatMonthYear(now.toISOString().slice(0, 10), dateFormat);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4">
+    <>
       <SavingsGoalsHeader monthLabel={monthLabel} />
 
       <StatCardGrid
@@ -126,6 +126,6 @@ export async function SavingsGoalsPage() {
           <RecentContributionsCard dateFormat={dateFormat} items={contributionEntries} />
         </div>
       </div>
-    </div>
+    </>
   );
 }

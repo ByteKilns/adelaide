@@ -99,7 +99,7 @@ export async function RecurringPage() {
   const nextDueLabel = stats.nextDue ? formatShortDate(stats.nextDue.date, dateFormat) : "—";
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4">
+    <>
       <RecurringHeader monthLabel={monthLabel} />
 
       <StatCardGrid
@@ -172,6 +172,6 @@ export async function RecurringPage() {
           <QuickTipsCard />
         </div>
       </div>
-    </div>
+    </>
   );
 }
