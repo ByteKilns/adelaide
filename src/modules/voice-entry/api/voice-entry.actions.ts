@@ -5,8 +5,10 @@ import { getCurrentMember, getHouseholdMembers } from "@/lib/session";
 import { listCategories } from "@/modules/categories/api/categories";
 import { sanitizeVoiceExpense, type VoiceParseResult } from "@/modules/voice-entry/lib/sanitize-voice-expense";
 
-export async function parseVoiceEntryAction(transcript: string): Promise<VoiceParseResult> {
-  const { householdId, memberId } = await getCurrentMember();
+export async function parseVoiceEntry(
+  transcript: string,
+  { householdId, memberId }: { householdId: string; memberId: string },
+): Promise<VoiceParseResult> {
   const [categories, members] = await Promise.all([listCategories(householdId), getHouseholdMembers(householdId)]);
 
   if (categories.length === 0 || members.length === 0) {
@@ -30,4 +32,9 @@ export async function parseVoiceEntryAction(transcript: string): Promise<VoicePa
   } catch {
     return { ok: false, reason: "not_understood" };
   }
+}
+
+export async function parseVoiceEntryAction(transcript: string): Promise<VoiceParseResult> {
+  const { householdId, memberId } = await getCurrentMember();
+  return parseVoiceEntry(transcript, { householdId, memberId });
 }
