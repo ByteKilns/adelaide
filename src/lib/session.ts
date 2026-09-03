@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { auth } from "@/auth";
 import { db } from "@/db/client";
 import { householdMembers } from "@/db/schema";
+import { verifyMobileToken } from "@/lib/mobile-auth";
 import { VIEWING_AS_COOKIE_NAME } from "@/lib/viewing-as-cookie";
 
 export type CurrentMember = {
@@ -13,14 +14,9 @@ export type CurrentMember = {
   userId: string;
 };
 
-export async function getCurrentMember(): Promise<CurrentMember> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("Not authenticated");
-  }
-
+async function getMemberForUser(userId: string): Promise<CurrentMember> {
   const member = await db.query.householdMembers.findFirst({
-    where: eq(householdMembers.userId, session.user.id),
+    where: eq(householdMembers.userId, userId),
     with: { household: true, user: true },
   });
 
@@ -34,6 +30,26 @@ export async function getCurrentMember(): Promise<CurrentMember> {
     userId: member.userId,
     name: member.user.name,
   };
+}
+
+export async function getCurrentMember(): Promise<CurrentMember> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Not authenticated");
+  }
+
+  return getMemberForUser(session.user.id);
+}
+
+export async function getCurrentMemberFromToken(token: string): Promise<CurrentMember | null> {
+  const userId = await verifyMobileToken(token);
+  if (!userId) return null;
+
+  try {
+    return await getMemberForUser(userId);
+  } catch {
+    return null;
+  }
 }
 
 export async function getHouseholdMembers(householdId: string) {
