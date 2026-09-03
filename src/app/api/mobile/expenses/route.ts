@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 import { requireMobileAuth } from "@/lib/mobile-request";
+import { ExpenseValidationError } from "@/modules/expenses/api/expense-errors";
 import { createExpenseForHousehold, listRecentExpensesForHousehold } from "@/modules/expenses/api/expenses.actions";
 import { expenseSchema } from "@/modules/expenses/schemas/expense.schema";
 
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const parsed = expenseSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json({ error: { message: "Invalid expense data", fields: parsed.error.flatten() } }, { status: 400 });
   }
 
   try {
@@ -39,7 +40,9 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ expense: { ...created, amount: Number(created.amount) } }, { status: 201 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to create expense";
-    return NextResponse.json({ error: message }, { status: 400 });
+    if (error instanceof ExpenseValidationError) {
+      return NextResponse.json({ error: { message: error.message } }, { status: 400 });
+    }
+    throw error;
   }
 }

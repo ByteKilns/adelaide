@@ -13,18 +13,19 @@ import { formatNPR } from "@/modules/dashboard/lib/format";
 import { checkBudgetThreshold, insertNotification } from "@/modules/notifications/api/notifications.actions";
 
 import { type ExpenseInput, expenseSchema } from "../schemas/expense.schema";
+import { ExpenseValidationError } from "./expense-errors";
 
 async function assertMemberInHousehold(householdId: string, memberId: string) {
   const members = await getHouseholdMembers(householdId);
   if (!members.some((m) => m.id === memberId)) {
-    throw new Error("Member does not belong to this household");
+    throw new ExpenseValidationError("Member does not belong to this household");
   }
 }
 
 async function assertCategoryInHousehold(householdId: string, categoryId: string) {
   const categories = await listCategories(householdId);
   if (!categories.some((c) => c.id === categoryId)) {
-    throw new Error("Category does not belong to this household");
+    throw new ExpenseValidationError("Category does not belong to this household");
   }
 }
 
@@ -35,7 +36,7 @@ export async function createExpenseForHousehold(
   const parsed = expenseSchema.parse(input);
   const categories = await listCategories(householdId);
   if (!categories.some((c) => c.id === parsed.categoryId)) {
-    throw new Error("Category does not belong to this household");
+    throw new ExpenseValidationError("Category does not belong to this household");
   }
   await assertMemberInHousehold(householdId, parsed.paidByMemberId);
   if (parsed.ownerMemberId) {
