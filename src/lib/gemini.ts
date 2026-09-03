@@ -6,7 +6,7 @@ import type { RawVoiceExpense } from "@/modules/voice-entry/lib/sanitize-voice-e
 // time of writing) for a task this small (classify + extract from one sentence).
 // Google's Gemini model lineup moves fast; if this ID is ever retired, swap it for
 // the current Flash-Lite-tier model at https://ai.google.dev/gemini-api/docs/models.
-const MODEL_ID = "gemini-2.5-flash-lite";
+const MODEL_ID = "gemini-3.1-flash-lite";
 
 const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
