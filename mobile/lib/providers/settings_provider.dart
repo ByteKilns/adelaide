@@ -1,0 +1,26 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../services/settings_service.dart';
+
+final settingsServiceProvider = Provider<SettingsService>((ref) => SettingsService());
+
+class ServerUrlNotifier extends StateNotifier<AsyncValue<String>> {
+  final SettingsService _service;
+
+  ServerUrlNotifier(this._service) : super(const AsyncValue.loading()) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    state = AsyncValue.data(await _service.readServerUrl());
+  }
+
+  Future<void> setUrl(String url) async {
+    await _service.writeServerUrl(url);
+    state = AsyncValue.data(url);
+  }
+}
+
+final serverUrlProvider = StateNotifierProvider<ServerUrlNotifier, AsyncValue<String>>(
+  (ref) => ServerUrlNotifier(ref.watch(settingsServiceProvider)),
+);
