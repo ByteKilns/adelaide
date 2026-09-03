@@ -108,6 +108,7 @@ These mirror the JSON shapes returned by the already-built API (see `src/app/api
 // mobile/test/models/expense_test.dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:piko/models/expense.dart';
+import 'package:piko/models/expense_draft.dart';
 
 void main() {
   group('Expense.fromJson', () {

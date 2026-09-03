@@ -1,5 +1,3 @@
-export 'expense_draft.dart';
-
 class Expense {
   final String id;
   final double amount;
