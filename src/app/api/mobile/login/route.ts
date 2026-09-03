@@ -10,12 +10,12 @@ export async function POST(request: NextRequest) {
   const password = typeof body?.password === "string" ? body.password : undefined;
 
   if (!email || !password) {
-    return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    return NextResponse.json({ error: { message: "Email and password are required" } }, { status: 400 });
   }
 
   const user = await verifyCredentials(email, password);
   if (!user) {
-    return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+    return NextResponse.json({ error: { message: "Invalid email or password" } }, { status: 401 });
   }
 
   const token = await signMobileToken(user.id);

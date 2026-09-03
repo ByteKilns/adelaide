@@ -8,12 +8,12 @@ export async function requireMobileAuth(request: NextRequest): Promise<CurrentMe
   const token = header?.startsWith("Bearer ") ? header.slice("Bearer ".length) : null;
 
   if (!token) {
-    return NextResponse.json({ error: "Missing bearer token" }, { status: 401 });
+    return NextResponse.json({ error: { message: "Missing bearer token" } }, { status: 401 });
   }
 
   const member = await getCurrentMemberFromToken(token);
   if (!member) {
-    return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+    return NextResponse.json({ error: { message: "Invalid or expired token" } }, { status: 401 });
   }
 
   return member;

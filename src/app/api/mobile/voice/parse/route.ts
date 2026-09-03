@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
   const transcript = typeof body?.transcript === "string" ? body.transcript : "";
 
   if (!transcript.trim()) {
-    return NextResponse.json({ error: "transcript is required" }, { status: 400 });
+    return NextResponse.json({ error: { message: "transcript is required" } }, { status: 400 });
   }
 
   const result = await parseVoiceEntry(transcript, {
