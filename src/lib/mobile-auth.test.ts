@@ -21,7 +21,8 @@ describe("signMobileToken / verifyMobileToken", () => {
 
   it("rejects a tampered token", async () => {
     const token = await signMobileToken("user-123");
-    const tampered = token.slice(0, -1) + (token.endsWith("a") ? "b" : "a");
+    const mid = Math.floor(token.length / 2);
+    const tampered = token.slice(0, mid) + (token[mid] === "a" ? "b" : "a") + token.slice(mid + 1);
     expect(await verifyMobileToken(tampered)).toBeNull();
   });
 
