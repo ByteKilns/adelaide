@@ -28,8 +28,10 @@ async function assertCategoryInHousehold(householdId: string, categoryId: string
   }
 }
 
-export async function createExpenseAction(input: ExpenseInput) {
-  const { householdId, name: actorName } = await getCurrentMember();
+export async function createExpenseForHousehold(
+  input: ExpenseInput,
+  { actorName, householdId }: { actorName: string; householdId: string },
+) {
   const parsed = expenseSchema.parse(input);
   const categories = await listCategories(householdId);
   if (!categories.some((c) => c.id === parsed.categoryId)) {
@@ -69,6 +71,13 @@ export async function createExpenseAction(input: ExpenseInput) {
 
   revalidatePath("/expenses");
   revalidatePath("/dashboard");
+
+  return created;
+}
+
+export async function createExpenseAction(input: ExpenseInput) {
+  const { householdId, name: actorName } = await getCurrentMember();
+  await createExpenseForHousehold(input, { actorName, householdId });
 }
 
 // Inserts every row in one batch and fires at most one summary notification
@@ -196,12 +205,16 @@ export async function listExpensesForRange(startDate: string, endDate: string) {
     .orderBy(desc(expenses.date), desc(expenses.createdAt));
 }
 
-export async function listRecentExpenses(limit: number) {
-  const { householdId } = await getCurrentMember();
+export async function listRecentExpensesForHousehold(householdId: string, limit: number) {
   return db
     .select()
     .from(expenses)
     .where(eq(expenses.householdId, householdId))
     .orderBy(desc(expenses.date), desc(expenses.createdAt))
     .limit(limit);
+}
+
+export async function listRecentExpenses(limit: number) {
+  const { householdId } = await getCurrentMember();
+  return listRecentExpensesForHousehold(householdId, limit);
 }
