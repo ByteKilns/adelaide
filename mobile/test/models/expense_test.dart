@@ -78,5 +78,21 @@ void main() {
       expect(updated.categoryId, 'cat-1');
       expect(updated.date, '2026-09-03');
     });
+
+    test('omits the note key entirely when note is null (server rejects an explicit null)', () {
+      final draft = ExpenseDraft(
+        amount: 500,
+        categoryId: 'cat-1',
+        ownerMemberId: 'mem-1',
+        paidByMemberId: 'mem-1',
+        date: '2026-09-03',
+        note: null,
+      );
+
+      final json = draft.toJson();
+
+      expect(json.containsKey('note'), isFalse);
+      expect(json['ownerMemberId'], 'mem-1');
+    });
   });
 }

@@ -12,7 +12,11 @@ class ServerUrlNotifier extends StateNotifier<AsyncValue<String>> {
   }
 
   Future<void> _load() async {
-    state = AsyncValue.data(await _service.readServerUrl());
+    try {
+      state = AsyncValue.data(await _service.readServerUrl());
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
   }
 
   Future<void> setUrl(String url) async {

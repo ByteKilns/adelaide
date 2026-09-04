@@ -12,7 +12,11 @@ class AuthNotifier extends StateNotifier<AsyncValue<String?>> {
   }
 
   Future<void> _load() async {
-    state = AsyncValue.data(await _storage.readToken());
+    try {
+      state = AsyncValue.data(await _storage.readToken());
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
   }
 
   Future<void> setToken(String token) async {

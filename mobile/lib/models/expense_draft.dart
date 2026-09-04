@@ -21,7 +21,7 @@ class ExpenseDraft {
         'ownerMemberId': ownerMemberId,
         'paidByMemberId': paidByMemberId,
         'date': date,
-        'note': note,
+        if (note != null) 'note': note,
       };
 
   ExpenseDraft copyWith({

@@ -18,6 +18,10 @@ class SplashScreen extends ConsumerWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    if (serverUrl.hasError || auth.hasError) {
+      return const LoginScreen();
+    }
+
     final token = auth.value;
     if (token == null || token.isEmpty) {
       return const LoginScreen();
