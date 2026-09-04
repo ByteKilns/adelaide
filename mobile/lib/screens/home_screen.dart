@@ -7,6 +7,7 @@ import '../providers/api_client_provider.dart';
 import '../providers/categories_provider.dart';
 import '../providers/expenses_provider.dart';
 import '../services/api_client.dart';
+import '../theme/app_theme.dart';
 import '../widgets/expense_confirm_sheet.dart';
 import '../widgets/expense_list_tile.dart';
 import 'settings_screen.dart';
@@ -50,6 +51,7 @@ class HomeScreen extends ConsumerWidget {
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
         child: ExpenseConfirmSheet(
@@ -73,67 +75,123 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'GOOD MORNING';
+    if (hour < 17) return 'GOOD AFTERNOON';
+    return 'GOOD EVENING';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final expensesAsync = ref.watch(recentExpensesProvider);
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Piko'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(recentExpensesProvider),
-        child: expensesAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, _) => ListView(
-            children: [
-              const SizedBox(height: 80),
-              Center(child: Text('Could not load expenses: $error')),
-            ],
-          ),
-          data: (expenses) {
-            if (expenses.isEmpty) {
-              return ListView(
-                children: const [
-                  SizedBox(height: 80),
-                  Center(child: Text('No expenses yet — tap the mic to add one.')),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_greeting(), style: AppTheme.eyebrow),
+                        const SizedBox(height: 4),
+                        const Text('Piko.', style: AppTheme.wordmark),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    style: IconButton.styleFrom(backgroundColor: AppColors.surface, shape: const CircleBorder()),
+                    icon: const Icon(Icons.settings_outlined, color: AppColors.textPrimary),
+                    onPressed: () =>
+                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                  ),
                 ],
-              );
-            }
-            final categories = categoriesAsync.valueOrNull?.categories ?? [];
-            return ListView.separated(
-              itemCount: expenses.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final expense = expenses[index];
-                final category = categories.firstWhereOrNull((c) => c.id == expense.categoryId);
-                return ExpenseListTile(expense: expense, category: category);
-              },
-            );
-          },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('ACTIVITY', style: AppTheme.eyebrow),
+                        SizedBox(height: 4),
+                        Text('Recent expenses', style: AppTheme.sectionHeading),
+                      ],
+                    ),
+                  ),
+                  expensesAsync.maybeWhen(
+                    data: (expenses) =>
+                        Text('${expenses.length} entries', style: const TextStyle(color: AppColors.textMuted)),
+                    orElse: () => const SizedBox.shrink(),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async => ref.invalidate(recentExpensesProvider),
+                child: expensesAsync.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (error, _) => ListView(
+                    children: [
+                      const SizedBox(height: 80),
+                      Center(child: Text('Could not load expenses: $error')),
+                    ],
+                  ),
+                  data: (expenses) {
+                    if (expenses.isEmpty) {
+                      return ListView(
+                        children: const [
+                          SizedBox(height: 80),
+                          Center(child: Text('No expenses yet — tap the mic to add one.')),
+                        ],
+                      );
+                    }
+                    final categories = categoriesAsync.valueOrNull?.categories ?? [];
+                    return ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
+                      itemCount: expenses.length,
+                      itemBuilder: (context, index) {
+                        final expense = expenses[index];
+                        final category = categories.firstWhereOrNull((c) => c.id == expense.categoryId);
+                        return ExpenseListTile(expense: expense, category: category);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          FloatingActionButton.small(
+          FloatingActionButton(
             heroTag: 'manual-add',
+            backgroundColor: AppColors.textPrimary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             onPressed: () => _openManualEntry(context, ref),
-            child: const Icon(Icons.add),
+            child: const Icon(Icons.edit, color: Colors.white),
           ),
           const SizedBox(height: 12),
           FloatingActionButton.large(
             heroTag: 'voice-add',
+            backgroundColor: AppColors.primary,
             onPressed: () => _openVoiceFlow(context, ref),
-            child: const Icon(Icons.mic),
+            child: const Icon(Icons.mic, color: Colors.white),
           ),
         ],
       ),
