@@ -8,6 +8,8 @@ class AppColors {
   static const primary = Color(0xFF5B3FA6);
   static const textPrimary = Color(0xFF1A1625);
   static const textMuted = Color(0xFF8A8398);
+  static const accentLight = Color(0xFFF3E8FF);
+  static const accentLightForeground = Color(0xFF7C3AED);
 }
 
 class AppTheme {

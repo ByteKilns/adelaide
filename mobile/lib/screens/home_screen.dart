@@ -181,13 +181,13 @@ class HomeScreen extends ConsumerWidget {
         children: [
           FloatingActionButton(
             heroTag: 'manual-add',
-            backgroundColor: AppColors.textPrimary,
+            backgroundColor: AppColors.accentLight,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             onPressed: () => _openManualEntry(context, ref),
-            child: const Icon(Icons.edit, color: Colors.white),
+            child: const Icon(Icons.edit, color: AppColors.accentLightForeground),
           ),
           const SizedBox(height: 12),
-          FloatingActionButton.large(
+          FloatingActionButton(
             heroTag: 'voice-add',
             backgroundColor: AppColors.primary,
             onPressed: () => _openVoiceFlow(context, ref),
