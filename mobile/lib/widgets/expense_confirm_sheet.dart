@@ -33,7 +33,11 @@ class _ExpenseConfirmSheetState extends State<ExpenseConfirmSheet> {
   bool _saving = false;
 
   double get _amount => double.tryParse(_amountController.text) ?? -1;
-  bool get _canSave => _amount > 0 && !_saving;
+  bool get _canSave =>
+      _amount > 0 &&
+      !_saving &&
+      widget.categories.any((c) => c.id == _categoryId) &&
+      widget.members.any((m) => m.id == _paidByMemberId);
 
   @override
   void initState() {
@@ -129,7 +133,7 @@ class _ExpenseConfirmSheetState extends State<ExpenseConfirmSheet> {
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             key: const Key('owner-field'),
-            value: _ownerMemberId,
+            value: _ownerMemberId == null || widget.members.any((m) => m.id == _ownerMemberId) ? _ownerMemberId : null,
             decoration: const InputDecoration(labelText: 'For'),
             items: [
               const DropdownMenuItem<String>(value: null, child: Text('Shared')),

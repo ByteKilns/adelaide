@@ -78,4 +78,22 @@ void main() {
     final saveButton = tester.widget<FilledButton>(find.byKey(const Key('save-button')));
     expect(saveButton.onPressed, isNull);
   });
+
+  testWidgets('Save is disabled when categoryId does not match any available category', (tester) async {
+    await pumpSheet(
+      tester,
+      initialDraft: ExpenseDraft(
+        amount: 500,
+        categoryId: 'not-a-real-category',
+        ownerMemberId: 'mem-1',
+        paidByMemberId: 'mem-1',
+        date: '2026-09-03',
+        note: 'groceries',
+      ),
+      onSave: (_) {},
+    );
+
+    final saveButton = tester.widget<FilledButton>(find.byKey(const Key('save-button')));
+    expect(saveButton.onPressed, isNull);
+  });
 }
