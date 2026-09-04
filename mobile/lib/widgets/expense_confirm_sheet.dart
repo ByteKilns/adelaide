@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../models/category_option.dart';
 import '../models/expense_draft.dart';
 import '../models/member_option.dart';
+import '../theme/app_theme.dart';
 
 class ExpenseConfirmSheet extends StatefulWidget {
   final ExpenseDraft initialDraft;
@@ -98,39 +99,44 @@ class _ExpenseConfirmSheetState extends State<ExpenseConfirmSheet> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(color: AppColors.textMuted.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2)),
+            ),
+          ),
           TextField(
             key: const Key('amount-field'),
             controller: _amountController,
             decoration: const InputDecoration(labelText: 'Amount'),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: const TextStyle(fontFamily: 'SpaceGrotesk', fontSize: 20, fontWeight: FontWeight.w600),
             onChanged: (_) => setState(() {}),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           DropdownButtonFormField<String>(
             key: const Key('category-field'),
             value: widget.categories.any((c) => c.id == _categoryId) ? _categoryId : null,
             decoration: const InputDecoration(labelText: 'Category'),
-            items: widget.categories
-                .map((c) => DropdownMenuItem(value: c.id, child: Text(c.name)))
-                .toList(),
+            items: widget.categories.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
             onChanged: (value) => setState(() => _categoryId = value!),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           DropdownButtonFormField<String>(
             key: const Key('paid-by-field'),
             value: widget.members.any((m) => m.id == _paidByMemberId) ? _paidByMemberId : null,
             decoration: const InputDecoration(labelText: 'Paid by'),
-            items: widget.members
-                .map((m) => DropdownMenuItem(value: m.id, child: Text(m.name)))
-                .toList(),
+            items: widget.members.map((m) => DropdownMenuItem(value: m.id, child: Text(m.name))).toList(),
             onChanged: (value) => setState(() => _paidByMemberId = value!),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           DropdownButtonFormField<String>(
             key: const Key('owner-field'),
             value: _ownerMemberId == null || widget.members.any((m) => m.id == _ownerMemberId) ? _ownerMemberId : null,
@@ -141,15 +147,16 @@ class _ExpenseConfirmSheetState extends State<ExpenseConfirmSheet> {
             ],
             onChanged: (value) => setState(() => _ownerMemberId = value),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           InkWell(
             onTap: _pickDate,
+            borderRadius: BorderRadius.circular(14),
             child: InputDecorator(
               decoration: const InputDecoration(labelText: 'Date'),
-              child: Text(_date),
+              child: Text(_date, style: const TextStyle(fontFamily: 'SpaceGrotesk', color: AppColors.textPrimary)),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           TextField(
             key: const Key('note-field'),
             controller: _noteController,
@@ -160,7 +167,11 @@ class _ExpenseConfirmSheetState extends State<ExpenseConfirmSheet> {
             key: const Key('save-button'),
             onPressed: _canSave ? _save : null,
             child: _saving
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
                 : const Text('Save'),
           ),
         ],
