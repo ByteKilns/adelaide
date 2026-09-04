@@ -7,6 +7,7 @@ import '../models/expense_draft.dart';
 import '../providers/api_client_provider.dart';
 import '../providers/categories_provider.dart';
 import '../services/api_client.dart';
+import '../theme/app_theme.dart';
 
 enum _VoiceStage { listening, parsing, notUnderstood }
 
@@ -134,9 +135,11 @@ class _VoiceCaptureScreenState extends ConsumerState<VoiceCaptureScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Add by voice')),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Center(child: _buildBody()),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(child: _buildBody()),
+        ),
       ),
     );
   }
@@ -147,11 +150,17 @@ class _VoiceCaptureScreenState extends ConsumerState<VoiceCaptureScreen> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.mic, size: 64, color: Colors.deepPurple),
-            const SizedBox(height: 16),
+            Container(
+              width: 96,
+              height: 96,
+              decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+              child: const Icon(Icons.mic, size: 40, color: Colors.white),
+            ),
+            const SizedBox(height: 24),
             Text(
               _transcript.isEmpty ? 'Listening… say what you spent.' : _transcript,
               textAlign: TextAlign.center,
+              style: const TextStyle(fontFamily: 'SpaceGrotesk', fontSize: 16, color: AppColors.textPrimary),
             ),
             const SizedBox(height: 24),
             FilledButton.icon(
@@ -165,16 +174,20 @@ class _VoiceCaptureScreenState extends ConsumerState<VoiceCaptureScreen> {
         return const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
+            CircularProgressIndicator(color: AppColors.primary),
             SizedBox(height: 16),
-            Text('Understanding…'),
+            Text('Understanding…', style: TextStyle(fontFamily: 'SpaceGrotesk', color: AppColors.textPrimary)),
           ],
         );
       case _VoiceStage.notUnderstood:
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_notUnderstoodMessage ?? 'Not understood.', textAlign: TextAlign.center),
+            Text(
+              _notUnderstoodMessage ?? 'Not understood.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontFamily: 'SpaceGrotesk', color: AppColors.textPrimary),
+            ),
             const SizedBox(height: 24),
             Wrap(
               spacing: 8,
