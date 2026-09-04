@@ -38,6 +38,7 @@ class _VoiceCaptureScreenState extends ConsumerState<VoiceCaptureScreen> {
   Future<void> _startListening() async {
     final available = await _speech.initialize(
       onError: (error) {
+        if (!mounted) return;
         setState(() {
           _stage = _VoiceStage.notUnderstood;
           _notUnderstoodMessage = 'Microphone error: ${error.errorMsg}';
@@ -60,6 +61,7 @@ class _VoiceCaptureScreenState extends ConsumerState<VoiceCaptureScreen> {
 
     await _speech.listen(
       onResult: (result) {
+        if (!mounted) return;
         setState(() => _transcript = result.recognizedWords);
       },
     );
@@ -96,11 +98,13 @@ class _VoiceCaptureScreenState extends ConsumerState<VoiceCaptureScreen> {
         _notUnderstoodMessage = "Couldn't quite catch that as an expense — try rephrasing, or add it manually.";
       });
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() {
         _stage = _VoiceStage.notUnderstood;
         _notUnderstoodMessage = e.message;
       });
     } catch (_) {
+      if (!mounted) return;
       setState(() {
         _stage = _VoiceStage.notUnderstood;
         _notUnderstoodMessage = 'Something went wrong — check your connection and try again.';
