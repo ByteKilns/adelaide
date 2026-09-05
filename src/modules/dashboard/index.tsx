@@ -14,7 +14,7 @@ import { DashboardSavingsCard } from "@/modules/dashboard/components/DashboardSa
 import { OwnerComparison } from "@/modules/dashboard/components/OwnerComparison";
 import { RecentExpenses } from "@/modules/dashboard/components/RecentExpenses";
 import { SummaryCards } from "@/modules/dashboard/components/SummaryCards";
-import { daysLeftInMonth, dhukuCashFlow, loanPaymentCashFlow, netMonthlyOutflow, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
+import { daysLeftInMonth, dhukuCashFlow, loanNetFlowByOwner, loanPaymentCashFlow, netMonthlyOutflow, safeToSpendToday } from "@/modules/dashboard/lib/cash-flow";
 import { toBudgetItemInputs, toExpenseInputs, toIncomeInputs } from "@/modules/dashboard/lib/map-rows";
 import { classifyOwnerLabel } from "@/modules/dashboard/lib/owner-label";
 import { listDhukuEntries } from "@/modules/dhuku/api/dhuku.actions";
@@ -98,6 +98,20 @@ export async function DashboardPage({ searchParams }: Props) {
   const prevExpensesList = toExpenseInputs(prevExpenseRows);
   const prevSummary = dashboardSummary(prevIncomes, prevExpensesList);
 
+  // Loan payments live in their own table, separate from `expenses`, so
+  // dashboardSummary never sees them. Fold their net cash flow into the
+  // Total Expenses / Unallocated figures (and the per-owner Overview cards
+  // below) the same way it's already folded into Safe to Spend's
+  // totalActual via netMonthlyOutflow, so a recorded loan payment actually
+  // reduces what's shown as available.
+  const loanFlowByOwner = loanNetFlowByOwner(loanPaymentRows, loanRows, year, month, dateFormat);
+  const prevLoanFlowByOwner = loanNetFlowByOwner(loanPaymentRows, loanRows, prev.year, prev.month, dateFormat);
+  const loanNetTotal = [...loanFlowByOwner.values()].reduce((s, v) => s + v, 0);
+  const prevLoanNetTotal = [...prevLoanFlowByOwner.values()].reduce((s, v) => s + v, 0);
+  const totalExpensesWithLoans = summary.totalExpenses + loanNetTotal;
+  const prevTotalExpensesWithLoans = prevSummary.totalExpenses + prevLoanNetTotal;
+  const unallocatedWithLoans = summary.combinedIncome - totalExpensesWithLoans;
+
   const category = (id: string) => categories.find((c) => c.id === id);
   const categoryName = (id: string) => category(id)?.name ?? "Unknown";
 
@@ -112,10 +126,10 @@ export async function DashboardPage({ searchParams }: Props) {
       prevIncome: prevIncomes.find((i) => i.memberId === memberId)?.amount ?? 0,
       expenses: expenses
         .filter((e) => e.ownerMemberId === memberId)
-        .reduce((s, e) => s + e.amount, 0),
+        .reduce((s, e) => s + e.amount, 0) + (loanFlowByOwner.get(memberId) ?? 0),
       prevExpenses: prevExpensesList
         .filter((e) => e.ownerMemberId === memberId)
-        .reduce((s, e) => s + e.amount, 0),
+        .reduce((s, e) => s + e.amount, 0) + (prevLoanFlowByOwner.get(memberId) ?? 0),
       remaining: 0,
     },
     ...(partner
@@ -127,10 +141,10 @@ export async function DashboardPage({ searchParams }: Props) {
             prevIncome: prevIncomes.find((i) => i.memberId === partner.id)?.amount ?? 0,
             expenses: expenses
               .filter((e) => e.ownerMemberId === partner.id)
-              .reduce((s, e) => s + e.amount, 0),
+              .reduce((s, e) => s + e.amount, 0) + (loanFlowByOwner.get(partner.id) ?? 0),
             prevExpenses: prevExpensesList
               .filter((e) => e.ownerMemberId === partner.id)
-              .reduce((s, e) => s + e.amount, 0),
+              .reduce((s, e) => s + e.amount, 0) + (prevLoanFlowByOwner.get(partner.id) ?? 0),
             remaining: 0,
           },
         ]
@@ -140,8 +154,8 @@ export async function DashboardPage({ searchParams }: Props) {
       label: "Shared",
       income: 0,
       prevIncome: 0,
-      expenses: expenses.filter((e) => e.ownerMemberId === null).reduce((s, e) => s + e.amount, 0),
-      prevExpenses: prevExpensesList.filter((e) => e.ownerMemberId === null).reduce((s, e) => s + e.amount, 0),
+      expenses: expenses.filter((e) => e.ownerMemberId === null).reduce((s, e) => s + e.amount, 0) + (loanFlowByOwner.get(null) ?? 0),
+      prevExpenses: prevExpensesList.filter((e) => e.ownerMemberId === null).reduce((s, e) => s + e.amount, 0) + (prevLoanFlowByOwner.get(null) ?? 0),
       remaining: 0,
     },
   ].map((v) => ({
@@ -196,16 +210,16 @@ export async function DashboardPage({ searchParams }: Props) {
       <SummaryCards
         combinedIncome={summary.combinedIncome}
         expenseTrendPct={trendPct(
-          summary.totalExpenses,
-          prevSummary.totalExpenses,
+          totalExpensesWithLoans,
+          prevTotalExpensesWithLoans,
         )}
         incomeTrendPct={trendPct(
           summary.combinedIncome,
           prevSummary.combinedIncome,
         )}
         monthlySavings={savingsStats.monthlyContribution}
-        totalExpenses={summary.totalExpenses}
-        unallocated={summary.unallocated}
+        totalExpenses={totalExpensesWithLoans}
+        unallocated={unallocatedWithLoans}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

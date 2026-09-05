@@ -16,7 +16,7 @@ export function dhukuCashFlow(entries: DhukuEntryRow[]): CashFlowEvent[] {
 }
 
 export type LoanPaymentRow = { amount: string; date: string; loanId: string };
-export type LoanDirectionRow = { direction: "given" | "taken"; id: string };
+export type LoanDirectionRow = { direction: "given" | "taken"; id: string; ownerMemberId?: string | null };
 
 export function loanPaymentCashFlow(payments: LoanPaymentRow[], loans: LoanDirectionRow[]): CashFlowEvent[] {
   const directionByLoanId = new Map(loans.map((l) => [l.id, l.direction]));
@@ -27,6 +27,32 @@ export function loanPaymentCashFlow(payments: LoanPaymentRow[], loans: LoanDirec
       date: p.date,
       direction: directionByLoanId.get(p.loanId) === "given" ? ("in" as const) : ("out" as const),
     }));
+}
+
+// Net loan cash flow for the month, signed so it can be added directly to
+// an expense total: a "taken" loan payment is money going out (positive),
+// a "given" loan payment coming back to us is money coming in (negative).
+// Grouped by loans.ownerMemberId (null = shared) so callers can fold it
+// into a per-owner expense total the same way expenses.ownerMemberId is
+// filtered, alongside a combined household total.
+export function loanNetFlowByOwner(
+  payments: LoanPaymentRow[],
+  loans: LoanDirectionRow[],
+  year: number,
+  month: number,
+  dateFormat: DateFormat,
+): Map<string | null, number> {
+  const loanById = new Map(loans.map((l) => [l.id, l]));
+  const totals = new Map<string | null, number>();
+  for (const p of payments) {
+    const loan = loanById.get(p.loanId);
+    if (!loan) continue;
+    if (dayNumberInPeriod(p.date, year, month, dateFormat) === null) continue;
+    const signed = loan.direction === "given" ? -Number(p.amount) : Number(p.amount);
+    const ownerKey = loan.ownerMemberId ?? null;
+    totals.set(ownerKey, (totals.get(ownerKey) ?? 0) + signed);
+  }
+  return totals;
 }
 
 export type ExpenseRow = { amount: string; date: string };
